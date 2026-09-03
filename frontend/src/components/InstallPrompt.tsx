@@ -20,10 +20,15 @@ export default function InstallPrompt() {
       return
     }
 
+    // Si el usuario ya dismissó, no mostrar
+    if (sessionStorage.getItem('install-dismissed')) {
+      return
+    }
+
+    // Escuchar el evento nativo del browser
     const handler = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
-      setShowInstall(true)
     }
 
     window.addEventListener('beforeinstallprompt', handler)
@@ -32,8 +37,16 @@ export default function InstallPrompt() {
       setShowInstall(false)
     })
 
+    // Mostrar el prompt después de 2 segundos si no hay evento nativo
+    const timer = setTimeout(() => {
+      if (!sessionStorage.getItem('install-dismissed')) {
+        setShowInstall(true)
+      }
+    }, 2000)
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handler)
+      clearTimeout(timer)
     }
   }, [])
 
@@ -82,13 +95,19 @@ export default function InstallPrompt() {
   }, [showInstall])
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    if (outcome === 'accepted') {
+    // Si hay evento nativo del browser, usarlo
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      if (outcome === 'accepted') {
+        setShowInstall(false)
+      }
+      setDeferredPrompt(null)
+    } else {
+      // Fallback: mostrar instrucciones manuales
+      alert('Para instalar:\n\n• Chrome/Edge: Toca los 3 puntos → "Instalar app"\n• Safari: Toca "Compartir" → "Agregar a pantalla de inicio"')
       setShowInstall(false)
     }
-    setDeferredPrompt(null)
   }
 
   const handleDismiss = () => {
@@ -96,8 +115,13 @@ export default function InstallPrompt() {
     sessionStorage.setItem('install-dismissed', 'true')
   }
 
-  // No mostrar si ya está instalado o si el usuario dismissó
-  if (isInstalled || !showInstall || sessionStorage.getItem('install-dismissed')) {
+  // No mostrar si ya está instalado
+  if (isInstalled) {
+    return null
+  }
+
+  // No mostrar si no toca mostrar
+  if (!showInstall) {
     return null
   }
 
@@ -117,7 +141,7 @@ export default function InstallPrompt() {
         {/* Icono */}
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-red">
-            <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Webby's" className="w-full h-full object-cover" loading="lazy" />
+            <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Webby's" className="w-full h-full object-cover" />
           </div>
         </div>
 
