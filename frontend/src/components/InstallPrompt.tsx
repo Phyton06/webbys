@@ -117,7 +117,7 @@ export default function InstallPrompt() {
         {/* Icono */}
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-red">
-            <img src="/icon-192.png" alt="Webby's" className="w-full h-full object-cover" loading="lazy" />
+            <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Webby's" className="w-full h-full object-cover" loading="lazy" />
           </div>
         </div>
 

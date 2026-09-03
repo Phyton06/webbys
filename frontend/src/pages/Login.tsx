@@ -41,7 +41,7 @@ export default function Login() {
       <div className="flex-1 flex flex-col items-center justify-center px-6">
         {/* Logo */}
         <div className="w-40 h-40 mb-6 animate-fade-in">
-          <img src="/logo.jpeg" alt="Webby's Barbershop" className="w-full h-full object-contain" />
+          <img src={`${import.meta.env.BASE_URL}logo.jpeg`} alt="Webby's Barbershop" className="w-full h-full object-contain" />
         </div>
 
         <h1 className="text-3xl font-display font-bold text-white tracking-wide mb-1">

@@ -11,9 +11,9 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="msapplication-TileColor" content="#000000" />
     <meta name="msapplication-tap-highlight" content="no" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <title>Webby's Barbershop</title>
     <style>
       html, body {
@@ -39,7 +39,7 @@
     <div id="root"></div>
     <script>
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(() => {})
+        navigator.serviceWorker.register('sw.js').catch(() => {})
       }
     </script>
     <script type="module" src="/src/main.tsx"></script>

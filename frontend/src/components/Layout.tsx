@@ -68,7 +68,7 @@ export default function Layout() {
               style={{ height: '56px' }}>
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg overflow-hidden">
-            <img src="/icon-192.png" alt="" className="w-full h-full object-cover" aria-hidden="true" loading="lazy" />
+            <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="" className="w-full h-full object-cover" aria-hidden="true" loading="lazy" />
           </div>
           <div>
             <span className="text-white font-bold text-base block leading-tight">Webby's</span>
