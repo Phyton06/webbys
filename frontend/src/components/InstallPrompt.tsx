@@ -1,36 +1,43 @@
 import { useState, useEffect, useRef } from 'react'
 
-// Guardar el evento de instalación globalmente
 let deferredPrompt: any = null
+let eventReceived = false
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault()
   deferredPrompt = e
+  eventReceived = true
 })
 
 export default function InstallPrompt() {
   const [showInstall, setShowInstall] = useState(false)
+  const [canNativeInstall, setCanNativeInstall] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    // Si el usuario ya dismissó, no mostrar
     if (sessionStorage.getItem('install-dismissed')) return
-
-    // Si ya está instalado, no mostrar
     if (window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone === true) {
-      return
-    }
+        (window.navigator as any).standalone === true) return
 
-    // Mostrar después de 2 segundos
-    const timer = setTimeout(() => {
-      if (!sessionStorage.getItem('install-dismissed')) {
+    // Esperar max 4s a que llegue el evento beforeinstallprompt
+    const check = setInterval(() => {
+      if (eventReceived) {
+        clearInterval(check)
+        setCanNativeInstall(true)
         setShowInstall(true)
       }
-    }, 2000)
+    }, 200)
 
-    return () => clearTimeout(timer)
+    const fallback = setTimeout(() => {
+      clearInterval(check)
+      if (!eventReceived) {
+        // No hay evento nativo — mostrar instrucciones manuales
+        setShowInstall(true)
+      }
+    }, 4000)
+
+    return () => { clearInterval(check); clearTimeout(fallback) }
   }, [])
 
   useEffect(() => {
@@ -39,10 +46,7 @@ export default function InstallPrompt() {
     dialogRef.current?.focus()
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleDismiss()
-        return
-      }
+      if (e.key === 'Escape') { handleDismiss(); return }
       if (e.key === 'Tab' && dialogRef.current) {
         const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -50,11 +54,9 @@ export default function InstallPrompt() {
         const first = focusable[0]
         const last = focusable[focusable.length - 1]
         if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
+          e.preventDefault(); last.focus()
         } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
+          e.preventDefault(); first.focus()
         }
       }
     }
@@ -67,7 +69,6 @@ export default function InstallPrompt() {
   }, [showInstall])
 
   const handleInstall = async () => {
-    // Si hay evento nativo del browser, usarlo (Chrome, Edge, Brave)
     if (deferredPrompt) {
       try {
         deferredPrompt.prompt()
@@ -78,13 +79,9 @@ export default function InstallPrompt() {
         }
         deferredPrompt = null
         return
-      } catch (err) {
-        console.error('Install prompt failed:', err)
-      }
+      } catch { /* fallback abajo */ }
     }
-
-    // Fallback: no hay soporte nativo
-    alert('Tu navegador no soporta instalación automática.\n\nPara instalar, usa Chrome, Edge o Brave.')
+    // Fallback manual
     setShowInstall(false)
     sessionStorage.setItem('install-dismissed', 'true')
   }
@@ -99,7 +96,7 @@ export default function InstallPrompt() {
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fade-in"
          role="presentation">
-      <div 
+      <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
@@ -117,13 +114,29 @@ export default function InstallPrompt() {
         <h3 className="text-xl font-bold text-center text-white mb-2">
           Instalar Webby's
         </h3>
-        <p className="text-gray-400 text-center text-sm mb-6">
-          Agrega tu barbería a la pantalla de inicio como una app
-        </p>
 
-        <button onClick={handleInstall} className="btn-primary w-full mb-3" aria-label="Instalar app en pantalla de inicio">
-          Instalar App
-        </button>
+        {canNativeInstall ? (
+          <>
+            <p className="text-gray-400 text-center text-sm mb-6">
+              Agrega tu barbería a la pantalla de inicio como una app
+            </p>
+            <button onClick={handleInstall} className="btn-primary w-full mb-3" aria-label="Instalar app en pantalla de inicio">
+              Instalar App
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="text-gray-400 text-center text-sm mb-4">
+              Tu navegador no ofrece instalación automática. Sigue estos pasos:
+            </p>
+            <ol className="text-gray-300 text-sm space-y-2 mb-6 list-decimal list-inside">
+              <li>Toca el botón de menú (tres puntos) arriba a la derecha</li>
+              <li>Selecciona <strong>"Agregar a pantalla de inicio"</strong></li>
+              <li>Confirma el nombre y toca "Agregar"</li>
+            </ol>
+          </>
+        )}
+
         <button onClick={handleDismiss} className="w-full text-center text-gray-500 text-sm py-2" aria-label="Cerrar sin instalar">
           Ahora no
         </button>
