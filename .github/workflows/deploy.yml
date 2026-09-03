@@ -36,6 +36,9 @@ jobs:
         env:
           GITHUB_ACTIONS: true
 
+      - name: Add 404.html for SPA routing
+        run: cp frontend/dist/index.html frontend/dist/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
