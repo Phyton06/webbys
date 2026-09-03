@@ -1,0 +1,5 @@
+{
+  "name": "webbys-barbershop",
+  "private": true,
+  "workspaces": ["frontend"]
+}
