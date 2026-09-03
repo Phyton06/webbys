@@ -1,21 +1,29 @@
 import { useState, useEffect, useRef } from 'react'
 
+// Guardar el evento de instalación globalmente
+let deferredPrompt: any = null
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault()
+  deferredPrompt = e
+})
+
 export default function InstallPrompt() {
   const [showInstall, setShowInstall] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    // Si el usuario ya dismissó en esta sesión, no mostrar
+    // Si el usuario ya dismissó, no mostrar
     if (sessionStorage.getItem('install-dismissed')) return
 
-    // Si está en modo standalone (ya instalado), no mostrar
+    // Si ya está instalado, no mostrar
     if (window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true) {
       return
     }
 
-    // Mostrar después de 2 segundos SIEMPRE
+    // Mostrar después de 2 segundos
     const timer = setTimeout(() => {
       if (!sessionStorage.getItem('install-dismissed')) {
         setShowInstall(true)
@@ -25,10 +33,8 @@ export default function InstallPrompt() {
     return () => clearTimeout(timer)
   }, [])
 
-  // Focus management and Escape key handler
   useEffect(() => {
     if (!showInstall) return
-
     previousFocusRef.current = document.activeElement as HTMLElement
     dialogRef.current?.focus()
 
@@ -61,35 +67,24 @@ export default function InstallPrompt() {
   }, [showInstall])
 
   const handleInstall = async () => {
-    // Intentar evento nativo del browser
-    const deferredPrompt = (window as any).__deferredPrompt
+    // Si hay evento nativo del browser, usarlo (Chrome, Edge, Brave)
     if (deferredPrompt) {
-      deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
-      if (outcome === 'accepted') {
-        setShowInstall(false)
-        sessionStorage.setItem('install-dismissed', 'true')
+      try {
+        deferredPrompt.prompt()
+        const { outcome } = await deferredPrompt.userChoice
+        if (outcome === 'accepted') {
+          setShowInstall(false)
+          sessionStorage.setItem('install-dismissed', 'true')
+        }
+        deferredPrompt = null
+        return
+      } catch (err) {
+        console.error('Install prompt failed:', err)
       }
-      return
     }
 
-    // Detectar browser y mostrar instrucciones
-    const ua = navigator.userAgent.toLowerCase()
-    const isIOS = /iphone|ipad|ipod/.test(ua)
-    const isSafari = /safari/.test(ua) && !/chrome/.test(ua)
-    const isBrave = /brave/.test(ua)
-    const isChrome = /chrome/.test(ua) || isBrave
-
-    let msg = ''
-    if (isIOS || isSafari) {
-      msg = 'Para instalar:\n\n1. Toca el botón Compartir (cuadrado con flecha)\n2. Selecciona "Agregar a pantalla de inicio"\n3. Toca "Agregar"'
-    } else if (isChrome || isBrave) {
-      msg = 'Para instalar:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha\n2. Selecciona "Agregar a pantalla de inicio"\n3. Toca "Agregar"'
-    } else {
-      msg = 'Para instalar, agrega esta página a tu pantalla de inicio desde el menú de tu navegador.'
-    }
-    
-    alert(msg)
+    // Fallback: no hay soporte nativo
+    alert('Tu navegador no soporta instalación automática.\n\nPara instalar, usa Chrome, Edge o Brave.')
     setShowInstall(false)
     sessionStorage.setItem('install-dismissed', 'true')
   }
@@ -113,7 +108,6 @@ export default function InstallPrompt() {
         className="w-full max-w-lg bg-gray-800 rounded-t-3xl p-6 pb-8 animate-slide-up border-t border-gray-700 outline-none"
         style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}
       >
-        {/* Icono */}
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-red">
             <img src={`${import.meta.env.BASE_URL}icon-192.png`} alt="Webby's" className="w-full h-full object-cover" />
