@@ -1,80 +1,48 @@
 import { useState, useEffect, useRef } from 'react'
 
-interface BeforeInstallPromptEvent extends Event {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-}
-
 export default function InstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [showInstall, setShowInstall] = useState(false)
-  const [isInstalled, setIsInstalled] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    // Detectar si ya está instalada
-    if (window.matchMedia('(display-mode: standalone)').matches || 
+    // Si el usuario ya dismissó en esta sesión, no mostrar
+    if (sessionStorage.getItem('install-dismissed')) return
+
+    // Si está en modo standalone (ya instalado), no mostrar
+    if (window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone === true) {
-      setIsInstalled(true)
       return
     }
 
-    // Si el usuario ya dismissó, no mostrar
-    if (sessionStorage.getItem('install-dismissed')) {
-      return
-    }
-
-    // Escuchar el evento nativo del browser
-    const handler = (e: Event) => {
-      e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
-    }
-
-    window.addEventListener('beforeinstallprompt', handler)
-    window.addEventListener('appinstalled', () => {
-      setIsInstalled(true)
-      setShowInstall(false)
-    })
-
-    // Mostrar el prompt después de 2 segundos si no hay evento nativo
+    // Mostrar después de 2 segundos SIEMPRE
     const timer = setTimeout(() => {
       if (!sessionStorage.getItem('install-dismissed')) {
         setShowInstall(true)
       }
     }, 2000)
 
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler)
-      clearTimeout(timer)
-    }
+    return () => clearTimeout(timer)
   }, [])
 
   // Focus management and Escape key handler
   useEffect(() => {
     if (!showInstall) return
 
-    // Save previous focus
     previousFocusRef.current = document.activeElement as HTMLElement
-
-    // Focus the dialog
     dialogRef.current?.focus()
 
-    // Trap focus and handle Escape
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         handleDismiss()
         return
       }
-
-      // Trap focus within dialog
       if (e.key === 'Tab' && dialogRef.current) {
         const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )
         const first = focusable[0]
         const last = focusable[focusable.length - 1]
-
         if (e.shiftKey && document.activeElement === first) {
           e.preventDefault()
           last.focus()
@@ -86,28 +54,44 @@ export default function InstallPrompt() {
     }
 
     document.addEventListener('keydown', handleKeyDown)
-
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      // Restore focus
       previousFocusRef.current?.focus()
     }
   }, [showInstall])
 
   const handleInstall = async () => {
-    // Si hay evento nativo del browser, usarlo
+    // Intentar evento nativo del browser
+    const deferredPrompt = (window as any).__deferredPrompt
     if (deferredPrompt) {
       deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
       if (outcome === 'accepted') {
         setShowInstall(false)
+        sessionStorage.setItem('install-dismissed', 'true')
       }
-      setDeferredPrompt(null)
-    } else {
-      // Fallback: mostrar instrucciones manuales
-      alert('Para instalar:\n\n• Chrome/Edge: Toca los 3 puntos → "Instalar app"\n• Safari: Toca "Compartir" → "Agregar a pantalla de inicio"')
-      setShowInstall(false)
+      return
     }
+
+    // Detectar browser y mostrar instrucciones
+    const ua = navigator.userAgent.toLowerCase()
+    const isIOS = /iphone|ipad|ipod/.test(ua)
+    const isSafari = /safari/.test(ua) && !/chrome/.test(ua)
+    const isBrave = /brave/.test(ua)
+    const isChrome = /chrome/.test(ua) || isBrave
+
+    let msg = ''
+    if (isIOS || isSafari) {
+      msg = 'Para instalar:\n\n1. Toca el botón Compartir (cuadrado con flecha)\n2. Selecciona "Agregar a pantalla de inicio"\n3. Toca "Agregar"'
+    } else if (isChrome || isBrave) {
+      msg = 'Para instalar:\n\n1. Toca los 3 puntos (⋮) arriba a la derecha\n2. Selecciona "Agregar a pantalla de inicio"\n3. Toca "Agregar"'
+    } else {
+      msg = 'Para instalar, agrega esta página a tu pantalla de inicio desde el menú de tu navegador.'
+    }
+    
+    alert(msg)
+    setShowInstall(false)
+    sessionStorage.setItem('install-dismissed', 'true')
   }
 
   const handleDismiss = () => {
@@ -115,15 +99,7 @@ export default function InstallPrompt() {
     sessionStorage.setItem('install-dismissed', 'true')
   }
 
-  // No mostrar si ya está instalado
-  if (isInstalled) {
-    return null
-  }
-
-  // No mostrar si no toca mostrar
-  if (!showInstall) {
-    return null
-  }
+  if (!showInstall) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/80 backdrop-blur-sm animate-fade-in"
@@ -137,7 +113,6 @@ export default function InstallPrompt() {
         className="w-full max-w-lg bg-gray-800 rounded-t-3xl p-6 pb-8 animate-slide-up border-t border-gray-700 outline-none"
         style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}
       >
-        
         {/* Icono */}
         <div className="flex justify-center mb-4">
           <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-red">
