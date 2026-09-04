@@ -12,7 +12,7 @@ vi.mock('../../api/client', () => ({
 }))
 
 import api from '../../api/client'
-const mock = vi.mocked(api)
+const mock = vi.mocked(api) as any
 
 function barberWrapper({ children }: { children: React.ReactNode }) {
   localStorage.setItem('user', JSON.stringify({ id: '1', name: 'Barber', role: 'BARBER', email: 'b@b.com' }))
