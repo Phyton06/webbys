@@ -2,16 +2,12 @@ import { useEffect, useState } from 'react'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import AppointmentCard from '../../components/AppointmentCard'
+import { mapStatus } from '../../utils/status'
 
 interface DashboardStats {
   todayAppointments: number
   pendingConfirmations: number
   weekRevenue: number
-}
-
-function mapStatus(s: string): Appointment['status'] {
-  const m: Record<string, Appointment['status']> = { PENDING: 'PENDIENTE', CONFIRMED: 'CONFIRMADA', IN_PROGRESS: 'EN_CURSO', COMPLETED: 'COMPLETADA', CANCELLED: 'CANCELADA' }
-  return m[s] || 'PENDIENTE'
 }
 
 interface Appointment {
@@ -46,7 +42,7 @@ export default function Dashboard() {
         serviceName: a.serviceName || serviceMap[a.serviceId] || 'Servicio',
         date: a.date,
         time: a.time || a.startTime,
-        status: mapStatus(a.status),
+        status: mapStatus(a.status) as Appointment['status'],
       }))
       const todayList = resolved.filter(a => a.date === today)
       setStats({
