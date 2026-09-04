@@ -1,5 +1,9 @@
 # Webby's Barbershop — PWA
 
+[![CI](https://github.com/Phyton06/webbys/actions/workflows/ci.yml/badge.svg)](https://github.com/Phyton06/webbys/actions/workflows/ci.yml)
+![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-8%25-yellow)
+
 Aplicación web progresiva para la gestión de citas y operaciones de barberías pequeñas en México rural.
 
 ## Descripción
@@ -83,6 +87,28 @@ Para probar, entra a `/login` y selecciona un rol:
 - **Asistente** — Reserva citas
 - **Barbero** — Ve sus citas
 - **Cliente** — Reserva y gestiona sus citas
+
+## Testing
+
+```bash
+# Ejecutar tests
+npm test
+
+# Ejecutar tests en modo watch
+npm run test:watch
+
+# Ejecutar con coverage
+npx vitest run --coverage
+```
+
+### Cobertura actual
+
+| Suite | Tests | Estado |
+|-------|-------|--------|
+| Auth flow | 10 | ✅ ProtectedRoute, RoleRoute, AuthContext |
+| Componentes | 16 | ✅ AppointmentCard, Login, Layout, ErrorBoundary |
+| Smoke | 1 | ✅ App renders |
+| **Total** | **27** | **Todos pasando** |
 
 ## Licencia
 
