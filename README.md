@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Phyton06/webbys/actions/workflows/ci.yml/badge.svg)](https://github.com/Phyton06/webbys/actions/workflows/ci.yml)
 ![Tests](https://img.shields.io/badge/tests-27%20passed-brightgreen)
-![Coverage](https://img.shields.io/badge/coverage-8%25-yellow)
+![Coverage](https://img.shields.io/badge/coverage-77%25-brightgreen)
 
 Aplicación web progresiva para la gestión de citas y operaciones de barberías pequeñas en México rural.
 
