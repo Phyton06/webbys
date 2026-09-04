@@ -202,6 +202,24 @@ describe('Assistant Clients', () => {
     expect(screen.getByText('+ Nuevo')).toBeInTheDocument()
   })
 
+  it('renders clients list', async () => {
+    mock.get.mockResolvedValue({ data: { clients: [{ id: '1', name: 'Maria', phone: '555', email: 'm@m.com' }, { id: '2', name: 'Pedro', phone: '666', email: 'p@p.com' }] } })
+    render(<AssistantClients />, { wrapper: assistantWrapper })
+    await waitFor(() => {
+      expect(screen.getByText('Maria')).toBeInTheDocument()
+      expect(screen.getByText('Pedro')).toBeInTheDocument()
+      expect(screen.getByText('555')).toBeInTheDocument()
+      expect(screen.getByText('666')).toBeInTheDocument()
+    })
+  })
+
+  it('renders empty state when no clients', async () => {
+    mock.get.mockResolvedValue({ data: { clients: [] } })
+    render(<AssistantClients />, { wrapper: assistantWrapper })
+    await waitFor(() => expect(screen.getByText('Clientes')).toBeInTheDocument())
+    expect(screen.getByText('No se encontraron clientes')).toBeInTheDocument()
+  })
+
   it('toggles form and shows fields', async () => {
     mock.get.mockResolvedValue({ data: { clients: [] } })
     render(<AssistantClients />, { wrapper: assistantWrapper })
