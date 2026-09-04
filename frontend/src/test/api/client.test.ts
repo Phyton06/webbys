@@ -12,7 +12,7 @@ vi.mock('../../data/mock', () => ({
 import api from '../../api/client'
 import { mockApi } from '../../data/mock'
 
-const mock = vi.mocked(mockApi)
+const mock = vi.mocked(mockApi) as any
 
 beforeEach(() => {
   vi.clearAllMocks()

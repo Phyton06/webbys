@@ -36,7 +36,7 @@ describe('Barber MyAppointments', () => {
 
   it('shows confirm/cancel buttons for CONFIRMADA appointments', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', serviceName: 'Corte', date: today, time: '10:00', status: 'CONFIRMED' }] })
       return Promise.resolve({ data: [] })
     })
@@ -47,7 +47,7 @@ describe('Barber MyAppointments', () => {
 
   it('shows complete button for EN_CURSO appointments', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', serviceName: 'Corte', date: today, time: '10:00', status: 'IN_PROGRESS' }] })
       return Promise.resolve({ data: [] })
     })
@@ -57,7 +57,7 @@ describe('Barber MyAppointments', () => {
 
   it('calls updateStatus on Iniciar click', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', serviceName: 'Corte', date: today, time: '10:00', status: 'CONFIRMED' }] })
       return Promise.resolve({ data: [] })
     })
@@ -131,7 +131,7 @@ describe('Barber MySchedule', () => {
 
     // Click the first toggle button (Lunes)
     const toggleButtons = document.querySelectorAll('button.w-12')
-    await act(async () => { toggleButtons[0].click() })
+    await act(async () => { (toggleButtons[0] as HTMLElement).click() })
 
     expect(screen.getByLabelText('Hora de inicio Lunes')).toBeInTheDocument()
     expect(screen.getByLabelText('Hora de fin Lunes')).toBeInTheDocument()

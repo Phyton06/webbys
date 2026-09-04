@@ -54,7 +54,7 @@ describe('Admin Dashboard', () => {
 
   it('renders appointment cards when data exists', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'PENDING' }] })
       if (url === '/barbers') return Promise.resolve({ data: [] })
       if (url === '/services') return Promise.resolve({ data: [] })
@@ -193,7 +193,7 @@ describe('Admin Appointments', () => {
 
   it('renders appointments and can filter', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Ana', barberName: 'B1', serviceName: 'S1', date: today, time: '10:00', status: 'PENDING' }] })
       return Promise.resolve({ data: [] })
     })

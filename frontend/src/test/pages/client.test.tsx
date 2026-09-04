@@ -57,7 +57,7 @@ describe('Client MyAppointments', () => {
 
   it('shows cancel button for PENDING/CONFIRMED appointments', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'PENDING' }] })
       return Promise.resolve({ data: [] })
     })
@@ -67,7 +67,7 @@ describe('Client MyAppointments', () => {
 
   it('calls cancel endpoint', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'CONFIRMED' }] })
       return Promise.resolve({ data: [] })
     })
@@ -107,7 +107,7 @@ describe('Client BookAppointment', () => {
   })
 
   it('shows time slots after selecting barber and date', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url.includes('/barbers')) return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan', specialty: 'Fade' }] } })
       if (url.includes('/services')) return Promise.resolve({ data: { services: [] } })
       if (url.includes('/availability')) return Promise.resolve({ data: { slots: [{ time: '10:00', available: true }, { time: '11:00', available: false }] } })
@@ -148,7 +148,7 @@ describe('Client BookAppointment', () => {
   })
 
   it('shows empty time slots message', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url.includes('/barbers')) return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan', specialty: 'Fade' }] } })
       if (url.includes('/services')) return Promise.resolve({ data: { services: [] } })
       if (url.includes('/availability')) return Promise.resolve({ data: { slots: [] } })
@@ -166,7 +166,7 @@ describe('Client BookAppointment', () => {
   })
 
   it('navigates to confirm with service selected', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url.includes('/barbers')) return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan', specialty: 'Fade' }] } })
       if (url.includes('/services')) return Promise.resolve({ data: { services: [{ id: '1', name: 'Corte', price: 150, duration: 30 }] } })
       if (url.includes('/availability')) return Promise.resolve({ data: { slots: [{ time: '10:00', available: true }] } })
@@ -193,7 +193,7 @@ describe('Client BookAppointment', () => {
   })
 
   it('navigates back from confirm to service step', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url.includes('/barbers')) return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan', specialty: 'Fade' }] } })
       if (url.includes('/services')) return Promise.resolve({ data: { services: [] } })
       if (url.includes('/availability')) return Promise.resolve({ data: { slots: [{ time: '10:00', available: true }] } })
@@ -216,7 +216,7 @@ describe('Client BookAppointment', () => {
   })
 
   it('shows error on confirm failure', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url.includes('/barbers')) return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan', specialty: 'Fade' }] } })
       if (url.includes('/services')) return Promise.resolve({ data: { services: [] } })
       if (url.includes('/availability')) return Promise.resolve({ data: { slots: [{ time: '10:00', available: true }] } })

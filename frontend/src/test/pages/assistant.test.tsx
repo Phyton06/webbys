@@ -36,7 +36,7 @@ describe('Assistant TodayAppointments', () => {
 
   it('shows confirm button for PENDING appointments', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'PENDING' }] })
       return Promise.resolve({ data: [] })
     })
@@ -47,7 +47,7 @@ describe('Assistant TodayAppointments', () => {
 
   it('shows start button for CONFIRMED appointments', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'CONFIRMED' }] })
       return Promise.resolve({ data: [] })
     })
@@ -57,7 +57,7 @@ describe('Assistant TodayAppointments', () => {
 
   it('shows complete button for IN_PROGRESS appointments', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'IN_PROGRESS' }] })
       return Promise.resolve({ data: [] })
     })
@@ -67,7 +67,7 @@ describe('Assistant TodayAppointments', () => {
 
   it('calls updateStatus on Confirmar click', async () => {
     const today = new Date().toISOString().split('T')[0]
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'PENDING' }] })
       return Promise.resolve({ data: [] })
     })
@@ -93,7 +93,7 @@ describe('Assistant NewAppointment', () => {
   })
 
   it('filters clients by name', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/barbers') return Promise.resolve({ data: { barbers: [] } })
       if (url === '/clients') return Promise.resolve({ data: { clients: [{ id: '1', name: 'Maria', phone: '555' }, { id: '2', name: 'Pedro', phone: '666' }] } })
       if (url === '/services') return Promise.resolve({ data: { services: [] } })
@@ -109,7 +109,7 @@ describe('Assistant NewAppointment', () => {
   })
 
   it('selects client from search results', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/barbers') return Promise.resolve({ data: { barbers: [] } })
       if (url === '/clients') return Promise.resolve({ data: { clients: [{ id: '1', name: 'Maria', phone: '555' }] } })
       if (url === '/services') return Promise.resolve({ data: { services: [] } })
@@ -126,7 +126,7 @@ describe('Assistant NewAppointment', () => {
   })
 
   it('shows time slots when barber and date selected', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/barbers') return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan' }] } })
       if (url === '/clients') return Promise.resolve({ data: { clients: [] } })
       if (url === '/services') return Promise.resolve({ data: { services: [] } })
@@ -144,7 +144,7 @@ describe('Assistant NewAppointment', () => {
   })
 
   it('shows error on submit failure', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/barbers') return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan' }] } })
       if (url === '/clients') return Promise.resolve({ data: { clients: [{ id: '1', name: 'Maria', phone: '555' }] } })
       if (url === '/services') return Promise.resolve({ data: { services: [] } })
@@ -170,7 +170,7 @@ describe('Assistant NewAppointment', () => {
   })
 
   it('submits successfully and navigates', async () => {
-    mock.get.mockImplementation((url) => {
+    mock.get.mockImplementation((url: string) => {
       if (url === '/barbers') return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan' }] } })
       if (url === '/clients') return Promise.resolve({ data: { clients: [{ id: '1', name: 'Maria', phone: '555' }] } })
       if (url === '/services') return Promise.resolve({ data: { services: [] } })
