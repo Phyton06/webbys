@@ -14,7 +14,13 @@ interface Appointment {
 }
 
 function mapStatus(s: string): Appointment['status'] {
-  const m: Record<string, Appointment['status']> = { PENDING: 'PENDIENTE', CONFIRMED: 'CONFIRMADA', IN_PROGRESS: 'EN_CURSO', COMPLETED: 'COMPLETADA', CANCELLED: 'CANCELADA' }
+  const m: Record<string, Appointment['status']> = {
+    PENDING: 'PENDIENTE',
+    CONFIRMED: 'CONFIRMADA',
+    IN_PROGRESS: 'EN_CURSO',
+    COMPLETED: 'COMPLETADA',
+    CANCELLED: 'CANCELADA',
+  }
   return m[s] || 'PENDIENTE'
 }
 
@@ -56,7 +62,11 @@ export default function AdminAppointments() {
 
       <div className="flex gap-2 overflow-x-auto pb-2">
         {['TODAS', 'PENDIENTE', 'CONFIRMADA', 'EN_CURSO', 'COMPLETADA', 'CANCELADA'].map(f => (
-          <button key={f} onClick={() => setFilter(f)} className={`btn text-xs whitespace-nowrap ${filter === f ? 'bg-red text-white' : 'bg-gray-700 text-gray-400'}`}>
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`btn text-xs whitespace-nowrap ${filter === f ? 'bg-red text-white' : 'bg-gray-700 text-gray-400'}`}
+          >
             {f === 'TODAS' ? 'Todas' : f.charAt(0) + f.slice(1).toLowerCase()}
           </button>
         ))}

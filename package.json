@@ -1,5 +1,8 @@
 {
   "name": "webbys-barbershop",
   "private": true,
+  "scripts": {
+    "test": "npm --prefix frontend test"
+  },
   "workspaces": ["frontend"]
 }
