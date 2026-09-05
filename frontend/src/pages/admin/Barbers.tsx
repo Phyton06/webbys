@@ -87,8 +87,8 @@ export default function Barbers() {
             {item.name.charAt(0)}
           </div>
           <div>
-            <p className="font-semibold text-gray-800">{item.name}</p>
-            <p className="text-xs text-gray-400">{item.email}</p>
+            <p className="font-semibold text-text-primary">{item.name}</p>
+            <p className="text-xs text-text-muted">{item.email}</p>
           </div>
         </div>
       ),
@@ -108,7 +108,7 @@ export default function Barbers() {
       render: (item: Barber) => (
         <span
           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            item.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            item.active ? 'bg-badge-success/20 text-badge-success' : 'bg-badge-error/20 text-badge-error'
           }`}
         >
           {item.active ? 'Activo' : 'Inactivo'}
@@ -153,23 +153,23 @@ export default function Barbers() {
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm space-y-4 max-w-md">
-          <h2 className="text-lg font-semibold text-gray-800">Agregar Nuevo Barbero</h2>
+        <form onSubmit={handleCreate} className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm space-y-4 max-w-md">
+          <h2 className="text-lg font-semibold text-text-primary">Agregar Nuevo Barbero</h2>
           <div className="space-y-3">
             <div className="flex flex-col gap-1">
-              <label htmlFor="name-input" className="text-xs font-semibold text-gray-500">Nombre</label>
+              <label htmlFor="name-input" className="text-xs font-semibold text-text-muted">Nombre</label>
               <input
                 id="name-input"
                 placeholder="Nombre"
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 aria-label="Nombre"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="email-input" className="text-xs font-semibold text-gray-500">Correo</label>
+              <label htmlFor="email-input" className="text-xs font-semibold text-text-muted">Correo</label>
               <input
                 id="email-input"
                 placeholder="Correo"
@@ -177,30 +177,30 @@ export default function Barbers() {
                 value={form.email}
                 onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 aria-label="Correo"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="phone-input" className="text-xs font-semibold text-gray-500">Teléfono</label>
+              <label htmlFor="phone-input" className="text-xs font-semibold text-text-muted">Teléfono</label>
               <input
                 id="phone-input"
                 placeholder="Teléfono"
                 value={form.phone}
                 onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                 required
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 aria-label="Teléfono"
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label htmlFor="specialty-input" className="text-xs font-semibold text-gray-500">Especialidad</label>
+              <label htmlFor="specialty-input" className="text-xs font-semibold text-text-muted">Especialidad</label>
               <input
                 id="specialty-input"
                 placeholder="Especialidad"
                 value={form.specialty}
                 onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 aria-label="Especialidad"
               />
             </div>

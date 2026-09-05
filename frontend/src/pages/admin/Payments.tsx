@@ -258,15 +258,15 @@ export default function Payments() {
       header: 'Estado',
       render: (p: Payment) => {
         const badgeColors: Record<string, string> = {
-          COMPLETED: 'bg-green-100 text-green-800',
+          COMPLETED: 'bg-badge-success/20 text-badge-success',
           PENDING: 'bg-yellow-100 text-yellow-800',
-          REFUNDED: 'bg-gray-100 text-gray-800',
-          FAILED: 'bg-red-100 text-red-800',
+          REFUNDED: 'bg-surface text-text-primary',
+          FAILED: 'bg-badge-error/20 text-badge-error',
         }
         return (
           <span
             className={`px-2 py-1 text-xs rounded-full font-medium ${
-              badgeColors[p.status] || 'bg-gray-100 text-gray-700'
+              badgeColors[p.status] || 'bg-surface text-text-primary'
             }`}
           >
             {p.status}
@@ -279,7 +279,7 @@ export default function Payments() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Gestión de Pagos</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Gestión de Pagos</h1>
         <button
           onClick={() => {
             setShowModal(true)
@@ -317,8 +317,8 @@ export default function Payments() {
       {/* Registration Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
-            <h2 className="text-lg font-bold text-gray-900">Registrar Pago</h2>
+          <div className="bg-surface-elevated rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
+            <h2 className="text-lg font-bold text-text-primary">Registrar Pago</h2>
 
             {formError && (
               <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
@@ -330,7 +330,7 @@ export default function Payments() {
               <div>
                 <label
                   htmlFor="payment-appointment"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Cita
                 </label>
@@ -346,7 +346,7 @@ export default function Payments() {
                       setFormError('')
                     }
                   }}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="">Seleccione una cita</option>
                   {appointments.map((a) => (
@@ -360,7 +360,7 @@ export default function Payments() {
               <div>
                 <label
                   htmlFor="payment-amount"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Monto
                 </label>
@@ -371,14 +371,14 @@ export default function Payments() {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="payment-method"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Método de Pago
                 </label>
@@ -386,7 +386,7 @@ export default function Payments() {
                   id="payment-method"
                   value={method}
                   onChange={(e) => setMethod(e.target.value as any)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="CASH">Efectivo</option>
                   <option value="CARD">Tarjeta</option>
@@ -398,7 +398,7 @@ export default function Payments() {
               <div>
                 <label
                   htmlFor="payment-notes"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Notas
                 </label>
@@ -408,7 +408,7 @@ export default function Payments() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Opcional..."
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
 
@@ -416,7 +416,7 @@ export default function Payments() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
+                  className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition"
                 >
                   Cancelar
                 </button>

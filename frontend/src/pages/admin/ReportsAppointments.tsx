@@ -67,33 +67,33 @@ export default function ReportsAppointments() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Breadcrumb & Navigation */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link to="/admin/reportes" className="hover:text-amber-600 transition-colors">
+      <div className="flex items-center gap-2 text-sm text-text-muted">
+        <Link to="/admin/reportes" className="hover:text-primary transition-colors">
           Reportes
         </Link>
         <span>/</span>
-        <span className="text-gray-900 font-medium">Citas</span>
+        <span className="text-text-primary font-medium">Citas</span>
       </div>
 
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-5">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Reporte de Citas y Reservas</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-text-primary">Reporte de Citas y Reservas</h1>
+          <p className="text-sm text-text-muted mt-1">
             Análisis de asistencia, tasa de completadas, cancelaciones e inasistencias en el periodo.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <label htmlFor="period-select" className="text-xs font-semibold text-gray-700">
+            <label htmlFor="period-select" className="text-xs font-semibold text-text-primary">
               Periodo:
             </label>
             <select
               id="period-select"
               value={period}
               onChange={(e) => setPeriod(e.target.value)}
-              className="rounded-md border border-gray-300 bg-white py-1.5 px-3 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="rounded-md border border-border bg-surface-elevated py-1.5 px-3 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
               <option value="day">Hoy</option>
               <option value="week">Esta semana</option>
@@ -132,8 +132,8 @@ export default function ReportsAppointments() {
       )}
 
       {/* Daily Volume Bar Chart */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Volumen Diario de Citas</h2>
+      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
+        <h2 className="text-lg font-bold text-text-primary">Volumen Diario de Citas</h2>
         {report?.byDay && report.byDay.length > 0 ? (
           <div className="space-y-3">
             <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
@@ -142,29 +142,29 @@ export default function ReportsAppointments() {
                 return (
                   <div
                     key={d.date}
-                    className="bg-gray-50 border border-gray-100 rounded-lg p-3 flex flex-col items-center justify-between"
+                    className="bg-surface border border-border rounded-lg p-3 flex flex-col items-center justify-between"
                   >
                     <span className="text-xs font-semibold text-gray-600">{d.date}</span>
-                    <div className="w-full bg-gray-200 rounded-full h-2 my-2">
+                    <div className="w-full bg-surface-elevated rounded-full h-2 my-2">
                       <div className="bg-amber-600 h-2 rounded-full" style={{ width: `${barHeight}%` }} />
                     </div>
-                    <span className="text-sm font-bold text-gray-900">{d.count} citas</span>
+                    <span className="text-sm font-bold text-text-primary">{d.count} citas</span>
                   </div>
                 )
               })}
             </div>
           </div>
         ) : (
-          <div className="text-center py-6 text-gray-400 text-sm">No hay registros diarios para este periodo.</div>
+          <div className="text-center py-6 text-text-muted text-sm">No hay registros diarios para este periodo.</div>
         )}
       </div>
 
       {/* Status Breakdown Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Distribución por Estado</h2>
+      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
+        <h2 className="text-lg font-bold text-text-primary">Distribución por Estado</h2>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-500 font-semibold">
+            <thead className="bg-surface text-xs text-text-muted font-semibold">
               <tr>
                 <th className="px-4 py-3 text-left">Estado</th>
                 <th className="px-4 py-3 text-center">Cantidad</th>
@@ -176,10 +176,10 @@ export default function ReportsAppointments() {
                 Object.entries(report.byStatus).map(([status, count]) => {
                   const pct = report.total > 0 ? ((count / report.total) * 100).toFixed(1) : '0.0'
                   return (
-                    <tr key={status} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-semibold text-gray-800">{status}</td>
-                      <td className="px-4 py-3 text-center text-gray-700">{count}</td>
-                      <td className="px-4 py-3 text-right text-gray-500 font-medium">{pct}%</td>
+                    <tr key={status} className="hover:bg-surface">
+                      <td className="px-4 py-3 font-semibold text-text-primary">{status}</td>
+                      <td className="px-4 py-3 text-center text-text-primary">{count}</td>
+                      <td className="px-4 py-3 text-right text-text-muted font-medium">{pct}%</td>
                     </tr>
                   )
                 })}

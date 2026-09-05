@@ -19,19 +19,19 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
-        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-        <p className="mt-2 text-sm text-gray-500">{message}</p>
+      <div className="bg-surface-elevated rounded-lg max-w-md w-full max-w-[90vw] p-6 shadow-xl border border-border">
+        <h3 className="text-lg font-bold text-text-primary">{title}</h3>
+        <p className="mt-2 text-sm text-text-muted">{message}</p>
         <div className="mt-6 flex justify-end space-x-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
+            className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-elevated"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-hover transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-elevated"
           >
             Confirmar
           </button>

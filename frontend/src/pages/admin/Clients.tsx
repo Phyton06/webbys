@@ -68,11 +68,11 @@ export default function Clients() {
       sortable: true,
       render: (item: Client) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-full bg-surface-elevated/10 flex items-center justify-center font-bold">
             {item.name.charAt(0)}
           </div>
           <div>
-            <p className="font-semibold text-gray-800">{item.name}</p>
+            <p className="font-semibold text-text-primary">{item.name}</p>
             <p className="text-sm text-white/50">{item.email}</p>
           </div>
         </div>
@@ -102,7 +102,7 @@ export default function Clients() {
       <h1 className="text-2xl font-bold">Clientes</h1>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="search-input" className="text-xs font-semibold text-gray-500">
+        <label htmlFor="search-input" className="text-xs font-semibold text-text-muted">
           Buscar clientes por nombre, correo o teléfono
         </label>
         <input
@@ -110,7 +110,7 @@ export default function Clients() {
           placeholder="Buscar por nombre, correo o teléfono..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-md"
+          className="w-full px-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-md"
           aria-label="Buscar clientes por nombre, correo o teléfono"
         />
       </div>
@@ -129,23 +129,23 @@ export default function Clients() {
         </div>
 
         {selectedClient ? (
-          <div className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm space-y-6 self-start">
+          <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm space-y-6 self-start">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{selectedClient.name}</h2>
-                <p className="text-sm text-gray-500">{selectedClient.email}</p>
-                <p className="text-sm text-gray-500">{selectedClient.phone}</p>
+                <h2 className="text-xl font-bold text-text-primary">{selectedClient.name}</h2>
+                <p className="text-sm text-text-muted">{selectedClient.email}</p>
+                <p className="text-sm text-text-muted">{selectedClient.phone}</p>
               </div>
               <button
                 onClick={() => setSelectedClient(null)}
-                className="text-gray-400 hover:text-gray-600 font-bold"
+                className="text-text-muted hover:text-gray-600 font-bold"
               >
                 ✕
               </button>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-2">Notas Administrativas</h3>
+              <h3 className="text-sm font-semibold text-text-primary mb-2">Notas Administrativas</h3>
               <div className="max-h-32 overflow-y-auto space-y-2 mb-3">
                 {notes ? (
                   notes.split('\n').map((note, index) => (
@@ -154,7 +154,7 @@ export default function Clients() {
                     </p>
                   ))
                 ) : (
-                  <p className="text-xs text-gray-400 italic">No hay notas para este cliente.</p>
+                  <p className="text-xs text-text-muted italic">No hay notas para este cliente.</p>
                 )}
               </div>
               <form onSubmit={handleAddNote} className="flex gap-2">
@@ -162,7 +162,7 @@ export default function Clients() {
                   placeholder="Agregar una nota..."
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
-                  className="flex-1 px-3 py-1.5 text-xs border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-1.5 text-xs border border-border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
@@ -174,20 +174,20 @@ export default function Clients() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold text-gray-800 mb-2">Historial de Citas</h3>
+              <h3 className="text-sm font-semibold text-text-primary mb-2">Historial de Citas</h3>
               {loadingHistory ? (
-                <p className="text-xs text-gray-400 italic">Cargando historial...</p>
+                <p className="text-xs text-text-muted italic">Cargando historial...</p>
               ) : history.length === 0 ? (
-                <p className="text-xs text-gray-400 italic">No registra citas anteriores.</p>
+                <p className="text-xs text-text-muted italic">No registra citas anteriores.</p>
               ) : (
                 <div className="space-y-2 max-h-40 overflow-y-auto">
                   {history.map((h) => (
-                    <div key={h.id} className="text-xs p-2.5 bg-gray-50 rounded border border-gray-100 flex justify-between items-center">
+                    <div key={h.id} className="text-xs p-2.5 bg-surface rounded border border-border flex justify-between items-center">
                       <div>
-                        <p className="font-semibold text-gray-700">{h.serviceName || 'Servicio'}</p>
-                        <p className="text-[10px] text-gray-400">{h.date} • {h.time || h.startTime}</p>
+                        <p className="font-semibold text-text-primary">{h.serviceName || 'Servicio'}</p>
+                        <p className="text-[10px] text-text-muted">{h.date} • {h.time || h.startTime}</p>
                       </div>
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-green-100 text-green-800">
+                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-badge-success/20 text-badge-success">
                         {h.status}
                       </span>
                     </div>
@@ -197,8 +197,8 @@ export default function Clients() {
             </div>
           </div>
         ) : (
-          <div className="p-6 bg-gray-50 rounded-lg border border-dashed border-gray-200 text-center py-16 self-start">
-            <p className="text-sm text-gray-400">Selecciona un cliente para ver su historial y agregar notas.</p>
+          <div className="p-6 bg-surface rounded-lg border border-dashed border-border text-center py-16 self-start">
+            <p className="text-sm text-text-muted">Selecciona un cliente para ver su historial y agregar notas.</p>
           </div>
         )}
       </div>

@@ -56,9 +56,9 @@ export default function Reports() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
       {/* Page Header */}
-      <div className="border-b border-gray-200 pb-5">
-        <h1 className="text-2xl font-bold text-gray-900">Centro de Reportes</h1>
-        <p className="text-sm text-gray-500 mt-1">
+      <div className="border-b border-border pb-5">
+        <h1 className="text-2xl font-bold text-text-primary">Centro de Reportes</h1>
+        <p className="text-sm text-text-muted mt-1">
           Visualiza métricas consolidadas, analiza el desempeño del negocio y exporta auditorías en formato CSV.
         </p>
       </div>
@@ -69,7 +69,7 @@ export default function Reports() {
           <Link
             key={section.href}
             to={section.href}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col justify-between hover:shadow-md hover:border-amber-400 transition-all group"
+            className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 flex flex-col justify-between hover:shadow-md hover:border-amber-400 transition-all group"
           >
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -81,13 +81,13 @@ export default function Reports() {
                 </span>
               </div>
 
-              <h2 className="text-lg font-bold text-gray-900 group-hover:text-amber-600 transition-colors">
+              <h2 className="text-lg font-bold text-text-primary group-hover:text-primary transition-colors">
                 {section.title}
               </h2>
-              <p className="text-xs text-gray-500 leading-relaxed">{section.description}</p>
+              <p className="text-xs text-text-muted leading-relaxed">{section.description}</p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-gray-100 flex items-center justify-between text-xs font-semibold text-amber-600">
+            <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs font-semibold text-primary">
               <span>Abrir Reporte</span>
               <span className="group-hover:translate-x-1 transition-transform">→</span>
             </div>

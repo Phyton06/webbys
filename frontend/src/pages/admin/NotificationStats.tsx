@@ -65,23 +65,23 @@ export default function NotificationStatsPage() {
       {/* Header & Filter */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-text-primary">
             Estadísticas de Notificaciones
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-text-muted">
             Métricas de entrega, canales y tendencias de envíos
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <label htmlFor="stats-period" className="text-sm font-medium text-gray-700">
+          <label htmlFor="stats-period" className="text-sm font-medium text-text-primary">
             Período:
           </label>
           <select
             id="stats-period"
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
-            className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            className="px-3 py-1.5 text-sm bg-surface-elevated border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="7d">Últimos 7 días</option>
             <option value="30d">Últimos 30 días</option>
@@ -104,8 +104,8 @@ export default function NotificationStatsPage() {
       {/* Channel Breakdown & Trend Visualization */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Channel Breakdown */}
-        <div className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">Desglose por Canal</h2>
+        <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-text-primary">Desglose por Canal</h2>
           <div className="space-y-4">
             {channelKeys.map((chKey) => {
               const chData = stats?.byChannel?.[chKey] || { sent: 0, delivered: 0, failed: 0 }
@@ -114,13 +114,13 @@ export default function NotificationStatsPage() {
               return (
                 <div key={chKey} className="space-y-1">
                   <div className="flex justify-between items-center text-sm">
-                    <span className="font-semibold text-gray-700">{chKey}</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="font-semibold text-text-primary">{chKey}</span>
+                    <span className="text-xs text-text-muted">
                       {chData.sent} enviados • {chData.delivered} entregados • {chData.failed} fallidos ({rate}%)
                     </span>
                   </div>
                   {/* Progress Bar */}
-                  <div className="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden flex">
+                  <div className="w-full bg-surface h-2.5 rounded-full overflow-hidden flex">
                     <div
                       className="bg-green-500 h-full"
                       style={{ width: `${rate}%` }}
@@ -143,8 +143,8 @@ export default function NotificationStatsPage() {
         </div>
 
         {/* Trend Line Chart */}
-        <div className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">Tendencia de Envíos</h2>
+        <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm space-y-4">
+          <h2 className="text-lg font-bold text-text-primary">Tendencia de Envíos</h2>
           {stats?.trend && stats.trend.length > 0 ? (
             <div className="space-y-2">
               <div className="w-full overflow-x-auto">
@@ -192,13 +192,13 @@ export default function NotificationStatsPage() {
               </div>
 
               {/* Date Axis labels */}
-              <div className="flex justify-between text-xs text-gray-500 px-2 pt-1 border-t border-gray-100">
+              <div className="flex justify-between text-xs text-text-muted px-2 pt-1 border-t border-border">
                 <span>{stats.trend[0]?.date}</span>
                 <span>{stats.trend[stats.trend.length - 1]?.date}</span>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 py-8 text-center">
+            <p className="text-sm text-text-muted py-8 text-center">
               No hay datos de tendencia disponibles
             </p>
           )}

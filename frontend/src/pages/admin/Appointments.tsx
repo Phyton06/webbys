@@ -65,7 +65,7 @@ export default function AdminAppointments() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`btn text-xs whitespace-nowrap ${filter === f ? 'bg-red text-white' : 'bg-gray-700 text-gray-400'}`}
+            className={`btn text-xs whitespace-nowrap ${filter === f ? 'bg-red text-white' : 'bg-gray-700 text-text-muted'}`}
           >
             {f === 'TODAS' ? 'Todas' : f.charAt(0) + f.slice(1).toLowerCase()}
           </button>
@@ -74,7 +74,7 @@ export default function AdminAppointments() {
 
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <p className="text-gray-500 text-sm">No hay citas</p>
+          <p className="text-text-muted text-sm">No hay citas</p>
         ) : (
           filtered.map(a => (
             <AppointmentCard
