@@ -25,13 +25,13 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <div className="mt-6 flex justify-end space-x-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition"
+            className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-elevated"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-hover transition"
+            className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary-hover transition focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface-elevated"
           >
             Confirmar
           </button>
