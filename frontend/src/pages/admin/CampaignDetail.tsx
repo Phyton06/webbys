@@ -94,9 +94,9 @@ export default function CampaignDetail() {
   if (!campaign) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
-        <div className="bg-white p-8 rounded-xl border border-gray-200 text-center space-y-4">
+        <div className="bg-surface-elevated p-8 rounded-xl border border-border text-center space-y-4">
           <p className="text-gray-600">Campaña no encontrada.</p>
-          <Link to="/admin/campanas" className="text-amber-600 font-semibold hover:underline">
+          <Link to="/admin/campanas" className="text-primary font-semibold hover:underline">
             ← Volver a Campañas
           </Link>
         </div>
@@ -107,49 +107,49 @@ export default function CampaignDetail() {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Breadcrumb & Navigation */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link to="/admin/campanas" className="hover:text-amber-600 transition-colors">
+      <div className="flex items-center gap-2 text-sm text-text-muted">
+        <Link to="/admin/campanas" className="hover:text-primary transition-colors">
           Campañas
         </Link>
         <span>/</span>
-        <span className="text-gray-900 font-medium">{campaign.name}</span>
+        <span className="text-text-primary font-medium">{campaign.name}</span>
       </div>
 
       {/* Header Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">{campaign.name}</h1>
+            <h1 className="text-2xl font-bold text-text-primary">{campaign.name}</h1>
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                 campaign.status === 'ACTIVE'
-                  ? 'bg-green-100 text-green-800'
+                  ? 'bg-badge-success/20 text-badge-success'
                   : campaign.status === 'PAUSED'
                   ? 'bg-yellow-100 text-yellow-800'
-                  : 'bg-gray-100 text-gray-800'
+                  : 'bg-surface text-text-primary'
               }`}
             >
               {campaign.status}
             </span>
           </div>
-          <p className="text-sm text-gray-500 mt-1">{campaign.description}</p>
+          <p className="text-sm text-text-muted mt-1">{campaign.description}</p>
           <div className="flex flex-wrap gap-3 mt-3 text-xs text-gray-600">
             <span>
-              Tipo: <strong className="font-semibold text-gray-800">{campaign.type}</strong>
+              Tipo: <strong className="font-semibold text-text-primary">{campaign.type}</strong>
             </span>
             <span>•</span>
             <span>
-              Canal: <strong className="font-semibold text-gray-800">{campaign.channel}</strong>
+              Canal: <strong className="font-semibold text-text-primary">{campaign.channel}</strong>
             </span>
             <span>•</span>
             <span>
-              Audiencia: <strong className="font-semibold text-gray-800">{campaign.targetAudience}</strong>
+              Audiencia: <strong className="font-semibold text-text-primary">{campaign.targetAudience}</strong>
             </span>
             {campaign.discountPercent && (
               <>
                 <span>•</span>
                 <span>
-                  Descuento: <strong className="font-semibold text-rose-600">{campaign.discountPercent}%</strong>
+                  Descuento: <strong className="font-semibold text-badge-error">{campaign.discountPercent}%</strong>
                 </span>
               </>
             )}
@@ -162,7 +162,7 @@ export default function CampaignDetail() {
             <button
               type="button"
               onClick={() => handleUpdateStatus('PAUSED')}
-              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-border rounded-md text-sm font-medium text-text-primary hover:bg-surface"
             >
               Pausar Campaña
             </button>
@@ -206,15 +206,15 @@ export default function CampaignDetail() {
       </div>
 
       {/* Conversion Funnel Bar */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-        <h2 className="text-lg font-bold text-gray-900">Embudo de Conversión (Funnel)</h2>
+      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
+        <h2 className="text-lg font-bold text-text-primary">Embudo de Conversión (Funnel)</h2>
         <div className="space-y-3">
           <div>
             <div className="flex justify-between text-xs font-semibold text-gray-600 mb-1">
               <span>Enviados (100%)</span>
               <span>{stats?.sent || 0}</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3">
+            <div className="w-full bg-surface rounded-full h-3">
               <div className="bg-blue-500 h-3 rounded-full w-full" />
             </div>
           </div>
@@ -224,7 +224,7 @@ export default function CampaignDetail() {
               <span>Abiertos ({openRate}%)</span>
               <span>{stats?.opened || 0}</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3">
+            <div className="w-full bg-surface rounded-full h-3">
               <div className="bg-amber-500 h-3 rounded-full" style={{ width: `${Math.min(openRate, 100)}%` }} />
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function CampaignDetail() {
               <span>Clics ({stats?.sent ? Math.round(((stats.clicked || 0) / stats.sent) * 100) : 0}%)</span>
               <span>{stats?.clicked || 0}</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3">
+            <div className="w-full bg-surface rounded-full h-3">
               <div
                 className="bg-indigo-500 h-3 rounded-full"
                 style={{
@@ -249,7 +249,7 @@ export default function CampaignDetail() {
               <span>Conversiones / Ventas ({conversionRate}%)</span>
               <span>{stats?.converted || 0}</span>
             </div>
-            <div className="w-full bg-gray-100 rounded-full h-3">
+            <div className="w-full bg-surface rounded-full h-3">
               <div
                 className="bg-emerald-500 h-3 rounded-full"
                 style={{ width: `${Math.min(conversionRate, 100)}%` }}
@@ -260,10 +260,10 @@ export default function CampaignDetail() {
       </div>
 
       {/* Referral Code Box (if referral or available) */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-base font-bold text-gray-900">Código de Referido de la Campaña</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <h2 className="text-base font-bold text-text-primary">Código de Referido de la Campaña</h2>
+          <p className="text-xs text-text-muted mt-0.5">
             Comparte este código para que los clientes obtengan el descuento asignado.
           </p>
         </div>
@@ -277,7 +277,7 @@ export default function CampaignDetail() {
               <button
                 type="button"
                 onClick={handleCopyCode}
-                className="px-3 py-2 border border-gray-300 rounded-md text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                className="px-3 py-2 border border-border rounded-md text-xs font-semibold text-text-primary hover:bg-surface"
               >
                 {copied ? '¡Copiado!' : 'Copiar'}
               </button>

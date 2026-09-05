@@ -213,8 +213,8 @@ export default function Notifications() {
       header: 'Título / Mensaje',
       render: (n: Notification) => (
         <div>
-          <div className="font-medium text-gray-900">{n.title}</div>
-          <div className="text-xs text-gray-500 truncate max-w-xs">{n.message}</div>
+          <div className="font-medium text-text-primary">{n.title}</div>
+          <div className="text-xs text-text-muted truncate max-w-xs">{n.message}</div>
         </div>
       ),
       sortable: true,
@@ -232,7 +232,7 @@ export default function Notifications() {
       key: 'channel',
       header: 'Canal',
       render: (n: Notification) => (
-        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded">
+        <span className="px-2 py-1 bg-surface text-text-primary text-xs font-medium rounded">
           {n.channel}
         </span>
       ),
@@ -243,14 +243,14 @@ export default function Notifications() {
       render: (n: Notification) => {
         const badgeColors: Record<string, string> = {
           SENT: 'bg-blue-100 text-blue-800',
-          DELIVERED: 'bg-green-100 text-green-800',
+          DELIVERED: 'bg-badge-success/20 text-badge-success',
           PENDING: 'bg-yellow-100 text-yellow-800',
-          FAILED: 'bg-red-100 text-red-800',
+          FAILED: 'bg-badge-error/20 text-badge-error',
         }
         return (
           <span
             className={`px-2 py-1 text-xs rounded-full font-medium ${
-              badgeColors[n.status] || 'bg-gray-100 text-gray-700'
+              badgeColors[n.status] || 'bg-surface text-text-primary'
             }`}
           >
             {n.status}
@@ -279,7 +279,7 @@ export default function Notifications() {
       key: 'channel',
       header: 'Canal',
       render: (t: NotificationTemplate) => (
-        <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded">
+        <span className="px-2 py-1 bg-surface text-text-primary text-xs font-medium rounded">
           {t.channel}
         </span>
       ),
@@ -300,7 +300,7 @@ export default function Notifications() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Notificaciones</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Notificaciones</h1>
         <div className="flex gap-2">
           {activeTab === 'templates' && (
             <button
@@ -329,13 +329,13 @@ export default function Notifications() {
       )}
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-border">
         <button
           onClick={() => setActiveTab('history')}
           className={`py-3 px-6 text-sm font-medium border-b-2 transition ${
             activeTab === 'history'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              : 'border-transparent text-text-muted hover:text-text-primary'
           }`}
         >
           Historial
@@ -345,7 +345,7 @@ export default function Notifications() {
           className={`py-3 px-6 text-sm font-medium border-b-2 transition ${
             activeTab === 'templates'
               ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              : 'border-transparent text-text-muted hover:text-text-primary'
           }`}
         >
           Plantillas
@@ -385,14 +385,14 @@ export default function Notifications() {
       {/* Send Notification Modal */}
       {showSendModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
-            <h2 className="text-lg font-bold text-gray-900">Enviar Notificación</h2>
+          <div className="bg-surface-elevated rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
+            <h2 className="text-lg font-bold text-text-primary">Enviar Notificación</h2>
 
             <form onSubmit={handleSendNotification} className="space-y-4">
               <div>
                 <label
                   htmlFor="notif-template-select"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Usar Plantilla (Opcional)
                 </label>
@@ -400,7 +400,7 @@ export default function Notifications() {
                   id="notif-template-select"
                   value={selectedTemplateId}
                   onChange={(e) => handleTemplateSelect(e.target.value)}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="">Personalizada (sin plantilla)</option>
                   {templates.map((t) => (
@@ -415,7 +415,7 @@ export default function Notifications() {
                 <div>
                   <label
                     htmlFor="notif-recipient-type"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     Tipo de Destinatario
                   </label>
@@ -423,7 +423,7 @@ export default function Notifications() {
                     id="notif-recipient-type"
                     value={recipientType}
                     onChange={(e) => setRecipientType(e.target.value as any)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   >
                     <option value="CLIENT">Cliente individual</option>
                     <option value="ALL">Todos los clientes</option>
@@ -434,7 +434,7 @@ export default function Notifications() {
                 <div>
                   <label
                     htmlFor="notif-channel"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     Canal de Envío
                   </label>
@@ -442,7 +442,7 @@ export default function Notifications() {
                     id="notif-channel"
                     value={channel}
                     onChange={(e) => setChannel(e.target.value as any)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   >
                     <option value="SMS">SMS</option>
                     <option value="EMAIL">Email</option>
@@ -456,7 +456,7 @@ export default function Notifications() {
                 <div>
                   <label
                     htmlFor="notif-recipient"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     Destinatario
                   </label>
@@ -464,7 +464,7 @@ export default function Notifications() {
                     id="notif-recipient"
                     value={recipientId}
                     onChange={(e) => setRecipientId(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   >
                     {clients.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -478,7 +478,7 @@ export default function Notifications() {
               <div>
                 <label
                   htmlFor="notif-title"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Título / Asunto
                 </label>
@@ -488,7 +488,7 @@ export default function Notifications() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Ej. Recordatorio de cita"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   required
                 />
               </div>
@@ -496,7 +496,7 @@ export default function Notifications() {
               <div>
                 <label
                   htmlFor="notif-message"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Mensaje
                 </label>
@@ -506,7 +506,7 @@ export default function Notifications() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Escribe el contenido de la notificación..."
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   required
                 />
               </div>
@@ -515,7 +515,7 @@ export default function Notifications() {
                 <button
                   type="button"
                   onClick={() => setShowSendModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
+                  className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition"
                 >
                   Cancelar
                 </button>
@@ -535,14 +535,14 @@ export default function Notifications() {
       {/* Create Template Modal */}
       {showTemplateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
-            <h2 className="text-lg font-bold text-gray-900">Nueva Plantilla</h2>
+          <div className="bg-surface-elevated rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
+            <h2 className="text-lg font-bold text-text-primary">Nueva Plantilla</h2>
 
             <form onSubmit={handleCreateTemplate} className="space-y-4">
               <div>
                 <label
                   htmlFor="template-name"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Nombre de plantilla
                 </label>
@@ -552,7 +552,7 @@ export default function Notifications() {
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
                   placeholder="Ej. Recordatorio de cita 1h antes"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   required
                 />
               </div>
@@ -561,7 +561,7 @@ export default function Notifications() {
                 <div>
                   <label
                     htmlFor="template-type"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     Tipo
                   </label>
@@ -569,7 +569,7 @@ export default function Notifications() {
                     id="template-type"
                     value={templateType}
                     onChange={(e) => setTemplateType(e.target.value as any)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   >
                     <option value="APPOINTMENT_REMINDER">Recordatorio</option>
                     <option value="PROMOTION">Promoción</option>
@@ -581,7 +581,7 @@ export default function Notifications() {
                 <div>
                   <label
                     htmlFor="template-channel"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-text-primary"
                   >
                     Canal
                   </label>
@@ -589,7 +589,7 @@ export default function Notifications() {
                     id="template-channel"
                     value={templateChannel}
                     onChange={(e) => setTemplateChannel(e.target.value as any)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   >
                     <option value="SMS">SMS</option>
                     <option value="EMAIL">Email</option>
@@ -602,7 +602,7 @@ export default function Notifications() {
               <div>
                 <label
                   htmlFor="template-subject"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Asunto (opcional)
                 </label>
@@ -612,14 +612,14 @@ export default function Notifications() {
                   value={templateSubject}
                   onChange={(e) => setTemplateSubject(e.target.value)}
                   placeholder="Asunto para Email o WhatsApp"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="template-body"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-text-primary"
                 >
                   Cuerpo de la plantilla
                 </label>
@@ -629,7 +629,7 @@ export default function Notifications() {
                   value={templateBody}
                   onChange={(e) => setTemplateBody(e.target.value)}
                   placeholder="Ej. Hola {{clientName}}, tu cita es a las {{time}}"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                   required
                 />
               </div>
@@ -638,7 +638,7 @@ export default function Notifications() {
                 <button
                   type="button"
                   onClick={() => setShowTemplateModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition"
+                  className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition"
                 >
                   Cancelar
                 </button>

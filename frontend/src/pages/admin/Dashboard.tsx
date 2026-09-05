@@ -97,10 +97,10 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <div className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm">
-            <h2 className="text-sm font-medium text-gray-500 mb-4 font-semibold">Citas de hoy</h2>
+          <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm">
+            <h2 className="text-sm font-medium text-text-muted mb-4 font-semibold">Citas de hoy</h2>
             {appointments.length === 0 ? (
-              <p className="text-gray-500 text-sm">No hay citas programadas para hoy</p>
+              <p className="text-text-muted text-sm">No hay citas programadas para hoy</p>
             ) : (
               <div className="space-y-3">
                 {appointments.map(a => (
@@ -119,8 +119,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="p-6 bg-white rounded-lg border border-gray-100 shadow-sm self-start">
-          <h2 className="text-sm font-medium text-gray-500 mb-4 font-semibold">Tendencia Semanal</h2>
+        <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm self-start">
+          <h2 className="text-sm font-medium text-text-muted mb-4 font-semibold">Tendencia Semanal</h2>
           <div className="flex flex-col items-center">
             {/* Simple Inline SVG Line Chart */}
             <svg viewBox="0 0 300 80" className="w-full h-24">
@@ -134,7 +134,7 @@ export default function Dashboard() {
                 points="10,60 80,45 150,55 220,20 290,30"
               />
             </svg>
-            <div className="flex justify-between w-full mt-2 text-[10px] text-gray-400">
+            <div className="flex justify-between w-full mt-2 text-[10px] text-text-muted">
               <span>Lun</span>
               <span>Mié</span>
               <span>Vie</span>
