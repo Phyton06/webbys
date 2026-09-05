@@ -73,14 +73,14 @@ export function DataTable<T>({
             placeholder={searchPlaceholder}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full max-w-xs"
+            className="px-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary w-full max-w-xs bg-surface text-text-primary"
           />
         </div>
       )}
 
-      <div className="overflow-x-auto border border-gray-100 rounded-lg shadow-sm">
-        <table className="min-w-full divide-y divide-gray-200 text-left text-sm text-gray-500">
-          <thead className="bg-gray-50 text-xs text-gray-700 uppercase font-semibold">
+      <div className="overflow-x-auto border border-border rounded-lg shadow-sm">
+        <table className="min-w-full divide-y divide-border text-left text-sm text-text-muted">
+          <thead className="bg-surface text-xs text-text-muted uppercase font-semibold">
             <tr>
               {columns.map((column) => (
                 <th
@@ -90,7 +90,7 @@ export function DataTable<T>({
                   }
                   className={`px-6 py-3 ${
                     column.sortable !== false
-                      ? 'cursor-pointer hover:bg-gray-100 select-none'
+                      ? 'cursor-pointer hover:bg-surface-elevated select-none'
                       : ''
                   }`}
                 >
@@ -104,19 +104,19 @@ export function DataTable<T>({
               ))}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-surface-elevated divide-y divide-border">
             {sortedData.length === 0 ? (
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="px-6 py-8 text-center text-gray-400"
+                  className="px-6 py-8 text-center text-text-muted"
                 >
                   No se encontraron resultados
                 </td>
               </tr>
             ) : (
               sortedData.map((item) => (
-                <tr key={String(keyExtractor(item))} className="hover:bg-gray-50">
+                <tr key={String(keyExtractor(item))} className="hover:bg-surface">
                   {columns.map((column) => (
                     <td key={String(column.key)} className="px-6 py-4 whitespace-nowrap">
                       {column.render

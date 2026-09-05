@@ -35,7 +35,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
     <button
       onClick={handleExport}
       disabled={isExporting}
-      className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+      className="inline-flex items-center px-4 py-2 text-sm font-medium text-text-primary bg-surface-elevated border border-border rounded-md shadow-sm hover:bg-surface focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50"
     >
       {isExporting ? 'Exportando...' : 'Exportar CSV'}
     </button>

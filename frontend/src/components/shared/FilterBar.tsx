@@ -25,12 +25,12 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   }
 
   return (
-    <div className="flex flex-wrap gap-4 items-center p-4 bg-white rounded-lg border border-gray-100 shadow-sm">
+    <div className="flex flex-wrap gap-4 items-center p-4 bg-surface-elevated rounded-lg border border-border shadow-sm">
       {options.map((option) => (
         <div key={option.key} className="flex flex-col gap-1">
           <label
             htmlFor={option.key}
-            className="text-xs font-semibold text-gray-500"
+            className="text-xs font-semibold text-text-muted"
           >
             {option.label}
           </label>
@@ -38,7 +38,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             id={option.key}
             value={values[option.key] || ''}
             onChange={(e) => handleSelectChange(option.key, e.target.value)}
-            className="px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-1.5 text-sm bg-surface border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-text-primary"
           >
             {option.choices.map((choice) => (
               <option key={choice.value} value={choice.value}>
