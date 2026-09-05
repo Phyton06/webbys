@@ -27,10 +27,37 @@ beforeEach(() => {
 // --- Settings ---
 import Settings from '../../pages/admin/Settings'
 describe('Admin Settings', () => {
-  it('renders heading and placeholder', () => {
+  it('renders heading and settings tabs after loading', async () => {
+    mock.get.mockImplementation((url: string) => {
+      if (url === '/settings') {
+        return Promise.resolve({
+          data: {
+            business: {
+              name: "Webby's Barbershop",
+              address: 'Av. Principal 123',
+              phone: '5551234567',
+              email: 'contacto@webbys.com',
+              openingHours: {},
+              timezone: 'America/Mexico_City',
+              currency: 'MXN',
+            },
+            roles: [],
+            branding: {
+              primaryColor: '#00BCD4',
+              secondaryColor: '#1a1a2e',
+              welcomeMessage: "Bienvenido",
+            },
+          }
+        })
+      }
+      return Promise.resolve({ data: [] })
+    })
+
     render(<Settings />, { wrapper: adminWrapper })
     expect(screen.getByText('Configuración')).toBeInTheDocument()
-    expect(screen.getByText(/próximamente/)).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Datos de Negocio')).toBeInTheDocument()
+    })
   })
 })
 

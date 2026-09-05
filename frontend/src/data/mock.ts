@@ -1,4 +1,12 @@
 // Datos mock para el prototipo — todo en memoria + localStorage
+import { mockPaymentService } from '../services/mock/mockPaymentService'
+import { mockNotificationService } from '../services/mock/mockNotificationService'
+import { mockNotificationStatsService } from '../services/mock/mockNotificationStatsService'
+import { mockScheduleService } from '../services/mock/mockScheduleService'
+import { mockCampaignService } from '../services/mock/mockCampaignService'
+import { mockAnalyticsService } from '../services/mock/mockAnalyticsService'
+import { mockReportService } from '../services/mock/mockReportService'
+import { mockSettingsService } from '../services/mock/mockSettingsService'
 
 export interface User {
   id: string
@@ -156,12 +164,37 @@ export const mockApi = {
       return { data: newAppt }
     }
 
-    if (path.startsWith('/notifications/send')) {
-      return { data: { success: true } }
+    if (path === '/payments') {
+      return { data: await mockPaymentService.create(body) }
+    }
+
+    if (path === '/notifications/templates') {
+      return { data: await mockNotificationService.createTemplate(body) }
+    }
+
+    if (path === '/notifications/bulk') {
+      return { data: await mockNotificationService.sendBulk(body) }
+    }
+
+    if (path === '/notifications' || path.startsWith('/notifications/send')) {
+      return { data: await mockNotificationService.send(body) }
     }
 
     if (path.startsWith('/clients/register-url')) {
       return { data: { url: `https://webbys.app/registro?token=${genId()}` } }
+    }
+
+    if (path === '/schedules/exceptions') {
+      return { data: await mockScheduleService.addException(body) }
+    }
+
+    if (path.startsWith('/campaigns/') && path.endsWith('/referral')) {
+      const id = path.split('/')[2]
+      return { data: { code: await mockCampaignService.generateReferralCode(id) } }
+    }
+
+    if (path === '/campaigns') {
+      return { data: await mockCampaignService.create(body) }
     }
 
     return { data: {} }
@@ -249,8 +282,97 @@ export const mockApi = {
       return { data: u }
     }
 
+    if (path === '/payments/summary') {
+      return { data: await mockPaymentService.getSummary() }
+    }
+
+    if (path.startsWith('/payments')) {
+      return { data: await mockPaymentService.getAll() }
+    }
+
+    if (path === '/notifications/templates') {
+      return { data: await mockNotificationService.getTemplates() }
+    }
+
     if (path === '/notifications') {
-      return { data: [] }
+      return { data: await mockNotificationService.getAll() }
+    }
+
+    if (path.startsWith('/notification-stats') || path.startsWith('/notifications/stats')) {
+      return { data: await mockNotificationStatsService.getStats() }
+    }
+
+    if (path.startsWith('/schedules/exceptions')) {
+      const barberId = new URLSearchParams(path.split('?')[1] || '').get('barberId') || ''
+      return { data: await mockScheduleService.getExceptions(barberId) }
+    }
+
+    if (path.startsWith('/schedules/')) {
+      const barberId = path.split('/')[2].split('?')[0]
+      return { data: await mockScheduleService.getWeeklySchedule(barberId) }
+    }
+
+    if (path.startsWith('/campaigns/') && path.endsWith('/stats')) {
+      const id = path.split('/')[2]
+      return { data: await mockCampaignService.getStats(id) }
+    }
+
+    if (path.startsWith('/campaigns/')) {
+      const id = path.split('/')[2]
+      return { data: await mockCampaignService.getById(id) }
+    }
+
+    if (path === '/campaigns') {
+      return { data: await mockCampaignService.getAll() }
+    }
+
+    if (path.startsWith('/analytics/summary')) {
+      return { data: await mockAnalyticsService.getSummary() }
+    }
+
+    if (path.startsWith('/analytics/retention')) {
+      return { data: await mockAnalyticsService.getRetention() }
+    }
+
+    if (path.startsWith('/analytics/peak-hours')) {
+      return { data: await mockAnalyticsService.getPeakHours() }
+    }
+
+    if (path.startsWith('/analytics/ltv')) {
+      return { data: await mockAnalyticsService.getCustomerLTV() }
+    }
+
+    if (path.startsWith('/analytics/no-show')) {
+      return { data: await mockAnalyticsService.getNoShowRate() }
+    }
+
+    if (path.startsWith('/reports/revenue')) {
+      const period = new URLSearchParams(path.split('?')[1] || '').get('period') || 'week'
+      return { data: await mockReportService.getRevenueReport(period) }
+    }
+
+    if (path.startsWith('/reports/appointments')) {
+      const period = new URLSearchParams(path.split('?')[1] || '').get('period') || 'month'
+      return { data: await mockReportService.getAppointmentReport(period) }
+    }
+
+    if (path.startsWith('/reports/clients')) {
+      const period = new URLSearchParams(path.split('?')[1] || '').get('period') || 'month'
+      return { data: await mockReportService.getClientReport(period) }
+    }
+
+    if (path.startsWith('/reports/barbers')) {
+      const period = new URLSearchParams(path.split('?')[1] || '').get('period') || 'month'
+      return { data: await mockReportService.getBarberReport(period) }
+    }
+
+    if (path.startsWith('/reports/export')) {
+      const type = new URLSearchParams(path.split('?')[1] || '').get('type') || 'revenue'
+      return { data: await mockReportService.exportCSV(type) }
+    }
+
+    if (path === '/settings') {
+      return { data: await mockSettingsService.get() }
     }
 
     return { data: [] }
@@ -295,11 +417,40 @@ export const mockApi = {
       return { data: { success: true } }
     }
 
+    if (path.startsWith('/schedules/')) {
+      const barberId = path.split('/')[2]
+      return { data: await mockScheduleService.updateWeeklySchedule(barberId, body.entries || body) }
+    }
+
+    if (path.startsWith('/campaigns/') && path.endsWith('/status')) {
+      const id = path.split('/')[2]
+      return { data: await mockCampaignService.updateStatus(id, body.status) }
+    }
+
+    if (path.startsWith('/campaigns/')) {
+      const id = path.split('/')[2]
+      return { data: await mockCampaignService.update(id, body) }
+    }
+
+    if (path === '/settings/business') {
+      return { data: await mockSettingsService.updateBusiness(body) }
+    }
+
+    if (path === '/settings/branding') {
+      return { data: await mockSettingsService.updateBranding(body) }
+    }
+
     return { data: {} }
   },
 
   async delete(path: string) {
     await delay()
+
+    if (path.startsWith('/schedules/exceptions/')) {
+      const id = path.split('/')[3]
+      await mockScheduleService.removeException(id)
+      return { data: { success: true } }
+    }
 
     if (path.startsWith('/barbers/')) {
       const id = path.split('/')[2]

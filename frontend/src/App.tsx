@@ -19,6 +19,19 @@ const AdminServices = lazy(() => import('./pages/admin/Services'))
 const AdminAppointments = lazy(() => import('./pages/admin/Appointments'))
 const AdminSettings = lazy(() => import('./pages/admin/Settings'))
 
+const AdminPayments = lazy(() => import('./pages/admin/Payments'))
+const AdminNotifications = lazy(() => import('./pages/admin/Notifications'))
+const AdminReportsNotifications = lazy(() => import('./pages/admin/ReportsNotifications'))
+const AdminCampaigns = lazy(() => import('./pages/admin/Campaigns'))
+const AdminCampaignDetail = lazy(() => import('./pages/admin/CampaignDetail'))
+const AdminReports = lazy(() => import('./pages/admin/Reports'))
+const AdminReportsRevenue = lazy(() => import('./pages/admin/ReportsRevenue'))
+const AdminReportsAppointments = lazy(() => import('./pages/admin/ReportsAppointments'))
+const AdminReportsClients = lazy(() => import('./pages/admin/ReportsClients'))
+const AdminReportsBarbers = lazy(() => import('./pages/admin/ReportsBarbers'))
+const AdminSchedules = lazy(() => import('./pages/admin/Schedules'))
+const AdminAnalytics = lazy(() => import('./pages/admin/Analytics'))
+
 const BarberMyAppointments = lazy(() => import('./pages/barber/MyAppointments'))
 const BarberMyProfile = lazy(() => import('./pages/barber/MyProfile'))
 const BarberMySchedule = lazy(() => import('./pages/barber/MySchedule'))
@@ -65,11 +78,24 @@ export default function App() {
           {/* Admin */}
           <Route path="/admin" element={<ProtectedRoute><RoleRoute allowedRoles={['ADMIN']}><Layout /></RoleRoute></ProtectedRoute>}>
             <Route index element={<AdminDashboard />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="barbers" element={<AdminBarbers />} />
             <Route path="clients" element={<AdminClients />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="citas" element={<AdminAppointments />} />
             <Route path="configuracion" element={<AdminSettings />} />
+            <Route path="pagos" element={<AdminPayments />} />
+            <Route path="notificaciones" element={<AdminNotifications />} />
+            <Route path="reportes/notificaciones" element={<AdminReportsNotifications />} />
+            <Route path="campanas" element={<AdminCampaigns />} />
+            <Route path="campanas/:id" element={<AdminCampaignDetail />} />
+            <Route path="reportes" element={<AdminReports />} />
+            <Route path="reportes/ingresos" element={<AdminReportsRevenue />} />
+            <Route path="reportes/citas" element={<AdminReportsAppointments />} />
+            <Route path="reportes/clientes" element={<AdminReportsClients />} />
+            <Route path="reportes/barberos" element={<AdminReportsBarbers />} />
+            <Route path="horarios" element={<AdminSchedules />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
           </Route>
 
           {/* Barber */}
