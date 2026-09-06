@@ -21,8 +21,6 @@ const AdminPayments = lazy(() => import('./pages/admin/Payments'))
 const AdminNotifications = lazy(() => import('./pages/admin/Notifications'))
 const AdminSettings = lazy(() => import('./pages/admin/Settings'))
 
-const AdminPayments = lazy(() => import('./pages/admin/Payments'))
-const AdminNotifications = lazy(() => import('./pages/admin/Notifications'))
 const AdminReportsNotifications = lazy(() => import('./pages/admin/ReportsNotifications'))
 const AdminCampaigns = lazy(() => import('./pages/admin/Campaigns'))
 const AdminCampaignDetail = lazy(() => import('./pages/admin/CampaignDetail'))
@@ -88,8 +86,6 @@ export default function App() {
             <Route path="pagos" element={<AdminPayments />} />
             <Route path="notificaciones" element={<AdminNotifications />} />
             <Route path="configuracion" element={<AdminSettings />} />
-            <Route path="pagos" element={<AdminPayments />} />
-            <Route path="notificaciones" element={<AdminNotifications />} />
             <Route path="reportes/notificaciones" element={<AdminReportsNotifications />} />
             <Route path="campanas" element={<AdminCampaigns />} />
             <Route path="campanas/:id" element={<AdminCampaignDetail />} />
