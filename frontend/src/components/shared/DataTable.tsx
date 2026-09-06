@@ -1,135 +1,104 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-interface Column<T> {
-  key: keyof T | string
+export interface Column<T> {
+  key: string
   header: string
   render?: (item: T) => React.ReactNode
-  sortable?: boolean
+  className?: string
 }
 
-interface DataTableProps<T> {
-  data: T[]
+export interface DataTableProps<T> {
   columns: Column<T>[]
-  keyExtractor: (item: T) => string | number
-  searchPlaceholder?: string
-  searchKey?: keyof T
+  data: T[]
+  keyExtractor: (item: T) => string
+  emptyMessage?: string
+  renderCard?: (item: T) => React.ReactNode
+  className?: string
 }
 
 export function DataTable<T>({
-  data,
   columns,
+  data,
   keyExtractor,
-  searchPlaceholder = 'Buscar...',
-  searchKey,
+  emptyMessage = 'No hay datos disponibles',
+  renderCard,
+  className = '',
 }: DataTableProps<T>) {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [sortKey, setSortKey] = useState<string | null>(null)
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-
-  const handleSort = (key: string) => {
-    if (sortKey === key) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-    } else {
-      setSortKey(key)
-      setSortDirection('asc')
-    }
+  if (data.length === 0) {
+    return (
+      <div className="card text-center py-8 text-white/50" data-testid="datatable-empty">
+        {emptyMessage}
+      </div>
+    )
   }
 
-  // Filter
-  const filteredData = React.useMemo(() => {
-    if (!searchTerm || !searchKey) return data
-    return data.filter((item) => {
-      const value = item[searchKey]
-      if (value === undefined || value === null) return false
-      return String(value).toLowerCase().includes(searchTerm.toLowerCase())
-    })
-  }, [data, searchTerm, searchKey])
-
-  // Sort
-  const sortedData = React.useMemo(() => {
-    if (!sortKey) return filteredData
-    const sorted = [...filteredData]
-    sorted.sort((a, b) => {
-      // Safely access properties, fallback to string conversion if needed
-      const valA = (a as any)[sortKey]
-      const valB = (b as any)[sortKey]
-
-      if (valA === undefined || valA === null) return 1
-      if (valB === undefined || valB === null) return -1
-
-      if (valA < valB) return sortDirection === 'asc' ? -1 : 1
-      if (valA > valB) return sortDirection === 'asc' ? 1 : -1
-      return 0
-    })
-    return sorted
-  }, [filteredData, sortKey, sortDirection])
-
   return (
-    <div className="flex flex-col gap-4">
-      {searchKey && (
-        <div className="flex justify-between items-center">
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary w-full max-w-xs bg-surface text-text-primary"
-          />
-        </div>
-      )}
+    <div className={`w-full overflow-hidden ${className}`}>
+      {/* Mobile view (< 640px / sm:hidden): Stacked cards */}
+      <div className="sm:hidden space-y-3" data-testid="datatable-cards">
+        {data.map(item => {
+          const key = keyExtractor(item)
+          if (renderCard) {
+            return (
+              <div key={key} data-testid={`datatable-card-${key}`}>
+                {renderCard(item)}
+              </div>
+            )
+          }
 
-      <div className="overflow-x-auto border border-border rounded-lg shadow-sm">
-        <table className="min-w-full divide-y divide-border text-left text-sm text-text-muted">
-          <thead className="bg-surface text-xs text-text-muted uppercase font-semibold">
-            <tr>
-              {columns.map((column) => (
-                <th
-                  key={String(column.key)}
-                  onClick={() =>
-                    column.sortable !== false && handleSort(String(column.key))
-                  }
-                  className={`px-6 py-3 ${
-                    column.sortable !== false
-                      ? 'cursor-pointer hover:bg-surface-elevated select-none'
-                      : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-1">
-                    {column.header}
-                    {sortKey === column.key && (
-                      <span>{sortDirection === 'asc' ? '▲' : '▼'}</span>
-                    )}
-                  </div>
+          return (
+            <div
+              key={key}
+              data-testid={`datatable-card-${key}`}
+              className="card p-4 space-y-2 border border-white/10"
+            >
+              {columns.map(col => (
+                <div key={col.key} className="flex justify-between items-center text-sm gap-2">
+                  <span className="text-white/50 font-medium">{col.header}:</span>
+                  <span className="text-white text-right">
+                    {col.render ? col.render(item) : String((item as any)[col.key] ?? '')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Desktop view (>= 640px / hidden sm:block): Structured table */}
+      <div className="hidden sm:block overflow-x-auto">
+        <table className="w-full text-left border-collapse" data-testid="datatable-table">
+          <thead>
+            <tr className="border-b border-white/10 text-xs uppercase tracking-wider text-white/50">
+              {columns.map(col => (
+                <th key={col.key} className={`py-3 px-4 ${col.className || ''}`}>
+                  {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="bg-surface-elevated divide-y divide-border">
-            {sortedData.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-6 py-8 text-center text-text-muted"
-                >
-                  No se encontraron resultados
-                </td>
+          <tbody className="divide-y divide-white/5 text-sm">
+            {data.map(item => (
+              <tr
+                key={keyExtractor(item)}
+                data-testid={`datatable-row-${keyExtractor(item)}`}
+                className="hover:bg-white/5 transition-colors"
+              >
+                {columns.map(col => (
+                  <td key={col.key} className={`py-3 px-4 ${col.className || ''}`}>
+                    {col.render ? col.render(item) : String((item as any)[col.key] ?? '')}
+                  </td>
+                ))}
               </tr>
-            ) : (
-              sortedData.map((item) => (
-                <tr key={String(keyExtractor(item))} className="hover:bg-surface">
-                  {columns.map((column) => (
-                    <td key={String(column.key)} className="px-6 py-4 whitespace-nowrap">
-                      {column.render
-                        ? column.render(item)
-                        : String((item as any)[column.key] ?? '')}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
     </div>
   )
 }
+
+export default DataTable
+
+// Responsive card stacking for mobile (from redesign)
+// Added: sm:hidden for card view, hidden sm:block for table view

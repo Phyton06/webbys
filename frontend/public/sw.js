@@ -69,3 +69,42 @@ async function staleWhileRevalidate(request) {
   }).catch(() => cached);
   return cached || fetchPromise;
 }
+
+// Push notification event handlers
+self.addEventListener('push', event => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { title: "Webby's", message: event.data ? event.data.text() : 'Nueva notificación' };
+  }
+
+  const title = data.title || "Webby's Barbershop";
+  const options = {
+    body: data.message || data.body || 'Tienes una nueva actualización.',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: { url: data.url || '/' },
+    actions: data.actions || []
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+      for (const client of windowClients) {
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
+});

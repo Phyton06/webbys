@@ -138,7 +138,7 @@ describe('Assistant NewAppointment', () => {
     // Select barber
     fireEvent.change(screen.getByLabelText('Seleccionar barbero'), { target: { value: '1' } })
     // Set date
-    await act(async () => { fireEvent.change(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-09-05' } }) })
+    await act(async () => { fireEvent.change(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-09-20' } }) })
     await waitFor(() => expect(screen.getByText('10:00')).toBeInTheDocument())
     expect(screen.getByText('11:00')).toBeInTheDocument()
   })
@@ -160,7 +160,7 @@ describe('Assistant NewAppointment', () => {
     // Select barber
     fireEvent.change(screen.getByLabelText('Seleccionar barbero'), { target: { value: '1' } })
     // Set date
-    await act(async () => { fireEvent.change(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-09-05' } }) })
+    await act(async () => { fireEvent.change(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-09-20' } }) })
     await waitFor(() => expect(screen.getByText('10:00')).toBeInTheDocument())
     // Select time
     await act(async () => { screen.getByText('10:00').click() })
@@ -183,7 +183,7 @@ describe('Assistant NewAppointment', () => {
     fireEvent.change(screen.getByLabelText('Buscar cliente'), { target: { value: 'Maria' } })
     await act(async () => { screen.getByText('Maria · 555').click() })
     fireEvent.change(screen.getByLabelText('Seleccionar barbero'), { target: { value: '1' } })
-    await act(async () => { fireEvent.change(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-09-05' } }) })
+    await act(async () => { fireEvent.change(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-09-20' } }) })
     await waitFor(() => expect(screen.getByText('10:00')).toBeInTheDocument())
     await act(async () => { screen.getByText('10:00').click() })
     await act(async () => { screen.getByText('Agendar cita').click() })
