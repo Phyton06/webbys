@@ -24,13 +24,14 @@ export const StatCard: React.FC<StatCardProps> = ({
         <h3 className="text-2xl font-bold text-text-primary">{value}</h3>
         {trend !== undefined && (
           <span
+            data-testid="revenue-trend-badge"
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
               trendDirection === 'up'
                 ? 'bg-badge-success/20 text-badge-success'
                 : 'bg-badge-error/20 text-badge-error'
             }`}
           >
-            <span>{trendDirection === 'up' ? '↑' : '↓'}</span>
+            <span>{trendDirection === 'up' ? '+' : '-'}</span>
             <span>{typeof trend === 'number' ? `${trend}%` : trend}</span>
           </span>
         )}
