@@ -31,3 +31,8 @@ engram/
 openspec/
 docs/.obsidian/
 frontend/tsconfig.tsbuildinfo
+
+# Tool artifacts
+.codegraph/
+.playwright-mcp/
+frontend/coverage/

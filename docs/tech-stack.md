@@ -36,14 +36,14 @@
 
 ## Frontend: PWA con React
 
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| React | 18+ | Framework UI |
-| Vite | 5+ | Bundler, HMR rápido |
-| TypeScript | 5+ | Type safety |
-| Tailwind CSS | 3+ | Estilos utility-first |
-| React Router | 6+ | Navegación SPA |
-| Axios | 1+ | HTTP client |
+| Tecnología   | Versión | Propósito             |
+| ------------ | ------- | --------------------- |
+| React        | 18+     | Framework UI          |
+| Vite         | 5+      | Bundler, HMR rápido   |
+| TypeScript   | 5+      | Type safety           |
+| Tailwind CSS | 3+      | Estilos utility-first |
+| React Router | 6+      | Navegación SPA        |
+| Axios        | 1+      | HTTP client           |
 
 ### Por qué React + Vite
 
