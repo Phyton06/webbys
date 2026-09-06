@@ -22,30 +22,3 @@ export interface BarberProfile {
   photoUrl?: string
   schedule?: Record<string, { start: string; end: string }[]>
 }
-
-// ─── Notification Types (from redesign) ──────────────────────
-
-export interface ScheduledNotificationRule {
-  id: string
-  name: string
-  type: 'APPOINTMENT_REMINDER' | 'PROMOTION' | 'CUSTOM'
-  offsetHours: number
-  frequencyPerDay: number
-  advanceDays: number
-  active: boolean
-  title: string
-  body: string
-}
-
-export interface PushTestPayload {
-  title: string
-  message: string
-}
-
-export interface BarberProfile {
-  id: string
-  userId: string
-  bio?: string
-  photoUrl?: string
-  schedule?: Record<string, { start: string; end: string }[]>
-}
