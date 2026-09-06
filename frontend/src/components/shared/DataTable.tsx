@@ -13,6 +13,8 @@ export interface DataTableProps<T> {
   keyExtractor: (item: T) => string
   emptyMessage?: string
   className?: string
+  searchKey?: string
+  searchPlaceholder?: string
 }
 
 export function DataTable<T>({

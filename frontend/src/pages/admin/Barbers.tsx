@@ -45,10 +45,6 @@ export default function Barbers() {
     }
   }
 
-  const handleDeactivateClick = (id: string) => {
-    setSelectedBarberId(id)
-    setIsConfirmOpen(true)
-  }
 
   const handleConfirmDeactivate = async (id?: string) => {
     const barberId = id || selectedBarberId
