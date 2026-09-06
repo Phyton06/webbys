@@ -2,10 +2,15 @@
 export function mapStatus(s: string): string {
   const m: Record<string, string> = {
     PENDING: 'PENDIENTE',
+    PENDIENTE: 'PENDIENTE',
     CONFIRMED: 'CONFIRMADA',
+    CONFIRMADA: 'CONFIRMADA',
     IN_PROGRESS: 'EN_CURSO',
+    EN_CURSO: 'EN_CURSO',
     COMPLETED: 'COMPLETADA',
+    COMPLETADA: 'COMPLETADA',
     CANCELLED: 'CANCELADA',
+    CANCELADA: 'CANCELADA',
   }
   return m[s] || 'PENDIENTE'
 }

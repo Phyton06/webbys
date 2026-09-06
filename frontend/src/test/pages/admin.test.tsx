@@ -64,22 +64,60 @@ describe('Admin Settings', () => {
 // --- Dashboard ---
 import Dashboard from '../../pages/admin/Dashboard'
 describe('Admin Dashboard', () => {
-  it('shows loading spinner then content', async () => {
+  it('shows single Ingresos Semanales hero card and no redundant stat cards', async () => {
     mock.get.mockResolvedValue({ data: [] })
     render(<Dashboard />, { wrapper: adminWrapper })
     await waitFor(() => expect(screen.getByText('Dashboard')).toBeInTheDocument())
-    expect(screen.getByText('Citas hoy')).toBeInTheDocument()
-    expect(screen.getByText('Pendientes')).toBeInTheDocument()
-    expect(screen.getByText('Esta semana')).toBeInTheDocument()
+    expect(screen.getByText('Ingresos Semanales')).toBeInTheDocument()
+    expect(screen.queryByText('Citas hoy')).not.toBeInTheDocument()
+    expect(screen.queryByText('Pendientes')).not.toBeInTheDocument()
+    expect(screen.queryByText('Esta semana')).not.toBeInTheDocument()
+    expect(screen.queryByText('Barberos activos')).not.toBeInTheDocument()
   })
 
-  it('shows empty state when no appointments', async () => {
+  it('renders native SVG revenue trend chart with 7 day labels (Lun to Dom)', async () => {
+    mock.get.mockResolvedValue({ data: [] })
+    render(<Dashboard />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByTestId('revenue-svg')).toBeInTheDocument())
+    expect(screen.getByText('Lun')).toBeInTheDocument()
+    expect(screen.getByText('Mar')).toBeInTheDocument()
+    expect(screen.getByText('Mié')).toBeInTheDocument()
+    expect(screen.getByText('Jue')).toBeInTheDocument()
+    expect(screen.getByText('Vie')).toBeInTheDocument()
+    expect(screen.getByText('Sáb')).toBeInTheDocument()
+    expect(screen.getByText('Dom')).toBeInTheDocument()
+  })
+
+  it('displays computed weekly revenue and positive trend badge when revenue exists', async () => {
+    mock.get.mockImplementation((url: string) => {
+      if (url === '/appointments') {
+        return Promise.resolve({
+          data: [
+            { id: '1', date: '2026-09-01', status: 'COMPLETADA', amount: 12500 },
+          ],
+        })
+      }
+      return Promise.resolve({ data: [] })
+    })
+    render(<Dashboard />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByText('$12,500')).toBeInTheDocument())
+    expect(screen.getByTestId('revenue-trend-badge')).toHaveTextContent('+15%')
+  })
+
+  it('shows graceful fallback on zero revenue ($0 and 0% badge)', async () => {
+    mock.get.mockResolvedValue({ data: [] })
+    render(<Dashboard />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByText('$0')).toBeInTheDocument())
+    expect(screen.getByTestId('revenue-trend-badge')).toHaveTextContent('0%')
+  })
+
+  it('shows empty state when no appointments today', async () => {
     mock.get.mockResolvedValue({ data: [] })
     render(<Dashboard />, { wrapper: adminWrapper })
     await waitFor(() => expect(screen.getByText('No hay citas programadas para hoy')).toBeInTheDocument())
   })
 
-  it('renders appointment cards when data exists', async () => {
+  it('renders appointment cards when data exists for today', async () => {
     const today = new Date().toISOString().split('T')[0]
     mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'PENDING' }] })
