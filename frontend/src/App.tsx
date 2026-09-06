@@ -17,10 +17,10 @@ const AdminBarbers = lazy(() => import('./pages/admin/Barbers'))
 const AdminClients = lazy(() => import('./pages/admin/Clients'))
 const AdminServices = lazy(() => import('./pages/admin/Services'))
 const AdminAppointments = lazy(() => import('./pages/admin/Appointments'))
-const AdminSettings = lazy(() => import('./pages/admin/Settings'))
-
 const AdminPayments = lazy(() => import('./pages/admin/Payments'))
 const AdminNotifications = lazy(() => import('./pages/admin/Notifications'))
+const AdminSettings = lazy(() => import('./pages/admin/Settings'))
+
 const AdminReportsNotifications = lazy(() => import('./pages/admin/ReportsNotifications'))
 const AdminCampaigns = lazy(() => import('./pages/admin/Campaigns'))
 const AdminCampaignDetail = lazy(() => import('./pages/admin/CampaignDetail'))
@@ -83,9 +83,9 @@ export default function App() {
             <Route path="clients" element={<AdminClients />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="citas" element={<AdminAppointments />} />
-            <Route path="configuracion" element={<AdminSettings />} />
             <Route path="pagos" element={<AdminPayments />} />
             <Route path="notificaciones" element={<AdminNotifications />} />
+            <Route path="configuracion" element={<AdminSettings />} />
             <Route path="reportes/notificaciones" element={<AdminReportsNotifications />} />
             <Route path="campanas" element={<AdminCampaigns />} />
             <Route path="campanas/:id" element={<AdminCampaignDetail />} />

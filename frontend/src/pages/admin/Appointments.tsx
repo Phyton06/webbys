@@ -28,6 +28,7 @@ export default function AdminAppointments() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string>('TODAS')
+  const [filterDate, setFilterDate] = useState<string>('')
 
   useEffect(() => {
     Promise.all([
@@ -52,7 +53,11 @@ export default function AdminAppointments() {
     }).finally(() => setLoading(false))
   }, [])
 
-  const filtered = filter === 'TODAS' ? appointments : appointments.filter(a => a.status === filter)
+  const filtered = appointments.filter(a => {
+    const matchesStatus = filter === 'TODAS' || a.status === filter
+    const matchesDate = !filterDate || a.date === filterDate
+    return matchesStatus && matchesDate
+  })
 
   if (loading) return <LoadingSpinner />
 
@@ -60,21 +65,40 @@ export default function AdminAppointments() {
     <div className="space-y-6">
       <h1 className="text-2xl font-display font-bold">Citas</h1>
 
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {['TODAS', 'PENDIENTE', 'CONFIRMADA', 'EN_CURSO', 'COMPLETADA', 'CANCELADA'].map(f => (
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex gap-2 overflow-x-auto pb-2 flex-1">
+          {['TODAS', 'PENDIENTE', 'CONFIRMADA', 'EN_CURSO', 'COMPLETADA', 'CANCELADA'].map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`btn text-xs whitespace-nowrap ${filter === f ? 'bg-red text-white' : 'bg-gray-700 text-text-muted'}`}
+            >
+              {f === 'TODAS' ? 'Todas' : f.charAt(0) + f.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-date" className="text-xs font-semibold text-text-muted whitespace-nowrap">Filtrar por fecha</label>
+          <input
+            id="filter-date"
+            type="date"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+            className="px-3 py-1.5 border border-border rounded-md bg-surface-elevated text-text-primary text-sm"
+          />
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`btn text-xs whitespace-nowrap ${filter === f ? 'bg-red text-white' : 'bg-gray-700 text-text-muted'}`}
+            onClick={() => setFilterDate('')}
+            aria-label="Limpiar fecha"
+            className={`text-xs hover:text-text-primary ${filterDate ? 'text-text-muted' : 'invisible'}`}
           >
-            {f === 'TODAS' ? 'Todas' : f.charAt(0) + f.slice(1).toLowerCase()}
+            Limpiar fecha
           </button>
-        ))}
+        </div>
       </div>
 
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <p className="text-text-muted text-sm">No hay citas</p>
+          <p className="text-text-muted text-sm">{filterDate ? 'No hay citas para esta fecha' : 'No hay citas'}</p>
         ) : (
           filtered.map(a => (
             <AppointmentCard

@@ -9,7 +9,6 @@ interface Barber {
   name: string
   email: string
   phone: string
-  specialty: string
   active: boolean
 }
 
@@ -17,7 +16,7 @@ export default function Barbers() {
   const [barbers, setBarbers] = useState<Barber[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', email: '', phone: '', specialty: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '' })
   
   // Dialog state
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -38,7 +37,7 @@ export default function Barbers() {
     e.preventDefault()
     try {
       await api.post('/barbers', form)
-      setForm({ name: '', email: '', phone: '', specialty: '' })
+      setForm({ name: '', email: '', phone: '' })
       setShowForm(false)
       load()
     } catch (error) {
@@ -46,15 +45,12 @@ export default function Barbers() {
     }
   }
 
-  const handleDeactivateClick = (id: string) => {
-    setSelectedBarberId(id)
-    setIsConfirmOpen(true)
-  }
 
-  const handleConfirmDeactivate = async () => {
-    if (selectedBarberId) {
+  const handleConfirmDeactivate = async (id?: string) => {
+    const barberId = id || selectedBarberId
+    if (barberId) {
       try {
-        await api.put(`/barbers/${selectedBarberId}`, { active: false })
+        await api.put(`/barbers/${barberId}`, { active: false })
         load()
       } catch (error) {
         console.error('Error deactivating barber:', error)
@@ -98,11 +94,6 @@ export default function Barbers() {
       header: 'Teléfono',
     },
     {
-      key: 'specialty',
-      header: 'Especialidad',
-      render: (item: Barber) => item.specialty || 'Sin especialidad',
-    },
-    {
       key: 'active',
       header: 'Estado',
       render: (item: Barber) => (
@@ -122,7 +113,7 @@ export default function Barbers() {
         <div className="flex items-center gap-2">
           {item.active ? (
             <button
-              onClick={() => handleDeactivateClick(item.id)}
+              onClick={() => handleConfirmDeactivate(item.id)}
               className="text-xs font-semibold text-red-600 hover:text-red-900 transition"
             >
               Desactivar
@@ -191,17 +182,6 @@ export default function Barbers() {
                 required
                 className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 aria-label="Teléfono"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="specialty-input" className="text-xs font-semibold text-text-muted">Especialidad</label>
-              <input
-                id="specialty-input"
-                placeholder="Especialidad"
-                value={form.specialty}
-                onChange={(e) => setForm((f) => ({ ...f, specialty: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                aria-label="Especialidad"
               />
             </div>
           </div>

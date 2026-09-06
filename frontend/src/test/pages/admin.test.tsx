@@ -64,22 +64,60 @@ describe('Admin Settings', () => {
 // --- Dashboard ---
 import Dashboard from '../../pages/admin/Dashboard'
 describe('Admin Dashboard', () => {
-  it('shows loading spinner then content', async () => {
+  it('shows single Ingresos Semanales hero card and no redundant stat cards', async () => {
     mock.get.mockResolvedValue({ data: [] })
     render(<Dashboard />, { wrapper: adminWrapper })
     await waitFor(() => expect(screen.getByText('Dashboard')).toBeInTheDocument())
-    expect(screen.getByText('Citas hoy')).toBeInTheDocument()
-    expect(screen.getByText('Pendientes')).toBeInTheDocument()
-    expect(screen.getByText('Esta semana')).toBeInTheDocument()
+    expect(screen.getByText('Ingresos Semanales')).toBeInTheDocument()
+    expect(screen.queryByText('Citas hoy')).not.toBeInTheDocument()
+    expect(screen.queryByText('Pendientes')).not.toBeInTheDocument()
+    expect(screen.queryByText('Esta semana')).not.toBeInTheDocument()
+    expect(screen.queryByText('Barberos activos')).not.toBeInTheDocument()
   })
 
-  it('shows empty state when no appointments', async () => {
+  it('renders native SVG revenue trend chart with 7 day labels (Lun to Dom)', async () => {
+    mock.get.mockResolvedValue({ data: [] })
+    render(<Dashboard />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByTestId('revenue-svg')).toBeInTheDocument())
+    expect(screen.getByText('Lun')).toBeInTheDocument()
+    expect(screen.getByText('Mar')).toBeInTheDocument()
+    expect(screen.getByText('Mié')).toBeInTheDocument()
+    expect(screen.getByText('Jue')).toBeInTheDocument()
+    expect(screen.getByText('Vie')).toBeInTheDocument()
+    expect(screen.getByText('Sáb')).toBeInTheDocument()
+    expect(screen.getByText('Dom')).toBeInTheDocument()
+  })
+
+  it('displays computed weekly revenue and positive trend badge when revenue exists', async () => {
+    mock.get.mockImplementation((url: string) => {
+      if (url === '/appointments') {
+        return Promise.resolve({
+          data: [
+            { id: '1', date: '2026-09-01', status: 'COMPLETADA', amount: 12500 },
+          ],
+        })
+      }
+      return Promise.resolve({ data: [] })
+    })
+    render(<Dashboard />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByText('$12,500')).toBeInTheDocument())
+    expect(screen.getByTestId('revenue-trend-badge')).toHaveTextContent('+15%')
+  })
+
+  it('shows graceful fallback on zero revenue ($0 and 0% badge)', async () => {
+    mock.get.mockResolvedValue({ data: [] })
+    render(<Dashboard />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByText('$0')).toBeInTheDocument())
+    expect(screen.getByTestId('revenue-trend-badge')).toHaveTextContent('0%')
+  })
+
+  it('shows empty state when no appointments today', async () => {
     mock.get.mockResolvedValue({ data: [] })
     render(<Dashboard />, { wrapper: adminWrapper })
     await waitFor(() => expect(screen.getByText('No hay citas programadas para hoy')).toBeInTheDocument())
   })
 
-  it('renders appointment cards when data exists', async () => {
+  it('renders appointment cards when data exists for today', async () => {
     const today = new Date().toISOString().split('T')[0]
     mock.get.mockImplementation((url: string) => {
       if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Maria', barberName: 'Juan', serviceName: 'Corte', date: today, time: '10:00', status: 'PENDING' }] })
@@ -101,8 +139,8 @@ describe('Admin Barbers', () => {
     await waitFor(() => expect(screen.getByText('Barberos')).toBeInTheDocument())
   })
 
-  it('renders barber cards with active/inactive badges', async () => {
-    mock.get.mockResolvedValue({ data: { barbers: [{ id: '1', name: 'Juan', email: 'j@j.com', phone: '555', specialty: 'Fade', active: true }, { id: '2', name: 'Pedro', email: 'p@p.com', phone: '666', specialty: '', active: false }] } })
+  it('renders barber cards with active/inactive badges and action buttons', async () => {
+    mock.get.mockResolvedValue({ data: { barbers: [{ id: '1', name: 'Juan', email: 'j@j.com', phone: '555', active: true }, { id: '2', name: 'Pedro', email: 'p@p.com', phone: '666', active: false }] } })
     render(<Barbers />, { wrapper: adminWrapper })
     await waitFor(() => {
       expect(screen.getByText('Juan')).toBeInTheDocument()
@@ -110,9 +148,11 @@ describe('Admin Barbers', () => {
     })
     expect(screen.getByText('Activo')).toBeInTheDocument()
     expect(screen.getByText('Inactivo')).toBeInTheDocument()
+    expect(screen.getByText('Desactivar')).toBeInTheDocument()
+    expect(screen.getByText('Reactivar')).toBeInTheDocument()
   })
 
-  it('toggles form and submits new barber', async () => {
+  it('toggles form and submits new barber without specialty field', async () => {
     mock.get.mockResolvedValue({ data: { barbers: [] } })
     mock.post.mockResolvedValue({ data: {} })
     render(<Barbers />, { wrapper: adminWrapper })
@@ -120,15 +160,29 @@ describe('Admin Barbers', () => {
 
     await act(async () => { screen.getByText('+ Nuevo').click() })
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument()
+    expect(screen.getByLabelText('Correo')).toBeInTheDocument()
+    expect(screen.getByLabelText('Teléfono')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Especialidad')).not.toBeInTheDocument()
 
     await act(async () => {
       fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Test' } })
       fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 't@t.com' } })
       fireEvent.change(screen.getByLabelText('Teléfono'), { target: { value: '123' } })
-      fireEvent.change(screen.getByLabelText('Especialidad'), { target: { value: 'Fade' } })
       screen.getByText('Guardar').click()
     })
-    expect(mock.post).toHaveBeenCalledWith('/barbers', expect.objectContaining({ name: 'Test' }))
+    expect(mock.post).toHaveBeenCalledWith('/barbers', expect.objectContaining({ name: 'Test', email: 't@t.com', phone: '123' }))
+  })
+
+  it('toggles barber active status when clicking action button', async () => {
+    mock.get.mockResolvedValue({ data: { barbers: [{ id: '1', name: 'Juan', email: 'j@j.com', phone: '555', active: true }] } })
+    mock.put.mockResolvedValue({ data: {} })
+    render(<Barbers />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByText('Desactivar')).toBeInTheDocument())
+
+    await act(async () => {
+      screen.getByText('Desactivar').click()
+    })
+    expect(mock.put).toHaveBeenCalledWith('/barbers/1', expect.objectContaining({ active: false }))
   })
 })
 
@@ -210,21 +264,80 @@ describe('Admin Services', () => {
 // --- Appointments ---
 import AdminAppointments from '../../pages/admin/Appointments'
 describe('Admin Appointments', () => {
-  it('renders with filter buttons', async () => {
+  it('renders with filter buttons and native date picker', async () => {
     mock.get.mockResolvedValue({ data: [] })
     render(<AdminAppointments />, { wrapper: adminWrapper })
     await waitFor(() => expect(screen.getByText('Citas')).toBeInTheDocument())
     expect(screen.getByText('Todas')).toBeInTheDocument()
+    expect(screen.getByLabelText('Filtrar por fecha')).toBeInTheDocument()
     expect(screen.getByText('No hay citas')).toBeInTheDocument()
   })
 
-  it('renders appointments and can filter', async () => {
-    const today = new Date().toISOString().split('T')[0]
+  it('renders appointments and filters by status and date', async () => {
+    const sampleAppts = [
+      { id: '1', clientName: 'Ana', barberName: 'B1', serviceName: 'S1', date: '2026-09-05', time: '10:00', status: 'CONFIRMED' },
+      { id: '2', clientName: 'Carlos', barberName: 'B1', serviceName: 'S1', date: '2026-09-06', time: '11:00', status: 'PENDING' },
+    ]
     mock.get.mockImplementation((url: string) => {
-      if (url === '/appointments') return Promise.resolve({ data: [{ id: '1', clientName: 'Ana', barberName: 'B1', serviceName: 'S1', date: today, time: '10:00', status: 'PENDING' }] })
+      if (url === '/appointments') return Promise.resolve({ data: sampleAppts })
+      return Promise.resolve({ data: [] })
+    })
+    render(<AdminAppointments />, { wrapper: adminWrapper })
+    await waitFor(() => {
+      expect(screen.getByText('Ana')).toBeInTheDocument()
+      expect(screen.getByText('Carlos')).toBeInTheDocument()
+    })
+
+    // Filter by specific date
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Filtrar por fecha'), { target: { value: '2026-09-05' } })
+    })
+    expect(screen.getByText('Ana')).toBeInTheDocument()
+    expect(screen.queryByText('Carlos')).not.toBeInTheDocument()
+
+    // Clear date filter
+    await act(async () => {
+      screen.getByLabelText('Limpiar fecha').click()
+    })
+    expect(screen.getByText('Ana')).toBeInTheDocument()
+    expect(screen.getByText('Carlos')).toBeInTheDocument()
+  })
+
+  it('shows empty state when no appointments match selected date', async () => {
+    const sampleAppts = [
+      { id: '1', clientName: 'Ana', barberName: 'B1', serviceName: 'S1', date: '2026-09-05', time: '10:00', status: 'CONFIRMED' },
+    ]
+    mock.get.mockImplementation((url: string) => {
+      if (url === '/appointments') return Promise.resolve({ data: sampleAppts })
       return Promise.resolve({ data: [] })
     })
     render(<AdminAppointments />, { wrapper: adminWrapper })
     await waitFor(() => expect(screen.getByText('Ana')).toBeInTheDocument())
+
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Filtrar por fecha'), { target: { value: '2026-09-20' } })
+    })
+    expect(screen.getByText('No hay citas para esta fecha')).toBeInTheDocument()
+  })
+
+  it('combines status and date filtering', async () => {
+    const sampleAppts = [
+      { id: '1', clientName: 'Ana', barberName: 'B1', serviceName: 'S1', date: '2026-09-05', time: '10:00', status: 'CONFIRMED' },
+      { id: '2', clientName: 'Pedro', barberName: 'B1', serviceName: 'S1', date: '2026-09-05', time: '11:00', status: 'PENDING' },
+    ]
+    mock.get.mockImplementation((url: string) => {
+      if (url === '/appointments') return Promise.resolve({ data: sampleAppts })
+      return Promise.resolve({ data: [] })
+    })
+    render(<AdminAppointments />, { wrapper: adminWrapper })
+    await waitFor(() => expect(screen.getByText('Ana')).toBeInTheDocument())
+
+    // Filter by date AND status 'Confirmada'
+    await act(async () => {
+      fireEvent.change(screen.getByLabelText('Filtrar por fecha'), { target: { value: '2026-09-05' } })
+      screen.getByRole('button', { name: 'Confirmada' }).click()
+    })
+    expect(screen.getByText('Ana')).toBeInTheDocument()
+    expect(screen.queryByText('Pedro')).not.toBeInTheDocument()
   })
 })
