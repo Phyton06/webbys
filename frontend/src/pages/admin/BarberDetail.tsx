@@ -105,7 +105,7 @@ export default function BarberDetail() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/admin/barbers')}
-            className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#262626] border border-[#333333] text-sm text-text-muted rounded-xl transition"
+            className="px-4 py-2 bg-[#1A1A1A] hover:bg-[#262626] border border-[#333333] hover:border-[#666666] text-xs font-bold uppercase tracking-wider text-text-muted hover:text-white rounded-xl transition-all min-h-[44px] inline-flex items-center justify-center gap-2"
           >
             &larr; Volver
           </button>
@@ -114,10 +114,10 @@ export default function BarberDetail() {
 
         <button
           onClick={() => setIsConfirmOpen(true)}
-          className={`px-4 py-2 text-sm font-bold uppercase rounded-xl transition ${
+          className={`px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all min-h-[44px] shadow-lg inline-flex items-center justify-center ${
             barber.active
-              ? 'bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20'
-              : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20'
+              ? 'bg-[#9B1B30] text-white hover:bg-[#C41E3A] shadow-red/10'
+              : 'bg-[#00BCD4] text-black hover:bg-[#0097A7] shadow-cyan/10'
           }`}
         >
           {barber.active ? 'Desactivar Barbero' : 'Activar Barbero'}
