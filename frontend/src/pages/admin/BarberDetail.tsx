@@ -161,12 +161,17 @@ export default function BarberDetail() {
                 <div
                   className="w-3 h-full"
                   style={{
-                    background:
-                      item.status === 'COMPLETADA'
-                        ? 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #22c55e 4px, #22c55e 8px)'
-                        : item.status === 'PENDIENTE'
-                        ? 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #f59e0b 4px, #f59e0b 8px)'
-                        : 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #ef4444 4px, #ef4444 8px)',
+                    background: (() => {
+                      const colorMap: Record<string, string> = {
+                        COMPLETADA: '#22c55e',
+                        CONFIRMADA: '#00BCD4',
+                        PENDIENTE: '#f59e0b',
+                        EN_CURSO: '#a855f7',
+                        CANCELADA: '#ef4444',
+                      };
+                      const color = colorMap[item.status] || '#666666';
+                      return `repeating-linear-gradient(-45deg, transparent, transparent 4px, ${color} 4px, ${color} 8px)`;
+                    })(),
                     opacity: 0.8,
                   }}
                 />
@@ -182,9 +187,21 @@ export default function BarberDetail() {
                       <span className="text-xs font-bold text-white">{item.date}</span>
                       <p className="text-[9px] text-text-muted font-semibold mt-0.5">{item.time}</p>
                     </div>
-                    <div className="text-right">
-                      <span className="text-xs font-bold text-cyan">${item.amount}</span>
-                      <p className="text-[9px] text-text-muted font-semibold mt-0.5">{item.status}</p>
+                    <div className="text-right flex flex-col items-end gap-1">
+                      <span className="text-xs font-bold text-cyan">${item.amount} MXN</span>
+                      <span
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-bold ${
+                          item.status === 'COMPLETADA'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : item.status === 'CONFIRMADA'
+                            ? 'bg-cyan/10 text-cyan border border-cyan/20'
+                            : item.status === 'PENDIENTE'
+                            ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                        }`}
+                      >
+                        {item.status}
+                      </span>
                     </div>
                   </div>
                 </div>
