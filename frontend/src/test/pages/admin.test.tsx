@@ -159,17 +159,15 @@ describe('Admin Barbers', () => {
 
     await act(async () => { screen.getByText('+ Nuevo').click() })
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument()
-    expect(screen.getByLabelText('Correo')).toBeInTheDocument()
     expect(screen.getByLabelText('Teléfono')).toBeInTheDocument()
     expect(screen.queryByLabelText('Especialidad')).not.toBeInTheDocument()
 
     await act(async () => {
       fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Test' } })
-      fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 't@t.com' } })
       fireEvent.change(screen.getByLabelText('Teléfono'), { target: { value: '123' } })
       screen.getByText('Guardar').click()
     })
-    expect(mock.post).toHaveBeenCalledWith('/barbers', expect.objectContaining({ name: 'Test', email: 't@t.com', phone: '123' }))
+    expect(mock.post).toHaveBeenCalledWith('/barbers', expect.objectContaining({ name: 'Test', phone: '123' }))
   })
 })
 

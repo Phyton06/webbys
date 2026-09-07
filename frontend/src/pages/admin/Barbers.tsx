@@ -17,7 +17,10 @@ export default function Barbers() {
   const [barbers, setBarbers] = useState<Barber[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ name: '', email: '', phone: '' })
+  const [form, setForm] = useState({ name: '', phone: '' })
+  const [showInviteModal, setShowInviteModal] = useState(false)
+  const [inviteLink, setInviteLink] = useState('')
+  const [copied, setCopied] = useState(false)
 
   const load = () => {
     api.get('/barbers')
@@ -33,13 +36,25 @@ export default function Barbers() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await api.post('/barbers', form)
-      setForm({ name: '', email: '', phone: '' })
+      const tempEmail = `temp_invite_${Date.now()}@webbys.com`
+      const payload = { name: form.name, email: tempEmail, phone: form.phone }
+      const res = await api.post('/barbers', payload)
+      const createdBarber = res.data?.barber || res.data
+      const barberId = createdBarber?.id || `u${barbers.length + 3}`
+      setInviteLink(`${window.location.origin}/register?role=barber&id=${barberId}`)
+      setShowInviteModal(true)
+      setForm({ name: '', phone: '' })
       setShowForm(false)
       load()
     } catch (error) {
       console.error('Error creating barber:', error)
     }
+  }
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(inviteLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) return <LoadingSpinner />
@@ -65,7 +80,11 @@ export default function Barbers() {
                 {item.active ? 'ACTIVO' : 'INACTIVO'}
               </span>
             </div>
-            <p className="text-xs text-text-muted mt-0.5">{item.email}</p>
+            {item.email.startsWith('temp_invite') ? (
+              <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded mt-1 inline-block">REGISTRO PENDIENTE</span>
+            ) : (
+              <p className="text-xs text-text-muted mt-0.5">{item.email}</p>
+            )}
             <p className="text-[11px] text-cyan font-medium mt-0.5">{item.phone}</p>
           </div>
         </div>
@@ -131,20 +150,6 @@ export default function Barbers() {
                   aria-label="Nombre"
                 />
               </div>
-              
-              <div className="flex flex-col gap-1.5">
-                <label htmlFor="email-input" className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Correo Electrónico</label>
-                <input
-                  id="email-input"
-                  placeholder="carlos@webbys.com"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  required
-                  className="w-full bg-[#0D0D0D] border border-[#333333] hover:border-[#444444] focus:border-[#00BCD4] text-white rounded-xl px-4 py-3 min-h-[48px] focus:outline-none transition-all duration-150 text-sm placeholder-gray-600"
-                  aria-label="Correo"
-                />
-              </div>
 
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="phone-input" className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Teléfono de Contacto</label>
@@ -176,6 +181,39 @@ export default function Barbers() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-[#1A1A1A] border border-[#333333] rounded-2xl max-w-md w-full p-6 space-y-6 shadow-[0_4px_30px_rgba(0,0,0,0.6)] animate-slide-up text-center">
+            <div className="w-12 h-12 rounded-full bg-cyan/15 border border-cyan/30 flex items-center justify-center text-cyan font-bold text-xl mx-auto shadow-[0_0_12px_rgba(0,188,212,0.2)]">
+              ✓
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">Barbero Registrado</h2>
+              <p className="text-xs text-text-muted mt-1.5">
+                Copia este enlace de registro y envíaselo para que termine de configurar su cuenta.
+              </p>
+            </div>
+
+            <div className="bg-[#0D0D0D] border border-[#2A2A2A] rounded-xl p-3 flex items-center justify-between gap-3 overflow-hidden">
+              <span className="text-xs text-cyan truncate text-left select-all flex-1 font-mono">{inviteLink}</span>
+              <button
+                onClick={handleCopyLink}
+                className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#262626] border border-[#333333] text-[10px] font-bold uppercase tracking-wider text-cyan rounded-lg transition"
+              >
+                {copied ? 'Copiado' : 'Copiar'}
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowInviteModal(false)}
+              className="w-full py-3 bg-[#00BCD4] hover:bg-[#4DD0E1] text-black rounded-xl text-xs font-bold uppercase tracking-wider transition-all min-h-[48px] shadow-lg shadow-cyan/10"
+            >
+              Listo
+            </button>
+          </div>
         </div>
       )}
 

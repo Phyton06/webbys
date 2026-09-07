@@ -30,6 +30,15 @@ export default function BarberDetail() {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [loading, setLoading] = useState(true)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = () => {
+    if (!barber) return
+    const inviteLink = `${window.location.origin}/register?role=barber&id=${barber.id}`
+    navigator.clipboard.writeText(inviteLink)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   const load = async () => {
     try {
@@ -137,18 +146,42 @@ export default function BarberDetail() {
         <div className="flex-1 text-center md:text-left space-y-1">
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <h2 className="text-lg font-bold text-white">{barber.name}</h2>
-            <span
-              className={`inline-flex self-center items-center px-2 py-0.5 rounded text-[10px] font-bold ${
-                barber.active
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'bg-red-500/10 text-red-400 border border-red-500/20'
-              }`}
-            >
-              {barber.active ? 'ACTIVO' : 'INACTIVO'}
-            </span>
+            <div className="flex items-center gap-2 mt-1 md:mt-0">
+              <span
+                className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${
+                  barber.active
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                    : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                }`}
+              >
+                {barber.active ? 'ACTIVO' : 'INACTIVO'}
+              </span>
+              {barber.email.startsWith('temp_invite') && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  REGISTRO PENDIENTE
+                </span>
+              )}
+            </div>
           </div>
-          <p className="text-sm text-text-muted">{barber.email}</p>
           <p className="text-sm text-cyan font-medium">{barber.phone}</p>
+          
+          {barber.email.startsWith('temp_invite') ? (
+            <div className="pt-2 flex flex-col sm:flex-row sm:items-center gap-2 max-w-md w-full">
+              <div className="bg-[#0D0D0D] border border-[#2A2A2A] rounded-xl px-3 py-2 flex items-center justify-between gap-3 overflow-hidden flex-1">
+                <span className="text-xs text-cyan truncate text-left select-all font-mono">
+                  {window.location.origin}/register?role=barber&id={barber.id}
+                </span>
+              </div>
+              <button
+                onClick={handleCopyLink}
+                className="px-4 py-2 bg-[#00BCD4] hover:bg-[#4DD0E1] text-black text-xs font-bold uppercase tracking-wider rounded-xl transition min-h-[38px] inline-flex items-center justify-center whitespace-nowrap active:scale-[0.98]"
+              >
+                {copied ? 'Copiado' : 'Copiar Link'}
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-text-muted">{barber.email}</p>
+          )}
         </div>
       </div>
 
