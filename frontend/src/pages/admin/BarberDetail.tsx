@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { ConfirmDialog } from '../../components/shared/ConfirmDialog'
-import { DataTable } from '../../components/shared/DataTable'
 import { mapStatus } from '../../utils/status'
 
 interface Barber {
@@ -99,52 +98,6 @@ export default function BarberDetail() {
   if (loading) return <LoadingSpinner />
   if (!barber) return null
 
-  const columns = [
-    {
-      key: 'clientName',
-      header: 'Cliente',
-      sortable: true,
-    },
-    {
-      key: 'serviceName',
-      header: 'Servicio',
-    },
-    {
-      key: 'date',
-      header: 'Fecha / Hora',
-      render: (item: Appointment) => (
-        <div>
-          <p className="font-semibold text-text-primary">{item.date}</p>
-          <p className="text-xs text-text-muted">{item.time}</p>
-        </div>
-      ),
-    },
-    {
-      key: 'amount',
-      header: 'Monto',
-      render: (item: Appointment) => (
-        <span className="font-bold text-white">${item.amount} MXN</span>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Estado',
-      render: (item: Appointment) => (
-        <span
-          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
-            item.status === 'COMPLETADA'
-              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              : item.status === 'PENDIENTE'
-              ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-              : 'bg-red-500/10 text-red-400 border border-red-500/20'
-          }`}
-        >
-          {item.status}
-        </span>
-      ),
-    },
-  ]
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -197,12 +150,48 @@ export default function BarberDetail() {
       {/* Appointments Log Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-bold text-white">Historial de Citas (Log)</h3>
-        <DataTable
-          data={appointments}
-          columns={columns}
-          keyExtractor={(item) => item.id}
-          emptyMessage="No hay citas registradas para este barbero"
-        />
+        {appointments.length === 0 ? (
+          <p className="text-text-muted text-sm bg-[#1A1A1A] p-6 rounded-2xl border border-[#333333] text-center">
+            No hay citas registradas para este barbero
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {appointments.map((item) => (
+              <div key={item.id} className="flex h-16 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] overflow-hidden">
+                <div
+                  className="w-3 h-full"
+                  style={{
+                    background:
+                      item.status === 'COMPLETADA'
+                        ? 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #22c55e 4px, #22c55e 8px)'
+                        : item.status === 'PENDIENTE'
+                        ? 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #f59e0b 4px, #f59e0b 8px)'
+                        : 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #ef4444 4px, #ef4444 8px)',
+                    opacity: 0.8,
+                  }}
+                />
+                <div className="flex-1 px-4 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-bold text-text-primary leading-none">{item.clientName}</h4>
+                    <span className="text-[10px] text-text-muted uppercase font-bold tracking-wide mt-1 inline-block">
+                      {item.serviceName}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="text-right">
+                      <span className="text-xs font-bold text-white">{item.date}</span>
+                      <p className="text-[9px] text-text-muted font-semibold mt-0.5">{item.time}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-bold text-cyan">${item.amount}</span>
+                      <p className="text-[9px] text-text-muted font-semibold mt-0.5">{item.status}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <ConfirmDialog
