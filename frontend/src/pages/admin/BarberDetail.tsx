@@ -140,9 +140,11 @@ export default function BarberDetail() {
 
       {/* Info Card */}
       <div className="p-6 bg-[#1A1A1A] border border-[#333333] rounded-2xl flex flex-col md:flex-row gap-6 items-center shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
-        <div className="w-16 h-16 rounded-full bg-cyan/15 border border-cyan/30 flex items-center justify-center text-cyan font-bold text-2xl uppercase shadow-[0_0_12px_rgba(0,188,212,0.2)]">
-          {barber.name.charAt(0)}
-        </div>
+        <img
+          src="/avatar.jpg"
+          alt=""
+          className="w-16 h-16 rounded-full object-cover border border-cyan/30 shadow-[0_0_12px_rgba(0,188,212,0.3)] shrink-0"
+        />
         <div className="flex-1 text-center md:text-left space-y-1">
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <h2 className="text-lg font-bold text-white">{barber.name}</h2>

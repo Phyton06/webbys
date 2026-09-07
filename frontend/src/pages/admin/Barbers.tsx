@@ -66,9 +66,11 @@ export default function Barbers() {
       sortable: true,
       render: (item: Barber) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-cyan/10 border border-cyan/30 flex items-center justify-center text-cyan font-bold text-sm">
-            {item.name.charAt(0)}
-          </div>
+          <img
+            src="/avatar.jpg"
+            alt=""
+            className="w-10 h-10 rounded-full object-cover border border-cyan/30 shadow-[0_0_8px_rgba(0,188,212,0.2)] shrink-0"
+          />
           <div>
             <div className="flex items-center gap-2">
               <p className="font-semibold text-text-primary leading-tight">{item.name}</p>
