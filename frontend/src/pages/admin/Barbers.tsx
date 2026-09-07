@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { DataTable } from '../../components/shared/DataTable'
-import { ConfirmDialog } from '../../components/shared/ConfirmDialog'
 
 interface Barber {
   id: string
@@ -13,14 +13,11 @@ interface Barber {
 }
 
 export default function Barbers() {
+  const navigate = useNavigate()
   const [barbers, setBarbers] = useState<Barber[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', phone: '' })
-  
-  // Dialog state
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
-  const [selectedBarberId, setSelectedBarberId] = useState<string | null>(null)
 
   const load = () => {
     api.get('/barbers')
@@ -45,31 +42,6 @@ export default function Barbers() {
     }
   }
 
-
-  const handleConfirmDeactivate = async (id?: string) => {
-    const barberId = id || selectedBarberId
-    if (barberId) {
-      try {
-        await api.put(`/barbers/${barberId}`, { active: false })
-        load()
-      } catch (error) {
-        console.error('Error deactivating barber:', error)
-      } finally {
-        setIsConfirmOpen(false)
-        setSelectedBarberId(null)
-      }
-    }
-  }
-
-  const handleReactivate = async (id: string) => {
-    try {
-      await api.put(`/barbers/${id}`, { active: true })
-      load()
-    } catch (error) {
-      console.error('Error reactivating barber:', error)
-    }
-  }
-
   if (loading) return <LoadingSpinner />
 
   const columns = [
@@ -79,54 +51,36 @@ export default function Barbers() {
       sortable: true,
       render: (item: Barber) => (
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-800 font-semibold text-sm">
+          <div className="w-8 h-8 rounded-full bg-cyan/10 border border-cyan/30 flex items-center justify-center text-cyan font-bold text-sm">
             {item.name.charAt(0)}
           </div>
           <div>
-            <p className="font-semibold text-text-primary">{item.name}</p>
-            <p className="text-xs text-text-muted">{item.email}</p>
+            <div className="flex items-center gap-2">
+              <p className="font-semibold text-text-primary leading-tight">{item.name}</p>
+              <span
+                className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                  item.active ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                }`}
+              >
+                {item.active ? 'ACTIVO' : 'INACTIVO'}
+              </span>
+            </div>
+            <p className="text-xs text-text-muted mt-0.5">{item.email}</p>
+            <p className="text-[11px] text-cyan font-medium mt-0.5">{item.phone}</p>
           </div>
         </div>
-      ),
-    },
-    {
-      key: 'phone',
-      header: 'Teléfono',
-    },
-    {
-      key: 'active',
-      header: 'Estado',
-      render: (item: Barber) => (
-        <span
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            item.active ? 'bg-badge-success/20 text-badge-success' : 'bg-badge-error/20 text-badge-error'
-          }`}
-        >
-          {item.active ? 'Activo' : 'Inactivo'}
-        </span>
       ),
     },
     {
       key: 'actions',
-      header: 'Acciones',
+      header: 'Detalles',
       render: (item: Barber) => (
-        <div className="flex items-center gap-2">
-          {item.active ? (
-            <button
-              onClick={() => handleConfirmDeactivate(item.id)}
-              className="text-xs font-semibold text-red-600 hover:text-red-900 transition"
-            >
-              Desactivar
-            </button>
-          ) : (
-            <button
-              onClick={() => handleReactivate(item.id)}
-              className="text-xs font-semibold text-green-600 hover:text-green-900 transition"
-            >
-              Reactivar
-            </button>
-          )}
-        </div>
+        <button
+          onClick={() => navigate(`/admin/barbers/${item.id}`)}
+          className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-[#262626] border border-[#333333] text-xs font-bold text-cyan rounded-xl transition"
+        >
+          Ver Ficha &rarr;
+        </button>
       ),
     },
   ]
@@ -200,14 +154,6 @@ export default function Barbers() {
         keyExtractor={(item) => item.id}
         searchKey="name"
         searchPlaceholder="Buscar barbero..."
-      />
-
-      <ConfirmDialog
-        isOpen={isConfirmOpen}
-        title="Desactivar Barbero"
-        message="¿Estás seguro de que deseas desactivar este barbero? Ya no se le podrán asignar nuevas citas."
-        onConfirm={handleConfirmDeactivate}
-        onCancel={() => setIsConfirmOpen(false)}
       />
     </div>
   )

@@ -14,6 +14,7 @@ const Register = lazy(() => import('./pages/Register'))
 
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'))
 const AdminBarbers = lazy(() => import('./pages/admin/Barbers'))
+const AdminBarberDetail = lazy(() => import('./pages/admin/BarberDetail'))
 const AdminClients = lazy(() => import('./pages/admin/Clients'))
 const AdminServices = lazy(() => import('./pages/admin/Services'))
 const AdminAppointments = lazy(() => import('./pages/admin/Appointments'))
@@ -80,6 +81,7 @@ export default function App() {
             <Route index element={<AdminDashboard />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="barbers" element={<AdminBarbers />} />
+            <Route path="barbers/:id" element={<AdminBarberDetail />} />
             <Route path="clients" element={<AdminClients />} />
             <Route path="services" element={<AdminServices />} />
             <Route path="citas" element={<AdminAppointments />} />
