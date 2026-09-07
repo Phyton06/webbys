@@ -115,10 +115,10 @@ export default function BarberDetail() {
 
         <button
           onClick={() => setIsConfirmOpen(true)}
-          className={`px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 min-h-[48px] inline-flex items-center justify-center border-2 ${
+          className={`px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-150 min-h-[44px] inline-flex items-center justify-center bg-transparent border border-[#333333] text-[#A3A3A3] ${
             barber.active
-              ? 'border-[#C41E3A] text-[#C41E3A] hover:bg-[#C41E3A] hover:text-white hover:shadow-[0_0_12px_#C41E3A]'
-              : 'border-[#00BCD4] text-[#00BCD4] hover:bg-[#00BCD4] hover:text-black hover:shadow-[0_0_12px_#00BCD4]'
+              ? 'hover:border-[#C41E3A] hover:text-[#C41E3A]'
+              : 'hover:border-[#00BCD4] hover:text-[#00BCD4]'
           }`}
         >
           {barber.active ? 'Pausar Turnos' : 'Habilitar Turnos'}
