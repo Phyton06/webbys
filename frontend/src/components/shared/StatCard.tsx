@@ -18,17 +18,17 @@ export const StatCard: React.FC<StatCardProps> = ({
   className,
 }) => {
   return (
-    <div className={`p-6 bg-surface-elevated rounded-lg border border-border shadow-sm ${className || ''}`}>
-      <p className="text-sm font-medium text-text-muted">{title}</p>
+    <div className={`p-6 bg-[#1A1A1A] rounded-2xl border border-[#333333] shadow-[0_4px_30px_rgba(0,0,0,0.4)] ${className || ''}`}>
+      <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">{title}</p>
       <div className="mt-2 flex items-baseline justify-between">
-        <h3 className="text-2xl font-bold text-text-primary">{value}</h3>
+        <h3 className="text-2xl font-bold text-text-primary tracking-tight">{value}</h3>
         {trend !== undefined && (
           <span
             data-testid="revenue-trend-badge"
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            className={`inline-flex items-center px-2.5 py-0.5 rounded border text-[11px] font-bold tracking-wide ${
               trendDirection === 'up'
-                ? 'bg-badge-success/20 text-badge-success'
-                : 'bg-badge-error/20 text-badge-error'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : 'bg-red-500/10 text-red-400 border-red-500/20'
             }`}
           >
             <span>{trendDirection === 'up' ? '+' : '-'}</span>
@@ -36,7 +36,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           </span>
         )}
       </div>
-      {subtitle && <p className="text-xs text-text-muted mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-xs text-text-muted mt-1.5 italic">{subtitle}</p>}
     </div>
   )
 }

@@ -68,9 +68,11 @@ export default function Clients() {
       sortable: true,
       render: (item: Client) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-surface-elevated/10 flex items-center justify-center font-bold">
-            {item.name.charAt(0)}
-          </div>
+          <img
+            src="/avatar.jpg"
+            alt=""
+            className="w-10 h-10 rounded-full object-cover border border-cyan/30 shadow-[0_0_8px_rgba(0,188,212,0.2)] shrink-0"
+          />
           <div>
             <p className="font-semibold text-text-primary">{item.name}</p>
             <p className="text-sm text-white/50">{item.email}</p>
