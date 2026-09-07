@@ -105,9 +105,9 @@ export default function BarberDetail() {
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/admin/barbers')}
-            className="px-4 py-2 bg-[#1A1A1A] hover:bg-[#262626] border border-[#333333] hover:border-[#666666] text-xs font-bold uppercase tracking-wider text-text-muted hover:text-white rounded-xl transition-all min-h-[44px] inline-flex items-center justify-center gap-2"
+            className="group px-4 py-2 bg-[#141414] hover:bg-[#1C1C1C] border border-[#333333] hover:border-[#444444] text-xs font-bold uppercase tracking-wider text-text-muted hover:text-white rounded-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-x-1 active:scale-[0.98] min-h-[44px] inline-flex items-center justify-center gap-2"
           >
-            &larr; Volver
+            <span className="transition-transform duration-300 group-hover:-translate-x-0.5">&larr;</span> Volver
           </button>
           <h1 className="text-2xl font-display font-bold">Ficha de Barbero</h1>
         </div>
@@ -115,13 +115,16 @@ export default function BarberDetail() {
 
         <button
           onClick={() => setIsConfirmOpen(true)}
-          className={`px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 min-h-[48px] inline-flex items-center justify-center ${
+          className={`group px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 active:scale-[0.98] min-h-[48px] inline-flex items-center justify-center gap-3 border shadow-lg ${
             barber.active
-              ? 'bg-[#C41E3A] text-white hover:bg-[#A11830] shadow-lg shadow-red/20'
-              : 'bg-[#00BCD4] text-black hover:bg-[#0097A7] shadow-lg shadow-cyan/20'
+              ? 'bg-[#9B1B30] hover:bg-[#C41E3A] border-[#9B1B30]/30 text-white hover:shadow-[0_0_15px_rgba(196,30,58,0.3)]'
+              : 'bg-[#00BCD4] hover:bg-[#4DD0E1] border-[#00BCD4]/30 text-black hover:shadow-[0_0_15px_rgba(0,188,212,0.3)]'
           }`}
         >
-          {barber.active ? 'Pausar Turnos' : 'Habilitar Turnos'}
+          {barber.active ? 'Desactivar Barbero' : 'Activar Barbero'}
+          <span className={`w-1.5 h-1.5 rounded-full transition-transform duration-300 group-hover:scale-125 ${
+            barber.active ? 'bg-white/40' : 'bg-black/40'
+          }`} />
         </button>
 
       </div>
