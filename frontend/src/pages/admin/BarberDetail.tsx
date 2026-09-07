@@ -114,13 +114,13 @@ export default function BarberDetail() {
 
         <button
           onClick={() => setIsConfirmOpen(true)}
-          className={`px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl transition-all min-h-[44px] shadow-lg inline-flex items-center justify-center ${
+          className={`px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 min-h-[48px] inline-flex items-center justify-center border-2 ${
             barber.active
-              ? 'bg-[#9B1B30] text-white hover:bg-[#C41E3A] shadow-red/10'
-              : 'bg-[#00BCD4] text-black hover:bg-[#0097A7] shadow-cyan/10'
+              ? 'border-[#C41E3A] text-[#C41E3A] hover:bg-[#C41E3A] hover:text-white hover:shadow-[0_0_12px_#C41E3A]'
+              : 'border-[#00BCD4] text-[#00BCD4] hover:bg-[#00BCD4] hover:text-black hover:shadow-[0_0_12px_#00BCD4]'
           }`}
         >
-          {barber.active ? 'Desactivar Barbero' : 'Activar Barbero'}
+          {barber.active ? '🔒 Desactivar Barbero' : '🔓 Activar Barbero'}
         </button>
       </div>
 
