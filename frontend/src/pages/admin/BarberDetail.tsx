@@ -112,6 +112,7 @@ export default function BarberDetail() {
           <h1 className="text-2xl font-display font-bold">Ficha de Barbero</h1>
         </div>
 
+
         <button
           onClick={() => setIsConfirmOpen(true)}
           className={`px-6 py-2.5 text-xs font-bold uppercase tracking-wider rounded-xl transition-all duration-200 min-h-[48px] inline-flex items-center justify-center border-2 ${
@@ -120,8 +121,9 @@ export default function BarberDetail() {
               : 'border-[#00BCD4] text-[#00BCD4] hover:bg-[#00BCD4] hover:text-black hover:shadow-[0_0_12px_#00BCD4]'
           }`}
         >
-          {barber.active ? '🔒 Desactivar Barbero' : '🔓 Activar Barbero'}
+          {barber.active ? 'Pausar Turnos' : 'Habilitar Turnos'}
         </button>
+
       </div>
 
       {/* Info Card */}

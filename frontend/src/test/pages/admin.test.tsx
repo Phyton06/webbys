@@ -205,7 +205,7 @@ describe('Admin BarberDetail', () => {
     })
 
     await act(async () => {
-      screen.getByText('🔒 Desactivar Barbero').click()
+      screen.getByText('Pausar Turnos').click()
     })
     expect(screen.getByText('¿Estás seguro de que deseas desactivar a este barbero? No podrá recibir nuevos turnos.')).toBeInTheDocument()
     
