@@ -100,9 +100,11 @@ export default function BookAppointment() {
             <button key={b.id} onClick={() => { setSelectedBarber(b); setStep('date') }}
               className={`card w-full text-left hover:bg-white/10 transition-colors ${selectedBarber?.id === b.id ? 'ring-2 ring-cyan' : ''}`}>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-cyan/20 flex items-center justify-center text-cyan font-bold">
-                  {b.name.charAt(0)}
-                </div>
+                <img
+                  src="/avatar.jpg"
+                  alt=""
+                  className="w-12 h-12 rounded-full object-cover border border-cyan/30 shadow-[0_0_8px_rgba(0,188,212,0.2)] shrink-0"
+                />
                 <div>
                   <p className="font-semibold">{b.name}</p>
                   <p className="text-sm text-white/50">{b.specialty || 'Barbero general'}</p>

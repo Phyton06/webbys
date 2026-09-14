@@ -146,10 +146,9 @@ describe('Admin Barbers', () => {
       expect(screen.getByText('Juan')).toBeInTheDocument()
       expect(screen.getByText('Pedro')).toBeInTheDocument()
     })
-    expect(screen.getByText('Activo')).toBeInTheDocument()
-    expect(screen.getByText('Inactivo')).toBeInTheDocument()
-    expect(screen.getByText('Desactivar')).toBeInTheDocument()
-    expect(screen.getByText('Reactivar')).toBeInTheDocument()
+    expect(screen.getByText('ACTIVO')).toBeInTheDocument()
+    expect(screen.getByText('INACTIVO')).toBeInTheDocument()
+    expect(screen.getAllByText('Ver Ficha →')[0]).toBeInTheDocument()
   })
 
   it('toggles form and submits new barber without specialty field', async () => {
@@ -160,27 +159,56 @@ describe('Admin Barbers', () => {
 
     await act(async () => { screen.getByText('+ Nuevo').click() })
     expect(screen.getByLabelText('Nombre')).toBeInTheDocument()
-    expect(screen.getByLabelText('Correo')).toBeInTheDocument()
     expect(screen.getByLabelText('Teléfono')).toBeInTheDocument()
     expect(screen.queryByLabelText('Especialidad')).not.toBeInTheDocument()
 
     await act(async () => {
       fireEvent.change(screen.getByLabelText('Nombre'), { target: { value: 'Test' } })
-      fireEvent.change(screen.getByLabelText('Correo'), { target: { value: 't@t.com' } })
       fireEvent.change(screen.getByLabelText('Teléfono'), { target: { value: '123' } })
       screen.getByText('Guardar').click()
     })
-    expect(mock.post).toHaveBeenCalledWith('/barbers', expect.objectContaining({ name: 'Test', email: 't@t.com', phone: '123' }))
+    expect(mock.post).toHaveBeenCalledWith('/barbers', expect.objectContaining({ name: 'Test', phone: '123' }))
   })
+})
 
-  it('toggles barber active status when clicking action button', async () => {
-    mock.get.mockResolvedValue({ data: { barbers: [{ id: '1', name: 'Juan', email: 'j@j.com', phone: '555', active: true }] } })
+// --- BarberDetail ---
+import BarberDetail from '../../pages/admin/BarberDetail'
+import { Routes, Route } from 'react-router-dom'
+describe('Admin BarberDetail', () => {
+  it('loads barber profile details and registers toggle active status', async () => {
+    mock.get.mockImplementation((url: string) => {
+      if (url === '/barbers') {
+        return Promise.resolve({ data: { barbers: [{ id: '1', name: 'Juan', email: 'j@j.com', phone: '555', active: true }] } })
+      }
+      if (url === '/appointments') {
+        return Promise.resolve({ data: [] })
+      }
+      return Promise.resolve({ data: [] })
+    })
     mock.put.mockResolvedValue({ data: {} })
-    render(<Barbers />, { wrapper: adminWrapper })
-    await waitFor(() => expect(screen.getByText('Desactivar')).toBeInTheDocument())
+
+    localStorage.setItem('user', JSON.stringify({ id: '1', name: 'Admin', role: 'ADMIN', email: 'a@b.com' }))
+    render(
+      <MemoryRouter initialEntries={['/admin/barbers/1']}>
+        <Routes>
+          <Route path="/admin/barbers/:id" element={<BarberDetail />} />
+        </Routes>
+      </MemoryRouter>
+    )
+    await waitFor(() => {
+      expect(screen.getByText('Ficha de Barbero')).toBeInTheDocument()
+      expect(screen.getByText('Juan')).toBeInTheDocument()
+      expect(screen.getByText('j@j.com')).toBeInTheDocument()
+      expect(screen.getByText('555')).toBeInTheDocument()
+    })
 
     await act(async () => {
-      screen.getByText('Desactivar').click()
+      screen.getByText('Desactivar Barbero').click()
+    })
+    expect(screen.getByText('¿Estás seguro de que deseas desactivar a este barbero? No podrá recibir nuevos turnos.')).toBeInTheDocument()
+    
+    await act(async () => {
+      screen.getByText('Confirmar').click()
     })
     expect(mock.put).toHaveBeenCalledWith('/barbers/1', expect.objectContaining({ active: false }))
   })

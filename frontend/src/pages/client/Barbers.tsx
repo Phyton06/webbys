@@ -30,9 +30,11 @@ export default function ClientBarbers() {
           barbers.map(b => (
             <div key={b.id} className="card">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-cyan/20 flex items-center justify-center text-cyan font-bold text-xl">
-                  {b.name.charAt(0)}
-                </div>
+                <img
+                  src="/avatar.jpg"
+                  alt=""
+                  className="w-16 h-16 rounded-full object-cover border border-cyan/30 shadow-[0_0_12px_rgba(0,188,212,0.3)] shrink-0"
+                />
                 <div>
                   <p className="font-semibold text-lg">{b.name}</p>
                   <p className="text-white/50">{b.specialty || 'Barbero general'}</p>

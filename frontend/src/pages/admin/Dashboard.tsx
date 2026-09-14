@@ -80,23 +80,40 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm">
-        <h2 className="text-sm font-medium text-text-muted mb-4 font-semibold">Citas de hoy</h2>
-        {stats.todayList.length === 0 ? (
-          <p className="text-text-muted text-sm">No hay citas programadas para hoy</p>
-        ) : (
-          <div className="space-y-3">
-            {stats.todayList.map(a => (
-              <div key={a.id} className="flex items-center justify-between p-3 bg-surface rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-text-primary">{a.clientName}</p>
-                  <p className="text-xs text-text-muted">{a.barberName} &middot; {a.serviceName}</p>
-                </div>
-                <span className="text-xs text-text-muted">{a.time}</span>
-              </div>
-            ))}
+      <div className="p-6 bg-[#0D0D0D] border border-[#333333] rounded-2xl w-full">
+        <div className="flex flex-col gap-4">
+          <div>
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Agenda</span>
+            <h2 className="text-base font-bold text-white mt-0.5">Tickets de Servicio</h2>
           </div>
-        )}
+          {stats.todayList.length === 0 ? (
+            <p className="text-text-muted text-sm">No hay citas programadas para hoy</p>
+          ) : (
+            <div className="flex flex-col gap-3 mt-1">
+              {stats.todayList.map(a => (
+                <div key={a.id} className="flex h-16 bg-[#1A1A1A] rounded-xl border border-[#2A2A2A] overflow-hidden">
+                  <div
+                    className="w-3 h-full"
+                    style={{
+                      background: 'repeating-linear-gradient(-45deg, transparent, transparent 4px, #00BCD4 4px, #00BCD4 8px)',
+                      opacity: 0.8
+                    }}
+                  />
+                  <div className="flex-1 px-4 flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-bold text-text-primary leading-none">{a.clientName}</h4>
+                      <span className="text-[10px] text-text-muted uppercase font-bold tracking-wide mt-1 inline-block">{a.serviceName}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs font-bold text-white">{a.time}</span>
+                      <p className="text-[9px] text-text-muted font-semibold mt-0.5">{a.barberName}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,28 +121,47 @@ export default function Dashboard() {
           {/* Trend section moved to sidebar */}
         </div>
 
-        <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm self-start">
-          <h2 className="text-sm font-medium text-text-muted mb-4 font-semibold">Tendencia Semanal</h2>
-          <div className="flex flex-col items-center">
-            <svg viewBox="0 0 300 80" className="w-full h-24" data-testid="revenue-svg">
-              <line x1="10" y1="10" x2="290" y2="10" stroke="#f3f4f6" strokeWidth={1} />
-              <line x1="10" y1="40" x2="290" y2="40" stroke="#f3f4f6" strokeWidth={1} />
-              <line x1="10" y1="70" x2="290" y2="70" stroke="#e5e7eb" strokeWidth={1} />
+        <div className="p-6 bg-[#1A1A1A] rounded-2xl border border-[#333333] shadow-[0_4px_30px_rgba(0,0,0,0.4)] self-start w-full">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Métricas</span>
+              <h2 className="text-base font-bold text-white mt-0.5">Tendencia de Ingresos</h2>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold text-cyan">+12.4%</span>
+              <p className="text-[10px] text-text-muted">esta semana</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-center mt-2">
+            <svg viewBox="0 0 300 80" className="w-full h-24" style={{ filter: 'drop-shadow(0 0 6px #00BCD4)' }} data-testid="revenue-svg">
+              {/* Grilla horizontal */}
+              <line x1="10" y1="10" x2="290" y2="10" stroke="#262626" strokeWidth={1} strokeDasharray="4 4" />
+              <line x1="10" y1="40" x2="290" y2="40" stroke="#262626" strokeWidth={1} strokeDasharray="4 4" />
+              <line x1="10" y1="70" x2="290" y2="70" stroke="#333333" strokeWidth={1} />
+              
+              {/* Línea de tendencia */}
               <polyline
                 fill="none"
-                stroke="#10b981"
-                strokeWidth={2}
-                points="10,60 55,45 100,55 145,20 190,30 235,25 280,15"
+                stroke="#00BCD4"
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                points="10,65 55,50 100,58 145,20 190,35 235,30 280,15"
               />
+              {/* Puntos clave */}
+              <circle cx="145" cy="20" r="4" fill="#00BCD4" />
+              <circle cx="280" cy="15" r="4" fill="#00BCD4" />
             </svg>
-            <div className="flex justify-between w-full mt-2 text-[10px] text-text-muted">
+            
+            <div className="flex justify-between w-full mt-3 text-[10px] text-text-muted font-bold px-1 items-center">
               <span>Lun</span>
               <span>Mar</span>
               <span>Mié</span>
-              <span>Jue</span>
+              <span className="bg-cyan/15 text-cyan px-1.5 py-0.5 rounded border border-cyan/30">Jue</span>
               <span>Vie</span>
               <span>Sáb</span>
-              <span>Dom</span>
+              <span className="bg-cyan/15 text-cyan px-1.5 py-0.5 rounded border border-cyan/30">Dom</span>
             </div>
           </div>
         </div>

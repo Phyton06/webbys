@@ -63,9 +63,11 @@ export default function AssistantClients() {
         ) : (
           filtered.map(c => (
             <div key={c.id} className="card flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold">
-                {c.name.charAt(0)}
-              </div>
+              <img
+                src="/avatar.jpg"
+                alt=""
+                className="w-10 h-10 rounded-full object-cover border border-cyan/30 shadow-[0_0_8px_rgba(0,188,212,0.2)] shrink-0"
+              />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold truncate">{c.name}</p>
                 <p className="text-sm text-white/50 truncate">{c.phone}</p>
