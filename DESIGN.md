@@ -156,3 +156,92 @@ La geometría de Webby's es sólida y masculina, emulando la robustez de las her
 - **Don't** usar degradados multicolores ni transparencias tipo "glassmorphism" en las interfaces. La app de Webby's debe sentirse sólida, pesada y de metal.
 - **Don't** reducir el tamaño de letra de los formularios por debajo de 16px para prevenir que el navegador de iOS haga zoom automático y rompa el diseño responsivo.
 - **Don't** usar sombras negras borrosas y difusas para elevar elementos; la elevación se logra mediante bordes nítidos de 1px (#333333) y el contraste tonal del fondo.
+
+---
+
+## Admin Panel — Patrones de UI
+
+Reglas extraídas del panel de Citas (`/admin/citas`). Aplicar a todas las pantallas admin.
+
+### Filtros Colapsables
+
+- Botón toggle con ícono de filtro (`funnel`), color gris por defecto, **cyan** cuando hay filtros activos o el panel está abierto.
+- Panel colapsa con animación `max-height` + `overflow-hidden`. Altura fija `max-h-40`.
+- Layout en grilla: fechas en fila, barbero/cliente en fila, responsive con `grid-cols-2 sm:grid-cols-4 gap-3`.
+
+### Search Input
+
+- Ícono de lupa a la izquierda (`pointer-events-none`).
+- Estilo underline: `!border-b !border-gray-700 !rounded-none !pl-6`.
+- Placeholder: "Buscar..." en gris muted.
+- `!important` (`!` prefix) para sobreescribir los estilos globales de `index.css`.
+
+### FilterDropdown (select custom)
+
+- Botón con texto + chevron down, borde redondeado, fondo `white/[0.03]`.
+- Dropdown: fondo `#1A1A1A`, borde `white/10`, sombra `shadow-xl`.
+- Opción "Todos" siempre primera.
+- Item seleccionado: texto cyan, fondo `white/5`.
+- Click-outside cierra el dropdown (`useRef` + `mousedown` listener).
+- State del filtro resetea paginación a página 1.
+
+### DatePicker (calendario custom)
+
+- Reemplaza `<input type="date">` nativo — el nativo no respeta el dark theme.
+- Botón con ícono de calendario + fecha formateada `dd/mm/aaaa` o placeholder.
+- Calendario flotante: fondo `#1A1A1A`, borde `white/10`, `z-50`.
+- Grid de días: lunes primero (`(getDay() + 6) % 7`), 7 columnas.
+- Día actual: borde inferior cyan con punto, `text-cyan`.
+- Día seleccionado: fondo cyan con opacidad, texto cyan.
+- Header: flechas `< >` para navegar mes/año, texto "Sep 2026".
+- Botón "Limpiar" al fondo si hay valor seleccionado.
+- `align="right"` para el picker derecho (evita desborde del viewport).
+- Ancho: `w-56` mobile, `sm:w-64` desktop.
+
+### Status Badges
+
+| Estado | Fondo | Texto | Label |
+|--------|-------|-------|-------|
+| PENDIENTE / PENDING | `bg-cyan-500/20` | `text-cyan-400` | Pendiente |
+| CONFIRMADA / CONFIRMED | `bg-emerald-500/20` | `text-emerald-400` | Confirmada |
+| EN_CURSO / IN_PROGRESS | `bg-amber-500/20` | `text-amber-400` | En curso |
+| COMPLETADA / COMPLETED | `bg-emerald-500/20` | `text-emerald-400` | Completada |
+| CANCELADA / CANCELLED | `bg-red-500/20` | `text-red-400` | Cancelada |
+
+- Forma: `rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap`.
+- Soporta estados en español e inglés (la API puede devolver cualquiera).
+
+### Mobile Cards (breakpoint `sm:hidden`)
+
+- Cada item es un `<button>` completo (toque masivo).
+- Fondo: `bg-white/[0.03]`, borde: `border border-gray-800/50`, radio: `rounded-xl`.
+- Layout:
+  - Fila superior: nombre del cliente (bold, white) + badge de estado (derecha).
+  - Segunda línea: barbero · servicio (text-xs, gray-500).
+  - Fila inferior: fecha · hora (text-xs, gray-500), alineada a la izquierda.
+- Gap entre cards: `space-y-3`.
+
+### Desktop DataTable (breakpoint `hidden sm:block`)
+
+- Componente `DataTable` reutilizable.
+- Columnas: Cliente, Barbero, Servicio, Fecha, Hora, Estado — todas `sortable: true`.
+- `hideSearch` (la búsqueda la maneja el padre).
+- `keyExtractor` por `item.id`.
+- `onRowClick` navega al detalle.
+
+### Paginación
+
+- 5 items por página (`PER_PAGE = 5`).
+- Se muestra solo cuando `totalPages > 1`.
+- Layout: resultado a la izquierda ("19 resultados"), controles a la derecha.
+- Controles: flecha izquierda `<` + números de página + flecha derecha `>`.
+- Página activa: fondo `bg-cyan/20`, texto `text-cyan`.
+- Página inactiva: texto `gray-500`, hover `text-white bg-white/5`.
+- Flechas deshabilitadas: `opacity-30 pointer-events-none`.
+- Reset automático a página 1 al cambiar cualquier filtro.
+
+### Empty States
+
+- Sin datos (API devuelve []): "No hay citas".
+- Sin resultados con filtros activos: "No hay citas con esos filtros".
+- Estilo: `text-gray-500 text-sm text-center py-8`.

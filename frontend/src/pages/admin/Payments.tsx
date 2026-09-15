@@ -1,434 +1,179 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
+import DataTable from '../../components/shared/DataTable'
 import { StatCard } from '../../components/shared/StatCard'
-import { FilterBar } from '../../components/shared/FilterBar'
-import { DataTable } from '../../components/shared/DataTable'
-import type { Payment, PaymentSummary } from '../../services/interfaces'
 
-interface AppointmentOption {
+interface Payment {
   id: string
-  clientId: string
-  barberId: string
-  serviceId: string
   date: string
-  status: string
+  clientName: string
+  barberName: string
+  amount: number
+  method: 'CASH' | 'CARD' | 'TRANSFER' | 'QR'
+  status: 'COMPLETED' | 'PENDING' | 'FAILED' | 'REFUNDED'
 }
 
 export default function Payments() {
   const [payments, setPayments] = useState<Payment[]>([])
-  const [summary, setSummary] = useState<PaymentSummary>({
-    totalRevenue: 0,
-    completedCount: 0,
-    pendingCount: 0,
-    refundedCount: 0,
-    byMethod: {},
-  })
-  const [appointments, setAppointments] = useState<AppointmentOption[]>([])
-  const [clientsMap, setClientsMap] = useState<Record<string, string>>({})
-  const [barbersMap, setBarbersMap] = useState<Record<string, string>>({})
-  const [servicesMap, setServicesMap] = useState<Record<string, string>>({})
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 5
 
-  // Filters state
-  const [filters, setFilters] = useState<Record<string, string>>({
-    method: '',
-    status: '',
-  })
-
-  // Modal registration state
-  const [showModal, setShowModal] = useState(false)
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState('')
-  const [amount, setAmount] = useState('')
-  const [method, setMethod] = useState<'CASH' | 'CARD' | 'TRANSFER' | 'QR'>('CASH')
-  const [notes, setNotes] = useState('')
-  const [formError, setFormError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  const fetchData = async () => {
-    try {
-      const [paymentsRes, summaryRes, apptsRes, clientsRes, barbersRes, servicesRes] =
-        await Promise.all([
-          api.get('/payments'),
-          api.get('/payments/summary').catch(() => ({
-            data: {
-              totalRevenue: 0,
-              completedCount: 0,
-              pendingCount: 0,
-              refundedCount: 0,
-              byMethod: {},
-            },
-          })),
-          api.get('/appointments').catch(() => ({ data: [] })),
-          api.get('/clients').catch(() => ({ data: [] })),
-          api.get('/barbers').catch(() => ({ data: [] })),
-          api.get('/services').catch(() => ({ data: [] })),
-        ])
-
-      const pList: Payment[] = paymentsRes.data || []
-      setPayments(pList)
-
-      // Calculate or use summary
-      if (summaryRes.data && summaryRes.data.totalRevenue !== undefined) {
-        setSummary(summaryRes.data)
-      } else {
-        const totalRevenue = pList
-          .filter((p) => p.status === 'COMPLETED')
-          .reduce((sum, p) => sum + p.amount, 0)
-        const completedCount = pList.filter((p) => p.status === 'COMPLETED').length
-        const pendingCount = pList.filter((p) => p.status === 'PENDING').length
-        const refundedCount = pList.filter((p) => p.status === 'REFUNDED').length
-        const byMethod: Record<string, number> = {}
-        pList.forEach((p) => {
-          byMethod[p.method] = (byMethod[p.method] || 0) + p.amount
-        })
-        setSummary({ totalRevenue, completedCount, pendingCount, refundedCount, byMethod })
-      }
-
-      setAppointments(apptsRes.data || [])
-      setClientsMap(
-        Object.fromEntries((clientsRes.data || []).map((c: any) => [c.id, c.name]))
-      )
-      setBarbersMap(
-        Object.fromEntries((barbersRes.data || []).map((b: any) => [b.id, b.name]))
-      )
-      setServicesMap(
-        Object.fromEntries((servicesRes.data || []).map((s: any) => [s.id, s.name]))
-      )
-    } finally {
-      setLoading(false)
-    }
-  }
+  const resetPage = () => setPage(1)
 
   useEffect(() => {
-    fetchData()
+    api.get('/payments').then(r => setPayments(r.data || [])).finally(() => setLoading(false))
   }, [])
 
-  // Filtered payments
-  const filteredPayments = useMemo(() => {
-    return payments.filter((p) => {
-      if (filters.method && p.method !== filters.method) return false
-      if (filters.status && p.status !== filters.status) return false
-      return true
-    })
-  }, [payments, filters])
-
-  const avgTicket = useMemo(() => {
-    if (!summary.completedCount) return 0
-    return Math.round(summary.totalRevenue / summary.completedCount)
-  }, [summary])
-
-  const handleRegisterPayment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setFormError('')
-
-    if (!selectedAppointmentId) {
-      setFormError('Seleccione una cita')
-      return
-    }
-
-    // Duplicate payment prevention check
-    const existingPayment = payments.find(
-      (p) => p.appointmentId === selectedAppointmentId && p.status !== 'REFUNDED'
-    )
-    if (existingPayment) {
-      setFormError('Esta cita ya tiene un pago registrado')
-      return
-    }
-
-    const appt = appointments.find((a) => a.id === selectedAppointmentId)
-    const numAmount = parseFloat(amount)
-    if (isNaN(numAmount) || numAmount <= 0) {
-      setFormError('Ingrese un monto válido')
-      return
-    }
-
-    try {
-      setSubmitting(true)
-      const newPaymentPayload = {
-        appointmentId: selectedAppointmentId,
-        clientId: appt?.clientId || 'u5',
-        barberId: appt?.barberId || 'u3',
-        serviceId: appt?.serviceId || 's1',
-        amount: numAmount,
-        method,
-        status: 'COMPLETED' as const,
-        date: new Date().toISOString().split('T')[0],
-        notes,
-      }
-
-      const res = await api.post('/payments', newPaymentPayload)
-      const created = res.data
-
-      // Update state
-      const updated = [created, ...payments]
-      setPayments(updated)
-      setSummary((prev) => ({
-        ...prev,
-        totalRevenue: prev.totalRevenue + created.amount,
-        completedCount: prev.completedCount + 1,
-        byMethod: {
-          ...prev.byMethod,
-          [created.method]: (prev.byMethod[created.method] || 0) + created.amount,
-        },
-      }))
-
-      setShowModal(false)
-      setSelectedAppointmentId('')
-      setAmount('')
-      setNotes('')
-    } catch (err: any) {
-      setFormError(err?.message || 'Error al registrar el pago')
-    } finally {
-      setSubmitting(false)
-    }
+  const summary = {
+    totalRevenue: payments.reduce((sum, p) => sum + (p.amount || 0), 0),
+    completedCount: payments.filter(p => p.status === 'COMPLETED').length,
+    pendingCount: payments.filter(p => p.status === 'PENDING').length,
+    refundedCount: payments.filter(p => p.status === 'REFUNDED').length,
   }
+
+  const filtered = payments.filter(p => {
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      const match = (p.clientName || '').toLowerCase().includes(q) ||
+                    (p.barberName || '').toLowerCase().includes(q) ||
+                    (p.method || '').toLowerCase().includes(q)
+      if (!match) return false
+    }
+    return true
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE)
 
   if (loading) return <LoadingSpinner />
 
-  const filterOptions = [
-    {
-      key: 'method',
-      label: 'Método',
-      choices: [
-        { value: '', label: 'Todos' },
-        { value: 'CASH', label: 'Efectivo' },
-        { value: 'CARD', label: 'Tarjeta' },
-        { value: 'TRANSFER', label: 'Transferencia' },
-        { value: 'QR', label: 'QR' },
-      ],
-    },
-    {
-      key: 'status',
-      label: 'Estado',
-      choices: [
-        { value: '', label: 'Todos' },
-        { value: 'COMPLETED', label: 'Completado' },
-        { value: 'PENDING', label: 'Pendiente' },
-        { value: 'REFUNDED', label: 'Reembolsado' },
-        { value: 'FAILED', label: 'Fallido' },
-      ],
-    },
-  ]
+  const methodLabels: Record<string, string> = {
+    CASH: 'Efectivo',
+    CARD: 'Tarjeta',
+    TRANSFER: 'Transferencia',
+    QR: 'QR',
+  }
 
-  const columns = [
-    {
-      key: 'date',
-      header: 'Fecha',
-      sortable: true,
-    },
-    {
-      key: 'clientId',
-      header: 'Cliente',
-      render: (p: Payment) => clientsMap[p.clientId] || p.clientId,
-      sortable: true,
-    },
-    {
-      key: 'barberId',
-      header: 'Barbero',
-      render: (p: Payment) => barbersMap[p.barberId] || p.barberId,
-      sortable: true,
-    },
-    {
-      key: 'serviceId',
-      header: 'Servicio',
-      render: (p: Payment) => servicesMap[p.serviceId] || p.serviceId,
-    },
-    {
-      key: 'amount',
-      header: 'Monto',
-      render: (p: Payment) => `$${p.amount}`,
-      sortable: true,
-    },
-    {
-      key: 'method',
-      header: 'Método',
-      render: (p: Payment) => {
-        const labels: Record<string, string> = {
-          CASH: 'Efectivo',
-          CARD: 'Tarjeta',
-          TRANSFER: 'Transferencia',
-          QR: 'QR',
-        }
-        return labels[p.method] || p.method
-      },
-    },
-    {
-      key: 'status',
-      header: 'Estado',
-      render: (p: Payment) => {
-        const badgeColors: Record<string, string> = {
-          COMPLETED: 'bg-badge-success/20 text-badge-success',
-          PENDING: 'bg-yellow-100 text-yellow-800',
-          REFUNDED: 'bg-surface text-text-primary',
-          FAILED: 'bg-badge-error/20 text-badge-error',
-        }
-        return (
-          <span
-            className={`px-2 py-1 text-xs rounded-full font-medium ${
-              badgeColors[p.status] || 'bg-surface text-text-primary'
-            }`}
-          >
-            {p.status}
-          </span>
-        )
-      },
-    },
-  ]
+  const StatusBadge = ({ status }: { status: Payment['status'] }) => {
+    const map: Record<string, { cls: string; label: string }> = {
+      COMPLETED: { cls: 'bg-emerald-500/20 text-emerald-400', label: 'Completado' },
+      PENDING: { cls: 'bg-amber-500/20 text-amber-400', label: 'Pendiente' },
+      FAILED: { cls: 'bg-red-500/20 text-red-400', label: 'Fallido' },
+      REFUNDED: { cls: 'bg-cyan-500/20 text-cyan-400', label: 'Reembolsado' },
+    }
+    const { cls, label } = map[status] ?? { cls: 'bg-white/10 text-white', label: status }
+    return <span className={`${cls} rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap`}>{label}</span>
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-text-primary">Gestión de Pagos</h1>
-        <button
-          onClick={() => {
-            setShowModal(true)
-            setFormError('')
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium text-sm"
-        >
-          + Registrar Pago
-        </button>
+    <div className="space-y-5 min-h-screen">
+      <h1 className="text-2xl font-display font-bold text-white">Gestión de Pagos</h1>
+
+      {/* Summary KPI Cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard title="Ingresos Totales" value={`$${summary.totalRevenue.toLocaleString()}`} subtitle="Acumulado" />
+        <StatCard title="Completados" value={summary.completedCount} subtitle="Pagos" />
+        <StatCard title="Ticket Promedio" value={summary.completedCount > 0 ? `$${Math.round(summary.totalRevenue / summary.completedCount)}` : '$0'} subtitle="Por pago" />
+        <StatCard title="Pendientes" value={summary.pendingCount} subtitle="Por cobrar" />
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatCard title="Ingresos Totales" value={`$${summary.totalRevenue}`} />
-        <StatCard title="Pagos Realizados" value={summary.completedCount} />
-        <StatCard title="Ticket Promedio" value={`$${avgTicket}`} />
-        <StatCard title="Pagos Pendientes" value={summary.pendingCount} />
+      {/* Search */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); resetPage() }}
+            className="w-full !bg-transparent !border-0 !border-b !border-gray-700 !rounded-none !pl-6 !pr-0 !py-2.5 text-sm text-white placeholder-gray-600 focus:!outline-none focus:!border-cyan transition-colors"
+            aria-label="Buscar pagos"
+          />
+        </div>
       </div>
 
-      {/* Filters */}
-      <FilterBar
-        options={filterOptions}
-        values={filters}
-        onChange={(newFilters) => setFilters(newFilters)}
-      />
-
-      {/* Payments Table */}
-      <DataTable
-        data={filteredPayments}
-        columns={columns}
-        keyExtractor={(item) => item.id}
-        searchPlaceholder="Buscar por cliente o id..."
-      />
-
-      {/* Registration Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-surface-elevated rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
-            <h2 className="text-lg font-bold text-text-primary">Registrar Pago</h2>
-
-            {formError && (
-              <div className="p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
-                {formError}
+      {/* Mobile: Cards */}
+      <div className="sm:hidden space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-8">No hay pagos</p>
+        ) : (
+          paged.map(p => (
+            <div key={p.id} className="p-4 rounded-xl bg-white/[0.03] border border-gray-800/50">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-white font-medium truncate">{p.clientName}</p>
+                  <p className="text-gray-500 text-xs mt-1">{p.barberName} · {methodLabels[p.method] || p.method}</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-cyan font-medium">${p.amount}</p>
+                  <StatusBadge status={p.status} />
+                </div>
               </div>
-            )}
-
-            <form onSubmit={handleRegisterPayment} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="payment-appointment"
-                  className="block text-sm font-medium text-text-primary"
-                >
-                  Cita
-                </label>
-                <select
-                  id="payment-appointment"
-                  value={selectedAppointmentId}
-                  onChange={(e) => {
-                    const val = e.target.value
-                    setSelectedAppointmentId(val)
-                    if (payments.some((p) => p.appointmentId === val && p.status !== 'REFUNDED')) {
-                      setFormError('Esta cita ya tiene un pago registrado')
-                    } else {
-                      setFormError('')
-                    }
-                  }}
-                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="">Seleccione una cita</option>
-                  {appointments.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      Cita {a.id} ({a.date}) - {clientsMap[a.clientId] || a.clientId}
-                    </option>
-                  ))}
-                </select>
+              <div className="mt-3 text-xs text-gray-500">
+                <span>{p.date}</span>
               </div>
+            </div>
+          ))
+        )}
+      </div>
 
-              <div>
-                <label
-                  htmlFor="payment-amount"
-                  className="block text-sm font-medium text-text-primary"
-                >
-                  Monto
-                </label>
-                <input
-                  id="payment-amount"
-                  type="number"
-                  step="any"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="0.00"
-                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                />
-              </div>
+      {/* Desktop: Table */}
+      <div className="hidden sm:block">
+        {filtered.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-8">No hay pagos</p>
+        ) : (
+          <DataTable<Payment>
+            columns={[
+              { key: 'date', header: 'Fecha', sortable: true },
+              { key: 'clientName', header: 'Cliente', sortable: true },
+              { key: 'barberName', header: 'Barbero', sortable: true, hideOnMobile: true },
+              { key: 'amount', header: 'Monto', sortable: true, render: (p) => <span className="text-cyan font-medium">${p.amount}</span> },
+              { key: 'method', header: 'Método', sortable: true, render: (p) => (
+                <span className="bg-white/10 text-white rounded px-2 py-0.5 text-xs font-medium">{methodLabels[p.method] || p.method}</span>
+              )},
+              { key: 'status', header: 'Estado', sortable: true, render: (p) => <StatusBadge status={p.status} /> },
+            ]}
+            data={paged}
+            keyExtractor={(item) => item.id}
+            hideSearch
+          />
+        )}
+      </div>
 
-              <div>
-                <label
-                  htmlFor="payment-method"
-                  className="block text-sm font-medium text-text-primary"
-                >
-                  Método de Pago
-                </label>
-                <select
-                  id="payment-method"
-                  value={method}
-                  onChange={(e) => setMethod(e.target.value as any)}
-                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                >
-                  <option value="CASH">Efectivo</option>
-                  <option value="CARD">Tarjeta</option>
-                  <option value="TRANSFER">Transferencia</option>
-                  <option value="QR">QR</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="payment-notes"
-                  className="block text-sm font-medium text-text-primary"
-                >
-                  Notas
-                </label>
-                <input
-                  id="payment-notes"
-                  type="text"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Opcional..."
-                  className="mt-1 block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-text-primary bg-surface rounded-md hover:bg-surface-elevated transition"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
-                >
-                  {submitting ? 'Guardando...' : 'Guardar Pago'}
-                </button>
-              </div>
-            </form>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-gray-500">{filtered.length} resultado{filtered.length !== 1 ? 's' : ''}</span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${n === safePage ? 'bg-cyan/20 text-cyan' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
           </div>
         </div>
       )}
