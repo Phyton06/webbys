@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import LoadingSpinner from '../../components/LoadingSpinner'
+import { useState } from 'react'
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<'business' | 'hours' | 'branding' | 'roles'>('business')
@@ -22,7 +21,7 @@ export default function Settings() {
   })
 
   // Hours state
-  const [hoursForm, setHoursForm] = useState<Record<string, { open: string; close: string }>>({
+  const [hoursForm] = useState<Record<string, { open: string; close: string }>>({
     monday: { open: '09:00', close: '18:00' },
     tuesday: { open: '09:00', close: '18:00' },
     wednesday: { open: '09:00', close: '18:00' },
@@ -32,18 +31,8 @@ export default function Settings() {
     sunday: { open: '10:00', close: '14:00' },
   })
 
-  // Success / error message state
-  const [message, setMessage] = useState('')
-  const [errMessage, setErrMessage] = useState('')
-
   const handleSaveBusiness = () => {
-    setMessage('Configuración de negocio guardada con éxito')
-    setTimeout(() => setMessage(''), 3000)
-  }
-
-  const handleSaveBranding = () => {
-    setMessage('Configuración de branding guardada con éxito')
-    setTimeout(() => setMessage(''), 3000)
+    // ponytail: save logic placeholder
   }
 
   const daysOfWeek = [
