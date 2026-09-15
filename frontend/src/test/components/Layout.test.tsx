@@ -25,10 +25,10 @@ describe('Layout', () => {
     renderLayout('ADMIN', '/admin')
     await waitFor(() => {
       expect(screen.getByText('Inicio')).toBeInTheDocument()
-      expect(screen.getByText('Barberos')).toBeInTheDocument()
-      expect(screen.getByText('Clientes')).toBeInTheDocument()
-      expect(screen.getByText('Servicios')).toBeInTheDocument()
       expect(screen.getByText('Citas')).toBeInTheDocument()
+      expect(screen.getByText('Clientes')).toBeInTheDocument()
+      expect(screen.getByText('Reportes')).toBeInTheDocument()
+      expect(screen.getByText('Más')).toBeInTheDocument()
     })
   })
 

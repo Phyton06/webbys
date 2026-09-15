@@ -126,11 +126,12 @@ describe('Admin Analytics Page', () => {
       expect(screen.getByText(/Análisis y Métricas del Negocio/i)).toBeInTheDocument()
     })
 
-    const periodSelect = screen.getByLabelText(/Periodo/i)
-    fireEvent.change(periodSelect, { target: { value: '30d' } })
+    // Select has no aria-label — find it by role as the only combobox
+    const periodSelect = screen.getByRole('combobox')
+    fireEvent.change(periodSelect, { target: { value: '7d' } })
 
     await waitFor(() => {
-      expect(mockApi.get).toHaveBeenCalledWith(expect.stringContaining('30d'))
+      expect(mockApi.get).toHaveBeenCalledWith(expect.stringContaining('7d'))
     })
   })
 })

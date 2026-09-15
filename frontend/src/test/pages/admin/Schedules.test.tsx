@@ -105,10 +105,12 @@ describe('Admin Schedules Page', () => {
     renderComponent()
 
     await waitFor(() => {
-      expect(screen.getByText(/Horarios y Disponibilidad/i)).toBeInTheDocument()
+      // Heading appears twice (h1 + h2) — use getAllByText
+      expect(screen.getAllByText(/Horarios y Disponibilidad/i).length).toBeGreaterThan(0)
     })
 
-    expect(screen.getByText('Juan Barbero')).toBeInTheDocument()
+    // Barber name appears in "Horario Semanal: Juan Barbero"
+    expect(screen.getAllByText(/Juan Barbero/i).length).toBeGreaterThan(0)
     // Days should be visible
     expect(screen.getByText(/Lunes/i)).toBeInTheDocument()
     expect(screen.getByText(/Viernes/i)).toBeInTheDocument()

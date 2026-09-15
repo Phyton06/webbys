@@ -105,6 +105,21 @@ function seed() {
     { id: 'a2', clientId: 'u6', barberId: 'u3', serviceId: 's3', date: fmt(today), startTime: '11:00', endTime: '11:45', status: 'PENDING' },
     { id: 'a3', clientId: 'u5', barberId: 'u4', serviceId: 's2', date: fmt(today), startTime: '14:00', endTime: '14:20', status: 'CONFIRMED' },
     { id: 'a4', clientId: 'u6', barberId: 'u4', serviceId: 's1', date: fmt(new Date(today.getTime() + 86400000)), startTime: '09:00', endTime: '09:30', status: 'PENDING' },
+    { id: 'a5', clientId: 'u5', barberId: 'u3', serviceId: 's1', date: fmt(new Date(today.getTime() + 86400000)), startTime: '11:00', endTime: '11:30', status: 'CONFIRMED' },
+    { id: 'a6', clientId: 'u6', barberId: 'u4', serviceId: 's3', date: fmt(new Date(today.getTime() + 86400000)), startTime: '15:00', endTime: '15:45', status: 'PENDING' },
+    { id: 'a7', clientId: 'u5', barberId: 'u3', serviceId: 's2', date: fmt(new Date(today.getTime() + 172800000)), startTime: '09:00', endTime: '09:20', status: 'CONFIRMED' },
+    { id: 'a8', clientId: 'u6', barberId: 'u4', serviceId: 's1', date: fmt(new Date(today.getTime() + 172800000)), startTime: '10:00', endTime: '10:30', status: 'IN_PROGRESS' },
+    { id: 'a9', clientId: 'u5', barberId: 'u3', serviceId: 's3', date: fmt(new Date(today.getTime() + 172800000)), startTime: '14:00', endTime: '14:45', status: 'COMPLETED' },
+    { id: 'a10', clientId: 'u6', barberId: 'u4', serviceId: 's1', date: fmt(new Date(today.getTime() + 259200000)), startTime: '09:00', endTime: '09:30', status: 'PENDING' },
+    { id: 'a11', clientId: 'u5', barberId: 'u3', serviceId: 's2', date: fmt(new Date(today.getTime() + 259200000)), startTime: '11:00', endTime: '11:20', status: 'CONFIRMED' },
+    { id: 'a12', clientId: 'u6', barberId: 'u4', serviceId: 's3', date: fmt(new Date(today.getTime() + 259200000)), startTime: '15:00', endTime: '15:45', status: 'PENDING' },
+    { id: 'a13', clientId: 'u5', barberId: 'u3', serviceId: 's1', date: fmt(new Date(today.getTime() + 345600000)), startTime: '10:00', endTime: '10:30', status: 'CONFIRMED' },
+    { id: 'a14', clientId: 'u6', barberId: 'u4', serviceId: 's2', date: fmt(new Date(today.getTime() + 345600000)), startTime: '14:00', endTime: '14:20', status: 'CANCELLED' },
+    { id: 'a15', clientId: 'u5', barberId: 'u3', serviceId: 's3', date: fmt(new Date(today.getTime() + 432000000)), startTime: '09:00', endTime: '09:45', status: 'PENDING' },
+    { id: 'a16', clientId: 'u6', barberId: 'u4', serviceId: 's1', date: fmt(new Date(today.getTime() + 432000000)), startTime: '11:00', endTime: '11:30', status: 'CONFIRMED' },
+    { id: 'a17', clientId: 'u5', barberId: 'u3', serviceId: 's2', date: fmt(new Date(today.getTime() + 518400000)), startTime: '10:00', endTime: '10:20', status: 'PENDING' },
+    { id: 'a18', clientId: 'u6', barberId: 'u4', serviceId: 's3', date: fmt(new Date(today.getTime() + 518400000)), startTime: '14:00', endTime: '14:45', status: 'CONFIRMED' },
+    { id: 'a19', clientId: 'u5', barberId: 'u3', serviceId: 's1', date: fmt(new Date(today.getTime() + 604800000)), startTime: '09:00', endTime: '09:30', status: 'PENDING' },
   ]
   save(APPOINTMENTS_KEY, appointments)
 }
@@ -259,7 +274,16 @@ export const mockApi = {
 
     if (path === '/appointments') {
       const appts = load<Appointment>(APPOINTMENTS_KEY)
-      return { data: appts }
+      const users = load<User>(USERS_KEY)
+      const services = load<Service>(SERVICES_KEY)
+      const resolved = appts.map(a => ({
+        ...a,
+        clientName: users.find(u => u.id === a.clientId)?.name ?? a.clientId,
+        barberName: users.find(u => u.id === a.barberId)?.name ?? a.barberId,
+        serviceName: services.find(s => s.id === a.serviceId)?.name ?? a.serviceId,
+        time: a.startTime,
+      }))
+      return { data: resolved }
     }
 
     if (path.startsWith('/appointments/')) {

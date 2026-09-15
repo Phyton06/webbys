@@ -27,14 +27,10 @@ export default function Schedules() {
   const [exceptions, setExceptions] = useState<ScheduleException[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-
-  // Edit Day Modal
-  const [editingDay, setEditingDay] = useState<ScheduleEntry | null>(null)
+  const [editingDay, setEditingDay] = useState<any | null>(null)
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('18:00')
   const [dayActive, setDayActive] = useState(true)
-
-  // Add Exception Modal
   const [showExceptionModal, setShowExceptionModal] = useState(false)
   const [exDate, setExDate] = useState('')
   const [exType, setExType] = useState<'DAY_OFF' | 'HALF_DAY' | 'CUSTOM'>('DAY_OFF')
@@ -85,7 +81,7 @@ export default function Schedules() {
     return b ? b.name : ''
   }, [barbers, selectedBarberId])
 
-  const handleOpenEditDay = (entry: ScheduleEntry) => {
+  const handleOpenEditDay = (entry: any) => {
     setEditingDay(entry)
     const slot = entry.slots?.[0]
     if (slot) {
@@ -103,7 +99,7 @@ export default function Schedules() {
     e.preventDefault()
     if (!editingDay || !schedule || !selectedBarberId) return
 
-    const updatedEntries = schedule.entries.map((entry) => {
+    const updatedEntries = schedule.entries.map((entry: any) => {
       if (entry.day === editingDay.day) {
         return {
           day: entry.day,
@@ -139,7 +135,7 @@ export default function Schedules() {
       })
 
       const newEx = res.data
-      setExceptions((prev) => [...prev, newEx])
+      setExceptions((prev: any[]) => [...prev, newEx])
       setShowExceptionModal(false)
       setExDate('')
       setExReason('')
@@ -154,7 +150,7 @@ export default function Schedules() {
   const handleDeleteException = async (id: string) => {
     try {
       await api.delete(`/schedules/exceptions/${id}`)
-      setExceptions((prev) => prev.filter((e) => e.id !== id))
+      setExceptions((prev: any[]) => prev.filter((e: any) => e.id !== id))
     } catch (err) {
       console.error('Error removing exception:', err)
     }
@@ -169,24 +165,24 @@ export default function Schedules() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
+    <div className="bg-[var(--surface)] min-h-screen">
+      <h1 className="text-2xl font-display font-bold text-white">Horarios y Disponibilidad</h1>
+
       {/* Header & Barber Switcher */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[var(--border)] pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Horarios y Disponibilidad</h1>
-          <p className="text-sm text-text-muted mt-1">
-            Gestiona los turnos semanales y excepciones por barbero.
-          </p>
+          <h2 className="text-xl font-display font-bold text-white">Horarios y Disponibilidad</h2>
+          <p className="text-sm text-gray-400">Gestiona los turnos semanales y excepciones por barbero.</p>
         </div>
         <div className="flex items-center gap-3">
-          <label htmlFor="barber-select" className="text-sm font-medium text-text-primary">
+          <label htmlFor="barber-select" className="text-sm font-medium text-gray-300">
             Barbero:
           </label>
           <select
             id="barber-select"
             value={selectedBarberId}
             onChange={(e) => setSelectedBarberId(e.target.value)}
-            className="rounded-md border border-border bg-surface-elevated py-2 px-3 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
           >
             {barbers.map((b) => (
               <option key={b.id} value={b.id}>
@@ -198,17 +194,17 @@ export default function Schedules() {
       </div>
 
       {/* Weekly Schedule Grid */}
-      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border overflow-hidden">
-        <div className="p-5 bg-surface border-b border-border flex justify-between items-center">
+      <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] overflow-hidden mb-6">
+        <div className="p-5 border-b border-[var(--border)] flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">Horario Semanal: {currentBarberName}</h2>
-            <p className="text-xs text-text-muted">Configuración estándar repetida cada semana</p>
+            <h2 className="text-lg font-semibold text-white">Horario Semanal: {currentBarberName}</h2>
+            <p className="text-xs text-gray-400">Configuración estándar repetida cada semana</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-7 divide-y md:divide-y-0 md:divide-x divide-gray-300">
           {DEFAULT_DAYS.map((dayKey) => {
-            const entry = schedule?.entries?.find((e) => e.day.toLowerCase() === dayKey.toLowerCase()) || {
+            const entry = schedule?.entries?.find((e: any) => e.day.toLowerCase() === dayKey.toLowerCase()) || {
               day: dayKey,
               slots: [],
             }
@@ -216,32 +212,35 @@ export default function Schedules() {
             const dayLabel = DAY_NAMES_ES[dayKey] || dayKey
 
             return (
-              <div key={dayKey} className="p-4 flex flex-col justify-between hover:bg-surface transition-colors">
+              <div
+                key={dayKey}
+                className="p-4 flex flex-col justify-between border-y [var(--border)] hover:bg-[var(--surface)] transition-colors"
+              >
                 <div>
-                  <span className="font-semibold text-text-primary text-sm block mb-2">{dayLabel}</span>
+                  <span className="font-semibold text-white text-sm block mb-2">{dayLabel}</span>
                   {hasSlots ? (
                     <div className="space-y-1">
-                      {entry.slots.map((slot, idx) => (
+                      {entry.slots.map((slot: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-amber-50 text-amber-900 border border-amber-200 rounded px-2 py-1 text-xs font-medium text-center"
+                          className="bg-cyan-500 text-white rounded px-2 py-1 text-xs font-medium text-center"
                         >
                           {slot.start} - {slot.end}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <span className="inline-block px-2 py-1 text-xs text-text-muted bg-surface rounded font-medium">
+                    <span className="inline-block px-2 py-1 text-xs font-medium rounded bg-gray-800 text-gray-300">
                       Cerrado
                     </span>
                   )}
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border">
+                <div className="mt-3 pt-3 border-t border-[var(--border)]">
                   <button
                     type="button"
                     onClick={() => handleOpenEditDay(entry)}
-                    className="w-full text-xs font-medium text-primary hover:text-amber-700 py-1 rounded hover:bg-amber-50 border border-transparent hover:border-amber-200 transition-colors"
+                    className="w-full text-xs font-medium text-cyan hover:text-cyan-400 py-1 rounded hover:bg-cyan-50 border border-transparent hover:border-cyan-200 transition-colors"
                   >
                     Editar
                   </button>
@@ -253,54 +252,54 @@ export default function Schedules() {
       </div>
 
       {/* Exceptions Section */}
-      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-border pb-4">
+      <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6 mb-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[var(--border)] pb-4">
           <div>
-            <h2 className="text-lg font-semibold text-text-primary">Excepciones y Días Libres</h2>
-            <p className="text-xs text-text-muted">
-              Días no laborables, feriados o ausencias programadas que sobrescriben el horario semanal.
-            </p>
+            <h2 className="text-lg font-semibold text-white">Excepciones y Días Libres</h2>
+            <p className="text-xs text-gray-400">Días no laborables, feriados o ausencias programadas que sobrescriben el horario semanal.</p>
           </div>
           <button
             type="button"
             onClick={() => setShowExceptionModal(true)}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            className="btn-primary text-sm"
           >
             + Agregar Excepción
           </button>
         </div>
 
         {exceptions.length === 0 ? (
-          <div className="text-center py-8 text-text-muted text-sm">
+          <div className="text-center py-8 text-gray-400 text-sm">
             No hay excepciones registradas para este barbero.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-surface">
+            <table className="min-w-full divide-y divide-gray-300 text-sm">
+              <thead className="bg-gray-800">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-text-muted">Fecha</th>
-                  <th className="px-4 py-3 text-left font-medium text-text-muted">Tipo</th>
-                  <th className="px-4 py-3 text-left font-medium text-text-muted">Motivo</th>
-                  <th className="px-4 py-3 text-right font-medium text-text-muted">Acción</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">Fecha</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">Tipo</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">Motivo</th>
+                  <th className="px-4 py-3 text-right font-medium text-gray-300">Acción</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-surface-elevated">
-                {exceptions.map((ex) => (
+              <tbody className="divide-y divide-gray-300 bg-gray-800">
+                {exceptions.map((ex: any) => (
                   <tr key={ex.id}>
-                    <td className="px-4 py-3 font-medium text-text-primary whitespace-nowrap">{ex.date}</td>
+                    <td className="px-4 py-3 font-medium text-white whitespace-nowrap">{ex.date}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-badge-error/20 text-badge-error">
+                      <span
+                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-cyan-500/20 text-cyan-400"
+                      >
                         {ex.type === 'DAY_OFF' ? 'Día Libre' : ex.type}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{ex.reason || 'Sin motivo'}</td>
+                    <td className="px-4 py-3 text-gray-300">{ex.reason || 'Sin motivo'}</td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       <button
                         type="button"
                         aria-label="Eliminar excepción"
                         onClick={() => handleDeleteException(ex.id)}
-                        className="text-red-600 hover:text-red-800 text-xs font-semibold"
+                        className="text-cyan-400 hover:text-cyan-300 text-xs font-semibold"
                       >
                         Eliminar
                       </button>
@@ -315,16 +314,16 @@ export default function Schedules() {
 
       {/* Modal: Edit Day Hours */}
       {editingDay && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-          <div className="bg-surface-elevated rounded-xl shadow-xl max-w-md w-full p-6 space-y-5">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="text-lg font-bold text-text-primary">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.8)] p-4">
+          <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6 space-y-5 max-w-md w-full">
+            <div className="flex justify-between items-center border-b border-[var(--border)] pb-3">
+              <h3 className="text-lg font-bold text-white">
                 Editar Horario - {DAY_NAMES_ES[editingDay.day] || editingDay.day}
               </h3>
               <button
                 type="button"
                 onClick={() => setEditingDay(null)}
-                className="text-text-muted hover:text-gray-600 text-lg font-bold"
+                className="text-gray-400 hover:text-gray-300 text-lg font-bold"
               >
                 ×
               </button>
@@ -337,9 +336,9 @@ export default function Schedules() {
                   id="day-active-check"
                   checked={dayActive}
                   onChange={(e) => setDayActive(e.target.checked)}
-                  className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                  className="rounded border-cyan-400 text-cyan-400 h-4 w-4"
                 />
-                <label htmlFor="day-active-check" className="text-sm font-medium text-text-primary">
+                <label htmlFor="day-active-check" className="text-sm font-medium text-white">
                   Día Laborable (Activo)
                 </label>
               </div>
@@ -347,7 +346,7 @@ export default function Schedules() {
               {dayActive && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="start-time" className="block text-xs font-medium text-text-primary mb-1">
+                    <label htmlFor="start-time" className="block text-xs font-medium text-cyan mb-1">
                       Hora Inicio
                     </label>
                     <input
@@ -356,11 +355,11 @@ export default function Schedules() {
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
                       required
-                      className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
+                      className="w-full rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                     />
                   </div>
                   <div>
-                    <label htmlFor="end-time" className="block text-xs font-medium text-text-primary mb-1">
+                    <label htmlFor="end-time" className="block text-xs font-medium text-cyan mb-1">
                       Hora Fin
                     </label>
                     <input
@@ -369,24 +368,24 @@ export default function Schedules() {
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
                       required
-                      className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
+                      className="w-full rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                     />
                   </div>
                 </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)]">
                 <button
                   type="button"
                   onClick={() => setEditingDay(null)}
-                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-text-primary hover:bg-surface"
+                  className="btn-secondary text-sm text-gray-300"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium shadow-sm disabled:opacity-50"
+                  className="btn-primary text-sm disabled:opacity-50"
                 >
                   {saving ? 'Guardando...' : 'Guardar Horario'}
                 </button>
@@ -398,14 +397,14 @@ export default function Schedules() {
 
       {/* Modal: Add Exception */}
       {showExceptionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-          <div className="bg-surface-elevated rounded-xl shadow-xl max-w-md w-full p-6 space-y-5">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="text-lg font-bold text-text-primary">Nueva Excepción</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(0,0,0,0.8)] p-4">
+          <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6 space-y-5 max-w-md w-full">
+            <div className="flex justify-between items-center border-b border-[var(--border)] pb-3">
+              <h3 className="text-lg font-bold text-white">Nueva Excepción</h3>
               <button
                 type="button"
                 onClick={() => setShowExceptionModal(false)}
-                className="text-text-muted hover:text-gray-600 text-lg font-bold"
+                className="text-gray-400 hover:text-gray-300 text-lg font-bold"
               >
                 ×
               </button>
@@ -413,7 +412,7 @@ export default function Schedules() {
 
             <form onSubmit={handleAddException} className="space-y-4">
               <div>
-                <label htmlFor="ex-date" className="block text-xs font-medium text-text-primary mb-1">
+                <label htmlFor="ex-date" className="block text-xs font-medium text-cyan mb-1">
                   Fecha
                 </label>
                 <input
@@ -422,19 +421,19 @@ export default function Schedules() {
                   value={exDate}
                   onChange={(e) => setExDate(e.target.value)}
                   required
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
+                  className="w-full rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
               <div>
-                <label htmlFor="ex-type" className="block text-xs font-medium text-text-primary mb-1">
+                <label htmlFor="ex-type" className="block text-xs font-medium text-cyan mb-1">
                   Tipo
                 </label>
                 <select
                   id="ex-type"
                   value={exType}
                   onChange={(e) => setExType(e.target.value as any)}
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
+                  className="w-full rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 >
                   <option value="DAY_OFF">Día Libre</option>
                   <option value="HALF_DAY">Medio Día</option>
@@ -443,7 +442,7 @@ export default function Schedules() {
               </div>
 
               <div>
-                <label htmlFor="ex-reason" className="block text-xs font-medium text-text-primary mb-1">
+                <label htmlFor="ex-reason" className="block text-xs font-medium text-cyan mb-1">
                   Motivo
                 </label>
                 <input
@@ -453,22 +452,22 @@ export default function Schedules() {
                   value={exReason}
                   onChange={(e) => setExReason(e.target.value)}
                   required
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
+                  className="w-full rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="flex justify-end gap-3 pt-4 border-t border-[var(--border)]">
                 <button
                   type="button"
                   onClick={() => setShowExceptionModal(false)}
-                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-text-primary hover:bg-surface"
+                  className="btn-secondary text-sm text-gray-300"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium shadow-sm disabled:opacity-50"
+                  className="btn-primary text-sm disabled:opacity-50"
                 >
                   {saving ? 'Guardando...' : 'Guardar Excepción'}
                 </button>

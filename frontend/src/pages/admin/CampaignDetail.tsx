@@ -119,7 +119,7 @@ export default function CampaignDetail() {
       <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-text-primary">{campaign.name}</h1>
+            <h1 className="text-2xl font-display font-bold text-text-primary">{campaign.name}</h1>
             <span
               className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                 campaign.status === 'ACTIVE'
@@ -162,7 +162,7 @@ export default function CampaignDetail() {
             <button
               type="button"
               onClick={() => handleUpdateStatus('PAUSED')}
-              className="px-4 py-2 border border-border rounded-md text-sm font-medium text-text-primary hover:bg-surface"
+              className="btn-secondary text-sm"
             >
               Pausar Campaña
             </button>
@@ -171,7 +171,7 @@ export default function CampaignDetail() {
             <button
               type="button"
               onClick={() => handleUpdateStatus('ACTIVE')}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium shadow-sm"
+              className="btn-primary text-sm"
             >
               Activar Campaña
             </button>
@@ -180,7 +180,7 @@ export default function CampaignDetail() {
             <button
               type="button"
               onClick={() => handleUpdateStatus('ACTIVE')}
-              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium shadow-sm"
+              className="btn-primary text-sm"
             >
               Lanzar Campaña
             </button>
