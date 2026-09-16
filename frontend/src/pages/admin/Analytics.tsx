@@ -1,8 +1,6 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import { StatCard } from '../../components/shared/StatCard'
-import type { AnalyticsSummary } from '../../services/interfaces'
 
 const DAYS = [
   { key: 'monday', label: 'Lunes' },
@@ -11,64 +9,19 @@ const DAYS = [
   { key: 'thursday', label: 'Jueves' },
   { key: 'friday', label: 'Viernes' },
   { key: 'saturday', label: 'Sábado' },
+  { key: 'sunday', label: 'Domingo' }
 ]
 
 const HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
 
 export default function Analytics() {
-  const [summary, setSummary] = useState<AnalyticsSummary | null>(null)
+  const [summary, setSummary] = useState<any>(null)
   const [period, setPeriod] = useState<string>('30d')
   const [loading, setLoading] = useState(true)
 
-  const fetchAnalytics = async (selectedPeriod: string) => {
-    try {
-      setLoading(true)
-      const res = await api.get(`/analytics/summary?period=${selectedPeriod}`)
-      setSummary(res.data)
-    } catch (err) {
-      console.error('Error fetching analytics summary:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    fetchAnalytics(period)
+    api.get(`/analytics/summary?period=${period}`).then(r => setSummary(r.data)).finally(() => setLoading(false))
   }, [period])
-
-  // Heatmap helper: calculate cell intensity
-  const maxPeakCount = useMemo(() => {
-    if (!summary?.peakHours || summary.peakHours.length === 0) return 1
-    return Math.max(...summary.peakHours.map((p) => p.count), 1)
-  }, [summary])
-
-  const getHeatmapColor = (count: number) => {
-    if (count === 0) return 'bg-surface text-text-muted'
-    const ratio = count / maxPeakCount
-    if (ratio < 0.25) return 'bg-amber-100 text-amber-800'
-    if (ratio < 0.5) return 'bg-amber-200 text-amber-900 font-semibold'
-    if (ratio < 0.75) return 'bg-amber-400 text-amber-950 font-bold'
-    return 'bg-amber-600 text-white font-bold'
-  }
-
-  // Retention SVG line/points
-  const retentionSvg = useMemo(() => {
-    if (!summary?.retention || summary.retention.length === 0) return { line: '', points: [] }
-    const width = 600
-    const height = 160
-    const padX = 40
-    const padY = 20
-
-    const maxVal = Math.max(...summary.retention.map((r) => r.retained + r.churned), 100)
-    const pts = summary.retention.map((r, i) => {
-      const x = padX + (i / Math.max(summary.retention.length - 1, 1)) * (width - padX * 2)
-      const y = height - padY - (r.retained / maxVal) * (height - padY * 2)
-      return { x, y, month: r.month, retained: r.retained }
-    })
-
-    const line = pts.map((p) => `${p.x},${p.y}`).join(' ')
-    return { line, points: pts }
-  }, [summary])
 
   if (loading && !summary) {
     return (
@@ -79,179 +32,174 @@ export default function Analytics() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-5">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Análisis y Métricas del Negocio</h1>
-          <p className="text-sm text-text-muted mt-1">
-            Indicadores clave de rendimiento (KPIs), retención de clientes, horas pico y valor acumulado.
-          </p>
-        </div>
+    <div className="bg-[var(--surface)] min-h-screen p-6">
+      <h1 className="text-2xl font-display font-bold text-white">Análisis y Métricas del Negocio</h1>
 
-        <div className="flex items-center gap-2">
-          <label htmlFor="period-select" className="text-xs font-semibold text-text-primary">
-            Periodo:
-          </label>
-          <select
-            id="period-select"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="rounded-md border border-border bg-surface-elevated py-1.5 px-3 text-sm font-medium shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          >
-            <option value="7d">Últimos 7 días</option>
-            <option value="30d">Últimos 30 días</option>
-            <option value="90d">Últimos 90 días</option>
-            <option value="1y">Este año</option>
-          </select>
-        </div>
-      </div>
+      {/* Period selector and KPI cards */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <select
+          value={period}
+          onChange={(e) => setPeriod(e.target.value)}
+          className="rounded border [var(--border)] py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+        >
+          <option value="7d">Últimos 7 días</option>
+          <option value="30d">Últimos 30 días</option>
+          <option value="90d">Últimos 90 días</option>
+          <option value="1y">Este año</option>
+        </select>
 
-      {/* KPI Cards Row */}
-      {summary && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {summary.kpis.map((kpi, idx) => {
-            const isCurrency = kpi.label.toLowerCase().includes('ingreso') || kpi.label.toLowerCase().includes('ticket')
-            const displayVal = isCurrency
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {summary && summary.kpis?.map((kpi: any, idx: number) => {
+            const displayVal = kpi.label.toLowerCase().includes('ingreso') || kpi.label.toLowerCase().includes('ticket')
               ? `$${kpi.value.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
               : kpi.label.toLowerCase().includes('tasa')
-              ? `${kpi.value.toFixed(1)}%`
-              : kpi.value.toLocaleString()
+                ? `${kpi.value.toFixed(1)}%`
+                : kpi.value.toLocaleString()
 
             const trendColor =
-              kpi.trend === 'UP' ? 'text-badge-success' : kpi.trend === 'DOWN' ? 'text-badge-error' : 'text-text-muted'
+              kpi.trend === 'UP' ? 'text-cyan-400' : kpi.trend === 'DOWN' ? 'text-red-400' : 'text-gray-400'
             const trendIcon = kpi.trend === 'UP' ? '↑' : kpi.trend === 'DOWN' ? '↓' : '→'
 
             return (
-              <StatCard
+              <div
                 key={idx}
-                title={kpi.label}
-                value={displayVal}
-                subtitle={`${trendIcon} ${kpi.change > 0 ? '+' : ''}${kpi.change}% vs anterior`}
-                trend={kpi.change !== 0 ? Math.abs(kpi.change) : undefined}
-                trendDirection={kpi.trend === 'UP' ? 'up' : kpi.trend === 'DOWN' ? 'down' : undefined}
-                className={trendColor}
-              />
+                className="border border-[var(--border)] rounded-xl p-4 bg-[var(--surface)] transition-colors hover:border-cyan-500/30"
+              >
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">{kpi.label}</span>
+                <h2 className="text-xl font-bold text-white">{displayVal}</h2>
+                <div className="flex justify-between text-sm">
+                  <span className={trendColor}>{trendIcon} {Math.abs(kpi.change)}% vs anterior</span>
+                </div>
+              </div>
             )
           })}
-
-          <StatCard
-            title="Tasa de No-Show"
-            value={`${summary.noShowRate.toFixed(1)}%`}
-            subtitle="Inasistencia sin previo aviso"
-            trendDirection={summary.noShowRate > 10 ? 'down' : 'up'}
-          />
-        </div>
-      )}
-
-      {/* Customer Retention Trend Section */}
-      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-border pb-3">
-          <div>
-            <h2 className="text-lg font-bold text-text-primary">Tendencia de Retención de Clientes</h2>
-            <p className="text-xs text-text-muted">
-              Porcentaje y volumen de clientes que regresan mes a mes vs clientes inactivos.
-            </p>
+          {/* Tasa de No-Show card */}
+          <div
+            key="no-show"
+            className="border border-[var(--border)] rounded-xl p-4 bg-[var(--surface)] transition-colors hover:border-cyan-500/30"
+          >
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">Tasa de No-Show</span>
+            <h2 className="text-xl font-bold text-white">{summary?.noShowRate?.toFixed(1) || '0'}%</h2>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Inasistencia sin previo aviso</span>
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Customer Retention Trend */}
+      <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6 mb-6">
+        <h2 className="text-lg font-bold text-white mb-3">Tendencia de Retención de Clientes</h2>
+        <p className="text-sm text-gray-400 mb-4">Porcentaje y volumen de clientes que regresan mes a mes vs clientes inactivos.</p>
 
         {summary?.retention && summary.retention.length > 0 ? (
           <div className="space-y-6">
-            {/* Simple Native SVG Trend Line */}
+            {/* Native SVG Trend Line */}
             <div className="w-full overflow-x-auto">
-              <svg viewBox="0 0 600 160" className="w-full h-44">
+              <svg viewBox="0 0 600 160" className="w-full h-40">
                 <defs>
                   <linearGradient id="retentionGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#d97706" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#d97706" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#00BCD4" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#00BCD4" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
 
-                {/* Grid guidelines */}
-                <line x1="40" y1="30" x2="560" y2="30" stroke="#f3f4f6" strokeWidth="1" />
-                <line x1="40" y1="80" x2="560" y2="80" stroke="#f3f4f6" strokeWidth="1" />
-                <line x1="40" y1="130" x2="560" y2="130" stroke="#f3f4f6" strokeWidth="1" />
-
                 {/* Area under polyline */}
-                {retentionSvg.points.length > 1 && (
+                {summary.retention.length > 1 && (
                   <polygon
-                    points={`40,140 ${retentionSvg.line} 560,140`}
+                    points={`40,140 ${summary.retention.map((r: any, i: number) => {
+                      const x = 40 + (i / (summary.retention.length - 1)) * 520
+                      const y = 140 - (r.retained / 100) * 100
+                      return `${x},${y}`
+                    }).join(' ')}`}
                     fill="url(#retentionGradient)"
                   />
                 )}
 
                 {/* Polyline */}
-                {retentionSvg.line && (
+                {summary.retention.length > 0 && (
                   <polyline
                     fill="none"
-                    stroke="#d97706"
+                    stroke="#00BCD4"
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    points={retentionSvg.line}
+                    points={summary.retention.map((r: any, i: number) => {
+                      const x = 40 + (i / Math.max(summary.retention.length - 1, 1)) * 520
+                      const y = 140 - (r.retained / 100) * 100
+                      return `${x},${y}`
+                    }).join(' ')}
                   />
                 )}
 
                 {/* Point nodes and labels */}
-                {retentionSvg.points.map((p, i) => (
+                {summary.retention.map((r: any, i: number) => (
                   <g key={i}>
-                    <circle cx={p.x} cy={p.y} r="5" fill="#d97706" stroke="#fff" strokeWidth="2" />
+                    <circle
+                      cx={40 + (i / Math.max(summary.retention.length - 1, 1)) * 520}
+                      cy={140 - (r.retained / 100) * 100}
+                      r="4"
+                      fill="#00BCD4"
+                    />
                     <text
-                      x={p.x}
-                      y={p.y - 10}
+                      x={40 + (i / Math.max(summary.retention.length - 1, 1)) * 520}
+                      y={140 - (r.retained / 100) * 100 - 8}
                       textAnchor="middle"
-                      className="text-[10px] font-bold fill-gray-700"
+                      className="text-[10px] font-bold fill-white"
                     >
-                      {p.retained}%
+                      {r.retained}%
                     </text>
                     <text
-                      x={p.x}
-                      y="155"
+                      x={40 + (i / Math.max(summary.retention.length - 1, 1)) * 520}
+                      y="150"
                       textAnchor="middle"
-                      className="text-[10px] font-medium fill-gray-400"
+                      className="text-[10px] font-medium fill-gray-300"
                     >
-                      {p.month}
+                      {r.month}
                     </text>
                   </g>
                 ))}
               </svg>
             </div>
 
-            {/* Retention monthly table list */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-              {summary.retention.map((r) => (
-                <div key={r.month} className="bg-surface border border-border rounded-lg p-3 text-center">
-                  <span className="text-xs font-semibold text-text-muted block">{r.month}</span>
-                  <span className="text-base font-bold text-primary block mt-1">{r.retained}%</span>
-                  <span className="text-[10px] text-text-muted block">{r.churned} inactivos</span>
+            {/* Retention monthly table */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 my-4">
+              {summary.retention.map((r: any) => (
+                <div
+                  key={r.month}
+                  className="border border-[var(--border)] rounded-lg p-3 bg-[var(--surface)] text-center"
+                >
+                  <span className="text-xs font-semibold text-gray-400 block">{r.month}</span>
+                  <span className="text-base font-bold text-cyan block mt-1">{r.retained}%</span>
+                  <span className="text-[10px] text-gray-400 block">{r.churned} inactivos</span>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <div className="text-center py-6 text-text-muted text-sm">No hay datos de retención para mostrar.</div>
+          <div className="text-center py-6 text-gray-400 text-sm">No hay datos de retención para mostrar.</div>
         )}
       </div>
 
-      {/* Peak Hours Heatmap Matrix */}
-      <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
-        <div className="flex justify-between items-center border-b border-border pb-3">
+      {/* Peak Hours Heatmap */}
+      <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6 mb-6">
+        <div className="flex justify-between items-center border-b border-[var(--border)] pb-3">
           <div>
-            <h2 className="text-lg font-bold text-text-primary">Mapa de Calor: Horas Pico</h2>
-            <p className="text-xs text-text-muted">
+            <h2 className="text-lg font-bold text-white">Mapa de Calor: Horas Pico</h2>
+            <p className="text-sm text-gray-400">
               Densidad y volumen de citas por día y hora para optimizar personal y horarios.
             </p>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-text-muted">
+          <div className="flex items-center gap-2 text-xs text-gray-300">
             <span>Baja</span>
             <div className="flex gap-1">
-              <span className="w-3 h-3 rounded bg-amber-100" />
-              <span className="w-3 h-3 rounded bg-amber-200" />
-              <span className="w-3 h-3 rounded bg-amber-400" />
-              <span className="w-3 h-3 rounded bg-amber-600" />
+              <span className="w-2 h-2 rounded bg-gray-300" />
+              <span className="w-2 h-2 rounded bg-gray-400" />
+              <span className="w-2 h-2 rounded bg-cyan-400" />
+              <span className="w-2 h-2 rounded bg-cyan-600" />
+              <span>Alta</span>
             </div>
-            <span>Alta</span>
           </div>
         </div>
 
@@ -259,30 +207,37 @@ export default function Analytics() {
           <table className="min-w-full text-xs text-center border-collapse">
             <thead>
               <tr>
-                <th className="p-2 text-left font-semibold text-gray-600 w-24">Día / Hora</th>
+                <th className="p-2 text-left font-semibold text-gray-300 w-24">Día / Hora</th>
                 {HOURS.map((h) => (
-                  <th key={h} className="p-2 font-semibold text-gray-600 min-w-[3rem]">
+                  <th key={h} className="p-2 font-semibold text-gray-300 min-w-[2.5rem]">
                     {h}:00
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-300">
               {DAYS.map((d) => (
                 <tr key={d.key}>
-                  <td className="p-2 text-left font-semibold text-text-primary">{d.label}</td>
+                  <td className="p-2 text-left font-semibold text-white">{d.label}</td>
                   {HOURS.map((h) => {
                     const cell = summary?.peakHours?.find(
-                      (p) => p.day.toLowerCase() === d.key.toLowerCase() && p.hour === h
+                      (p: any) => p.day.toLowerCase() === d.key.toLowerCase() && p.hour === h
                     )
                     const count = cell ? cell.count : 0
-                    const colorClass = getHeatmapColor(count)
+
+                    // Color based on count using DESIGN.md palette
+                    let colorClass: string
+                    if (count >= 15) colorClass = 'bg-cyan-600 text-white'
+                    else if (count >= 10) colorClass = 'bg-cyan-500 text-white'
+                    else if (count >= 5) colorClass = 'bg-cyan-400 text-black'
+                    else if (count > 0) colorClass = 'bg-cyan-200 text-black'
+                    else colorClass = 'bg-gray-800 text-gray-400'
 
                     return (
                       <td key={h} className="p-1">
                         <div
                           title={`${d.label} ${h}:00 - ${count} citas`}
-                          className={`rounded py-2 px-1 text-center transition-colors cursor-default ${colorClass}`}
+                          className={`rounded py-1 px-1 text-center transition-colors cursor-default ${colorClass}`}
                         >
                           {count > 0 ? count : '-'}
                         </div>
@@ -297,75 +252,60 @@ export default function Analytics() {
       </div>
 
       {/* Two-Column Grid: Customer LTV & Top Services */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Customer LTV */}
-        <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
-          <div className="border-b border-border pb-3">
-            <h2 className="text-lg font-bold text-text-primary">Valor de Vida del Cliente (LTV)</h2>
-            <p className="text-xs text-text-muted">
-              Ranking de clientes más valiosos según gasto total acumulado y recurrencia.
-            </p>
-          </div>
+        <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6">
+          <h2 className="text-lg font-bold text-white mb-3">Valor de Vida del Cliente (LTV)</h2>
+          <p className="text-sm text-gray-400">
+            Ranking de clientes más valiosos según gasto total acumulado y recurrencia.
+          </p>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm divide-y divide-gray-200">
-              <thead className="bg-surface text-text-muted text-xs font-semibold">
-                <tr>
-                  <th className="px-3 py-2 text-left">Cliente</th>
-                  <th className="px-3 py-2 text-center">Visitas</th>
-                  <th className="px-3 py-2 text-right">LTV Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {summary?.customerLifetimeValue?.map((c, idx) => (
-                  <tr key={c.clientId} className="hover:bg-surface">
-                    <td className="px-3 py-3 font-medium text-text-primary flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center justify-center">
-                        {idx + 1}
-                      </span>
-                      {c.name}
-                    </td>
-                    <td className="px-3 py-3 text-center text-gray-600">{c.visits}</td>
-                    <td className="px-3 py-3 text-right font-bold text-badge-success">
-                      ${c.ltv.toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {summary?.customerLifetimeValue?.map((c: any, idx: number) => (
+            <div
+              key={c.clientId}
+              className="border-b border-[var(--border)] py-3 last:border-0 hover:bg-[var(--surface)] transition-colors"
+            >
+              <div className="flex justify-between text-sm">
+                <span className="text-text-primary font-medium">{c.name}</span>
+                <span className="text-sm text-gray-300">{idx + 1}°</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">{c.visits} visitas</span>
+                <span className="font-bold text-cyan">${c.ltv.toLocaleString()}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Top Services Breakdown */}
-        <div className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 space-y-4">
-          <div className="border-b border-border pb-3">
-            <h2 className="text-lg font-bold text-text-primary">Servicios Más Solicitados</h2>
-            <p className="text-xs text-text-muted">Servicios líderes en volumen de reservas e ingresos generados.</p>
-          </div>
+        <div className="rounded-2xl border [var(--border)] bg-[var(--surface)] p-6">
+          <h2 className="text-lg font-bold text-white mb-3">Servicios Más Solicitados</h2>
+          <p className="text-sm text-gray-400">
+            Servicios líderes en volumen de reservas e ingresos generados.
+          </p>
 
-          <div className="space-y-4">
-            {summary?.topServices?.map((svc) => {
-              const maxServiceCount = Math.max(...(summary.topServices.map((s) => s.count) || [1]), 1)
-              const percentage = Math.round((svc.count / maxServiceCount) * 100)
+          {summary?.topServices?.map((svc: any) => {
+            const maxServiceCount = Math.max(...(summary.topServices.map((s: any) => s.count) || [1]), 1)
+            const percentage = Math.round((svc.count / maxServiceCount) * 100)
 
-              return (
-                <div key={svc.serviceId} className="space-y-1.5">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-text-primary font-semibold">{svc.name}</span>
-                    <span className="text-text-muted">
-                      {svc.count} citas • <strong className="text-text-primary">${svc.revenue.toLocaleString()}</strong>
-                    </span>
-                  </div>
-                  <div className="w-full bg-surface rounded-full h-2.5">
-                    <div
-                      className="bg-amber-500 h-2.5 rounded-full transition-all duration-300"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
+            return (
+              <div
+                key={svc.serviceId}
+                className="space-y-2.5 border-b border-[var(--border)] py-2.5 last:border-0 hover:bg-[var(--surface)] transition-colors"
+              >
+                <div className="flex justify-between text-sm font-medium">
+                  <span className="text-text-primary font-semibold">{svc.name}</span>
+                  <span className="text-gray-400">{svc.count} citas</span>
                 </div>
-              )
-            })}
-          </div>
+                <div className="w-full bg-gray-800 rounded-full h-2">
+                  <div
+                    className="bg-cyan-500 rounded-full h-2 transition-all duration-300"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

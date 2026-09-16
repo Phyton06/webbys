@@ -16,7 +16,7 @@ const REPORT_SECTIONS: ReportSection[] = [
     href: '/admin/reportes/ingresos',
     icon: '💰',
     badgeText: 'Financiero',
-    badgeColor: 'bg-emerald-100 text-emerald-800',
+    badgeColor: 'bg-cyan-500 text-white',
   },
   {
     title: 'Reporte de Citas',
@@ -24,7 +24,7 @@ const REPORT_SECTIONS: ReportSection[] = [
     href: '/admin/reportes/citas',
     icon: '📅',
     badgeText: 'Operaciones',
-    badgeColor: 'bg-blue-100 text-blue-800',
+    badgeColor: 'bg-gray-800 text-white',
   },
   {
     title: 'Reporte de Clientes',
@@ -32,7 +32,7 @@ const REPORT_SECTIONS: ReportSection[] = [
     href: '/admin/reportes/clientes',
     icon: '👥',
     badgeText: 'Fidelización',
-    badgeColor: 'bg-purple-100 text-purple-800',
+    badgeColor: 'bg-red-600 text-white',
   },
   {
     title: 'Rendimiento de Barberos',
@@ -40,7 +40,7 @@ const REPORT_SECTIONS: ReportSection[] = [
     href: '/admin/reportes/barberos',
     icon: '✂️',
     badgeText: 'Equipo',
-    badgeColor: 'bg-amber-100 text-amber-800',
+    badgeColor: 'bg-amber-600 text-white',
   },
   {
     title: 'Métricas de Notificaciones',
@@ -48,32 +48,26 @@ const REPORT_SECTIONS: ReportSection[] = [
     href: '/admin/reportes/notificaciones',
     icon: '🔔',
     badgeText: 'Marketing',
-    badgeColor: 'bg-rose-100 text-rose-800',
+    badgeColor: 'bg-rose-600 text-white',
   },
 ]
 
 export default function Reports() {
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
-      {/* Page Header */}
-      <div className="border-b border-border pb-5">
-        <h1 className="text-2xl font-bold text-text-primary">Centro de Reportes</h1>
-        <p className="text-sm text-text-muted mt-1">
-          Visualiza métricas consolidadas, analiza el desempeño del negocio y exporta auditorías en formato CSV.
-        </p>
-      </div>
+    <div className="bg-[var(--surface)] min-h-screen p-6">
+      <h1 className="text-2xl font-display font-bold text-white">Centro de Reportes</h1>
 
       {/* Report Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 mb-8">
         {REPORT_SECTIONS.map((section) => (
           <Link
             key={section.href}
             to={section.href}
-            className="bg-surface-elevated rounded-xl shadow-sm border border-border p-6 flex flex-col justify-between hover:shadow-md hover:border-amber-400 transition-all group"
+            className="bg-[var(--surface)] rounded-xl border border-[var(--border)] p-6 flex flex-col justify-between hover:border-cyan-500 transition-colors"
           >
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-3xl p-2 bg-amber-50 rounded-lg group-hover:scale-105 transition-transform">
+                <span className="text-3xl p-2 bg-cyan-50 rounded-lg">
                   {section.icon}
                 </span>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${section.badgeColor}`}>
@@ -81,15 +75,15 @@ export default function Reports() {
                 </span>
               </div>
 
-              <h2 className="text-lg font-bold text-text-primary group-hover:text-primary transition-colors">
+              <h2 className="text-lg font-bold text-white hover:text-cyan-500 transition-colors">
                 {section.title}
               </h2>
-              <p className="text-xs text-text-muted leading-relaxed">{section.description}</p>
+              <p className="text-xs text-gray-400 leading-relaxed">{section.description}</p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-border flex items-center justify-between text-xs font-semibold text-primary">
+            <div className="mt-4 pt-4 border-t border-[var(--border)] flex items-center justify-between text-sm font-medium text-gray-300">
               <span>Abrir Reporte</span>
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
+              <span>→</span>
             </div>
           </Link>
         ))}

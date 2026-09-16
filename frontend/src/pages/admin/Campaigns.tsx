@@ -1,22 +1,82 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
 import { StatCard } from '../../components/shared/StatCard'
-import type { Campaign } from '../../services/interfaces'
+
+interface Campaign {
+  id: string
+  name: string
+  description?: string
+  type: string
+  channel: string
+  status: 'ACTIVE' | 'PAUSED' | 'DRAFT' | 'COMPLETED'
+  startDate?: string
+  endDate?: string
+  discountPercent?: number
+  stats?: {
+    sent?: number
+    opened?: number
+    converted?: number
+    revenue?: number
+  }
+}
 
 const TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  PROMOTION: { label: 'Promoción', color: 'bg-purple-100 text-purple-800' },
-  DISCOUNT: { label: 'Descuento', color: 'bg-blue-100 text-blue-800' },
-  REFERRAL: { label: 'Referidos', color: 'bg-emerald-100 text-emerald-800' },
-  SEASONAL: { label: 'Temporada', color: 'bg-amber-100 text-amber-800' },
+  PROMOTION: { label: 'Promoción', color: 'bg-cyan-500/20 text-cyan-400' },
+  DISCOUNT: { label: 'Descuento', color: 'bg-red-500/20 text-red-400' },
+  REFERRAL: { label: 'Referidos', color: 'bg-amber-500/20 text-amber-400' },
+  SEASONAL: { label: 'Temporada', color: 'bg-cyan-600/20 text-cyan-300' },
 }
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  ACTIVE: { label: 'Activa', color: 'bg-badge-success/20 text-badge-success' },
-  PAUSED: { label: 'Pausada', color: 'bg-yellow-100 text-yellow-800' },
-  DRAFT: { label: 'Borrador', color: 'bg-surface text-text-primary' },
-  COMPLETED: { label: 'Completada', color: 'bg-indigo-100 text-indigo-800' },
+  ACTIVE: { label: 'Activa', color: 'bg-emerald-500/20 text-emerald-400' },
+  PAUSED: { label: 'Pausada', color: 'bg-white/10 text-gray-400' },
+  DRAFT: { label: 'Borrador', color: 'bg-white/10 text-gray-500' },
+  COMPLETED: { label: 'Completada', color: 'bg-emerald-500/20 text-emerald-400' },
+}
+
+function FilterDropdown({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const selected = options.find(o => o.value === value)
+
+  return (
+    <div ref={ref} className="relative">
+      <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">{label}</label>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between gap-2 !bg-white/[0.03] !border !rounded-lg !px-3 !py-2 text-sm text-left transition-all ${open ? '!border-cyan/50 !ring-1 !ring-cyan/20' : '!border-white/10'}`}
+      >
+        <span className="text-white truncate">{selected?.label || 'Todos'}</span>
+        <svg className={`w-4 h-4 text-gray-500 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      {open && (
+        <div className="absolute z-50 mt-1 w-full min-w-[160px] bg-[#1A1A1A] border border-white/10 rounded-lg shadow-xl py-1 animate-fade-in">
+          {options.map(opt => (
+            <button
+              key={opt.value}
+              onClick={() => { onChange(opt.value); setOpen(false) }}
+              className={`w-full text-left px-3 py-2 text-sm transition-colors ${opt.value === value ? 'text-cyan bg-white/5' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function Campaigns() {
@@ -24,20 +84,12 @@ export default function Campaigns() {
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [typeFilter, setTypeFilter] = useState<string>('ALL')
-  const [search, setSearch] = useState<string>('')
+  const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 5
+  const hasActiveFilters = statusFilter !== 'ALL' || typeFilter !== 'ALL'
 
-  // Create Campaign Modal state
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [type, setType] = useState<Campaign['type']>('DISCOUNT')
-  const [channel, setChannel] = useState<Campaign['channel']>('WHATSAPP')
-  const [targetAudience, setTargetAudience] = useState<Campaign['targetAudience']>('ALL')
-  const [discountPercent, setDiscountPercent] = useState<string>('')
-  const [referralCode, setReferralCode] = useState<string>('')
-  const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10))
-  const [endDate, setEndDate] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const resetPage = () => setPage(1)
 
   const fetchCampaigns = async () => {
     try {
@@ -64,6 +116,10 @@ export default function Campaigns() {
     })
   }, [campaigns, statusFilter, typeFilter, search])
 
+  const totalPages = Math.max(1, Math.ceil(filteredCampaigns.length / PER_PAGE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filteredCampaigns.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE)
+
   const totals = useMemo(() => {
     const totalCount = campaigns.length
     const activeCount = campaigns.filter((c) => c.status === 'ACTIVE').length
@@ -72,8 +128,8 @@ export default function Campaigns() {
     return { totalCount, activeCount, totalSent, totalRevenue }
   }, [campaigns])
 
-  const handleToggleStatus = async (campaign: Campaign) => {
-    const nextStatus: Campaign['status'] = campaign.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
+  const handleToggleStatus = async (campaign: any) => {
+    const nextStatus: 'ACTIVE' | 'PAUSED' | 'DRAFT' | 'COMPLETED' = campaign.status === 'ACTIVE' ? 'PAUSED' : 'ACTIVE'
     try {
       await api.put(`/campaigns/${campaign.id}/status`, { status: nextStatus })
       setCampaigns((prev) =>
@@ -81,43 +137,6 @@ export default function Campaigns() {
       )
     } catch (err) {
       console.error('Error changing campaign status:', err)
-    }
-  }
-
-  const handleCreateCampaign = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return
-
-    try {
-      setSubmitting(true)
-      const payload = {
-        name,
-        description,
-        type,
-        channel,
-        targetAudience,
-        status: 'DRAFT' as const,
-        discountPercent: discountPercent ? Number(discountPercent) : undefined,
-        referralCode: referralCode.trim() || undefined,
-        startDate,
-        endDate: endDate || undefined,
-      }
-
-      const res = await api.post('/campaigns', payload)
-      const created = res.data
-      setCampaigns((prev) => [created, ...prev])
-      setShowCreateModal(false)
-
-      // Reset form
-      setName('')
-      setDescription('')
-      setDiscountPercent('')
-      setReferralCode('')
-      setEndDate('')
-    } catch (err) {
-      console.error('Error creating campaign:', err)
-    } finally {
-      setSubmitting(false)
     }
   }
 
@@ -130,368 +149,169 @@ export default function Campaigns() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-5">
-        <div>
-          <h1 className="text-2xl font-bold text-text-primary">Campañas y Promociones</h1>
-          <p className="text-sm text-text-muted mt-1">
-            Crea promociones, gestiona cupones y códigos de referidos para atraer clientes.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-        >
-          + Nueva Campaña
-        </button>
-      </div>
+    <div className="space-y-5 min-h-screen">
+      <h1 className="text-2xl font-display font-bold text-white">Campañas y Promociones</h1>
 
       {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Campañas" value={totals.totalCount} subtitle="Histórico" />
-        <StatCard title="Campañas Activas" value={totals.activeCount} subtitle="En curso" />
-        <StatCard title="Mensajes Enviados" value={totals.totalSent} subtitle="A clientes" />
-        <StatCard
-          title="Ingresos Generados"
-          value={`$${totals.totalRevenue.toLocaleString()}`}
-          subtitle="Atribuido a campañas"
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard title="Total" value={totals.totalCount} subtitle="Histórico" />
+        <StatCard title="Activas" value={totals.activeCount} subtitle="En curso" />
+        <StatCard title="Enviados" value={totals.totalSent} subtitle="Mensajes" />
+        <StatCard title="Ingresos" value={`$${totals.totalRevenue.toLocaleString()}`} subtitle="Atribuido" />
+      </div>
+
+      {/* Search + filter toggle */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); resetPage() }}
+            className="w-full !bg-transparent !border-0 !border-b !border-gray-700 !rounded-none !pl-6 !pr-0 !py-2.5 text-sm text-white placeholder-gray-600 focus:!outline-none focus:!border-cyan transition-colors"
+            aria-label="Buscar campañas"
+          />
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="grid grid-cols-2 gap-3">
+        <FilterDropdown
+          label="Estado"
+          value={statusFilter}
+          onChange={v => { setStatusFilter(v); resetPage() }}
+          options={[
+            { value: 'ALL', label: 'Todos' },
+            { value: 'ACTIVE', label: 'Activas' },
+            { value: 'PAUSED', label: 'Pausadas' },
+            { value: 'DRAFT', label: 'Borradores' },
+            { value: 'COMPLETED', label: 'Completadas' },
+          ]}
+        />
+        <FilterDropdown
+          label="Tipo"
+          value={typeFilter}
+          onChange={v => { setTypeFilter(v); resetPage() }}
+          options={[
+            { value: 'ALL', label: 'Todos' },
+            { value: 'DISCOUNT', label: 'Descuento' },
+            { value: 'PROMOTION', label: 'Promoción' },
+            { value: 'REFERRAL', label: 'Referidos' },
+            { value: 'SEASONAL', label: 'Temporada' },
+          ]}
         />
       </div>
 
-      {/* Filter & Search Bar */}
-      <div className="bg-surface-elevated p-4 rounded-xl shadow-sm border border-border flex flex-col md:flex-row gap-4 justify-between items-center">
-        <div className="w-full md:w-1/3">
-          <input
-            type="text"
-            placeholder="Buscar por nombre..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-          <div className="flex items-center gap-2">
-            <label htmlFor="status-filter" className="text-xs font-medium text-text-primary whitespace-nowrap">
-              Filtrar por Estado:
-            </label>
-            <select
-              id="status-filter"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-md border border-border bg-surface-elevated py-1.5 px-3 text-sm focus:border-primary focus:ring-primary"
-            >
-              <option value="ALL">Todos los estados</option>
-              <option value="ACTIVE">Activas</option>
-              <option value="PAUSED">Pausadas</option>
-              <option value="DRAFT">Borradores</option>
-              <option value="COMPLETED">Completadas</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label htmlFor="type-filter" className="text-xs font-medium text-text-primary whitespace-nowrap">
-              Tipo:
-            </label>
-            <select
-              id="type-filter"
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="rounded-md border border-border bg-surface-elevated py-1.5 px-3 text-sm focus:border-primary focus:ring-primary"
-            >
-              <option value="ALL">Todos los tipos</option>
-              <option value="DISCOUNT">Descuento</option>
-              <option value="PROMOTION">Promoción</option>
-              <option value="REFERRAL">Referidos</option>
-              <option value="SEASONAL">Temporada</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
       {/* Campaigns List */}
-      <div className="space-y-4">
-        {filteredCampaigns.length === 0 ? (
-          <div className="bg-surface-elevated rounded-xl border border-border p-8 text-center text-text-muted">
-            No se encontraron campañas con los filtros aplicados.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredCampaigns.map((camp) => {
-              const typeInfo = TYPE_LABELS[camp.type] || { label: camp.type, color: 'bg-surface text-text-primary' }
-              const statusInfo = STATUS_LABELS[camp.status] || {
-                label: camp.status,
-                color: 'bg-surface text-text-primary',
-              }
+      {filteredCampaigns.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center py-8">
+          {hasActiveFilters ? 'No hay campañas con esos filtros' : 'No hay campañas'}
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {paged.map((camp) => {
+            const typeInfo = TYPE_LABELS[camp.type] || { label: camp.type, color: 'bg-white/10 text-white' }
+            const statusInfo = STATUS_LABELS[camp.status] || { label: camp.status, color: 'bg-white/10 text-white' }
 
-              return (
-                <div
-                  key={camp.id}
-                  className="bg-surface-elevated rounded-xl shadow-sm border border-border p-5 flex flex-col justify-between hover:shadow-md transition-shadow"
-                >
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-start gap-2">
-                      <div>
-                        <h2 className="font-bold text-text-primary text-base">{camp.name}</h2>
-                        <p className="text-xs text-text-muted line-clamp-2 mt-0.5">{camp.description}</p>
-                      </div>
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusInfo.color}`}
-                      >
-                        {statusInfo.label}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      <span className={`px-2 py-0.5 rounded font-medium ${typeInfo.color}`}>{typeInfo.label}</span>
-                      <span className="px-2 py-0.5 rounded bg-surface text-text-primary font-medium">
-                        Canal: {camp.channel}
-                      </span>
-                      {camp.discountPercent && (
-                        <span className="px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200 font-medium">
-                          {camp.discountPercent}% OFF
-                        </span>
-                      )}
-                      {camp.referralCode && (
-                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold">
-                          {camp.referralCode}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Performance metrics pill bar */}
-                    <div className="bg-surface rounded-lg p-3 grid grid-cols-4 gap-2 text-center text-xs">
-                      <div>
-                        <span className="block text-text-muted font-medium">Enviados</span>
-                        <span className="font-bold text-text-primary">{camp.stats?.sent || 0} enviados</span>
-                      </div>
-                      <div>
-                        <span className="block text-text-muted font-medium">Abiertos</span>
-                        <span className="font-bold text-text-primary">{camp.stats?.opened || 0}</span>
-                      </div>
-                      <div>
-                        <span className="block text-text-muted font-medium">Conv.</span>
-                        <span className="font-bold text-text-primary">{camp.stats?.converted || 0}</span>
-                      </div>
-                      <div>
-                        <span className="block text-text-muted font-medium">Ingresos</span>
-                        <span className="font-bold text-badge-success">${camp.stats?.revenue || 0}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions footer */}
-                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-                    <span className="text-xs text-text-muted">
-                      {camp.startDate} {camp.endDate ? `hasta ${camp.endDate}` : ''}
-                    </span>
-
-                    <div className="flex items-center gap-2">
-                      {camp.status !== 'COMPLETED' && camp.status !== 'DRAFT' && (
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStatus(camp)}
-                          className="px-2.5 py-1 text-xs font-medium rounded border border-border text-text-primary hover:bg-surface"
-                        >
-                          {camp.status === 'ACTIVE' ? 'Pausar' : 'Reanudar'}
-                        </button>
-                      )}
-
-                      <Link
-                        to={`/admin/campanas/${camp.id}`}
-                        className="px-3 py-1 text-xs font-semibold rounded bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors"
-                      >
-                        Ver Estadísticas →
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Modal: Create Campaign */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
-          <div className="bg-surface-elevated rounded-xl shadow-xl max-w-lg w-full p-6 space-y-5">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="text-lg font-bold text-text-primary">Crear Nueva Campaña</h3>
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(false)}
-                className="text-text-muted hover:text-gray-600 text-lg font-bold"
+            return (
+              <div
+                key={camp.id}
+                className="p-4 rounded-xl bg-white/[0.03] border border-gray-800/50"
               >
-                ×
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-white font-medium truncate">{camp.name}</p>
+                    {camp.description && <p className="text-gray-500 text-xs mt-1 line-clamp-2">{camp.description}</p>}
+                  </div>
+                  <span className={`${statusInfo.color} rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap`}>{statusInfo.label}</span>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <span className={`${typeInfo.color} rounded px-2 py-0.5 text-xs font-medium`}>{typeInfo.label}</span>
+                  <span className="bg-white/10 text-gray-400 rounded px-2 py-0.5 text-xs font-medium">{camp.channel}</span>
+                  {camp.discountPercent && (
+                    <span className="bg-cyan-500/20 text-cyan-400 rounded px-2 py-0.5 text-xs font-medium">{camp.discountPercent}% OFF</span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 mt-3 pt-3 border-t border-gray-800/50 text-center text-xs">
+                  <div>
+                    <span className="text-gray-500 block">Enviados</span>
+                    <span className="text-white font-medium">{camp.stats?.sent || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Abiertos</span>
+                    <span className="text-white font-medium">{camp.stats?.opened || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Conv.</span>
+                    <span className="text-white font-medium">{camp.stats?.converted || 0}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block">Ingresos</span>
+                    <span className="text-emerald-400 font-medium">${camp.stats?.revenue || 0}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800/50">
+                  <span className="text-xs text-gray-500">
+                    {camp.startDate} {camp.endDate ? `hasta ${camp.endDate}` : ''}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {camp.status !== 'COMPLETED' && camp.status !== 'DRAFT' && (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleStatus(camp)}
+                        className="px-2.5 py-1 text-xs font-medium rounded-lg border border-cyan/30 text-cyan hover:bg-cyan/10 transition-colors"
+                      >
+                        {camp.status === 'ACTIVE' ? 'Pausar' : 'Reanudar'}
+                      </button>
+                    )}
+                    <Link
+                      to={`/admin/campanas/${camp.id}`}
+                      className="px-3 py-1 text-xs font-medium rounded-lg bg-cyan/20 text-cyan hover:bg-cyan/30 transition-colors"
+                    >
+                      Ver →
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-gray-500">{filteredCampaigns.length} resultado{filteredCampaigns.length !== 1 ? 's' : ''}</span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${n === safePage ? 'bg-cyan/20 text-cyan' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+              >
+                {n}
               </button>
-            </div>
-
-            <form onSubmit={handleCreateCampaign} className="space-y-4">
-              <div>
-                <label htmlFor="camp-name" className="block text-xs font-medium text-text-primary mb-1">
-                  Nombre de la Campaña
-                </label>
-                <input
-                  type="text"
-                  id="camp-name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej. Promoción Primavera 2026"
-                  required
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="camp-desc" className="block text-xs font-medium text-text-primary mb-1">
-                  Descripción
-                </label>
-                <textarea
-                  id="camp-desc"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Detalles y condiciones de la campaña..."
-                  rows={2}
-                  className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="camp-type" className="block text-xs font-medium text-text-primary mb-1">
-                    Tipo de Campaña
-                  </label>
-                  <select
-                    id="camp-type"
-                    value={type}
-                    onChange={(e) => setType(e.target.value as any)}
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                  >
-                    <option value="DISCOUNT">Descuento</option>
-                    <option value="PROMOTION">Promoción</option>
-                    <option value="REFERRAL">Referidos</option>
-                    <option value="SEASONAL">Temporada</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="camp-channel" className="block text-xs font-medium text-text-primary mb-1">
-                    Canal Principal
-                  </label>
-                  <select
-                    id="camp-channel"
-                    value={channel}
-                    onChange={(e) => setChannel(e.target.value as any)}
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                  >
-                    <option value="WHATSAPP">WhatsApp</option>
-                    <option value="SMS">SMS</option>
-                    <option value="EMAIL">Email</option>
-                    <option value="PUSH">Notificación Push</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="camp-audience" className="block text-xs font-medium text-text-primary mb-1">
-                    Audiencia Objetivo
-                  </label>
-                  <select
-                    id="camp-audience"
-                    value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value as any)}
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                  >
-                    <option value="ALL">Todos los clientes</option>
-                    <option value="NEW">Clientes nuevos</option>
-                    <option value="CLIENTS">Clientes habituales</option>
-                    <option value="INACTIVE">Clientes inactivos</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="camp-discount" className="block text-xs font-medium text-text-primary mb-1">
-                    Descuento (%)
-                  </label>
-                  <input
-                    type="number"
-                    id="camp-discount"
-                    min="1"
-                    max="100"
-                    placeholder="Ej. 20"
-                    value={discountPercent}
-                    onChange={(e) => setDiscountPercent(e.target.value)}
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                  />
-                </div>
-              </div>
-
-              {type === 'REFERRAL' && (
-                <div>
-                  <label htmlFor="camp-referral" className="block text-xs font-medium text-text-primary mb-1">
-                    Código de Referido (Opcional)
-                  </label>
-                  <input
-                    type="text"
-                    id="camp-referral"
-                    placeholder="Ej. AMIGO2026"
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm font-mono focus:border-primary focus:ring-primary"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label htmlFor="camp-start" className="block text-xs font-medium text-text-primary mb-1">
-                    Fecha Inicio
-                  </label>
-                  <input
-                    type="date"
-                    id="camp-start"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="camp-end" className="block text-xs font-medium text-text-primary mb-1">
-                    Fecha Fin (Opcional)
-                  </label>
-                  <input
-                    type="date"
-                    id="camp-end"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-primary focus:ring-primary"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 border border-border rounded-md text-sm font-medium text-text-primary hover:bg-surface"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md text-sm font-medium shadow-sm disabled:opacity-50"
-                >
-                  {submitting ? 'Guardando...' : 'Guardar Campaña'}
-                </button>
-              </div>
-            </form>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
           </div>
         </div>
       )}

@@ -31,6 +31,8 @@ const AdminReportsAppointments = lazy(() => import('./pages/admin/ReportsAppoint
 const AdminReportsClients = lazy(() => import('./pages/admin/ReportsClients'))
 const AdminReportsBarbers = lazy(() => import('./pages/admin/ReportsBarbers'))
 const AdminSchedules = lazy(() => import('./pages/admin/Schedules'))
+const AdminAssistants = lazy(() => import('./pages/admin/Assistants'))
+const AdminMore = lazy(() => import('./pages/admin/More'))
 const AdminAnalytics = lazy(() => import('./pages/admin/Analytics'))
 
 const BarberMyAppointments = lazy(() => import('./pages/barber/MyAppointments'))
@@ -96,6 +98,8 @@ export default function App() {
             <Route path="reportes/citas" element={<AdminReportsAppointments />} />
             <Route path="reportes/clientes" element={<AdminReportsClients />} />
             <Route path="reportes/barberos" element={<AdminReportsBarbers />} />
+            <Route path="asistentes" element={<AdminAssistants />} />
+            <Route path="mas" element={<AdminMore />} />
             <Route path="horarios" element={<AdminSchedules />} />
             <Route path="analytics" element={<AdminAnalytics />} />
           </Route>

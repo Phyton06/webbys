@@ -64,7 +64,7 @@ export default function ReportsClients() {
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-5">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Reporte de Clientes y Retención</h1>
+          <h1 className="text-2xl font-display font-bold text-text-primary">Reporte de Clientes y Retención</h1>
           <p className="text-sm text-text-muted mt-1">
             Análisis de cartera, captación de nuevos clientes y tasa de fidelización y recurrencia.
           </p>

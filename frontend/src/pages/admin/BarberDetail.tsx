@@ -176,7 +176,7 @@ export default function BarberDetail() {
               </div>
               <button
                 onClick={handleCopyLink}
-                className="px-4 py-2 bg-[#00BCD4] hover:bg-[#4DD0E1] text-black text-xs font-bold uppercase tracking-wider rounded-xl transition min-h-[38px] inline-flex items-center justify-center whitespace-nowrap active:scale-[0.98]"
+                className="btn-primary text-xs"
               >
                 {copied ? 'Copiado' : 'Copiar Link'}
               </button>

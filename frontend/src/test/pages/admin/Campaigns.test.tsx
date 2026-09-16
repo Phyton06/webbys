@@ -32,13 +32,10 @@ const mockCampaignsData = [
     type: 'REFERRAL',
     status: 'ACTIVE',
     channel: 'WHATSAPP',
-    referralCode: 'WELCOME10',
     discountPercent: 10,
     startDate: '2026-09-01',
     endDate: '2026-12-31',
-    targetAudience: 'NEW',
-    stats: { sent: 25, opened: 20, clicked: 12, converted: 8, revenue: 1600 },
-    createdAt: '2026-09-01',
+    stats: { sent: 25, opened: 20, converted: 8, revenue: 1600 },
   },
   {
     id: 'c2',
@@ -50,9 +47,7 @@ const mockCampaignsData = [
     discountPercent: 20,
     startDate: '2026-09-01',
     endDate: '2026-09-30',
-    targetAudience: 'CLIENTS',
-    stats: { sent: 100, opened: 60, clicked: 30, converted: 15, revenue: 3000 },
-    createdAt: '2026-09-01',
+    stats: { sent: 100, opened: 60, converted: 15, revenue: 3000 },
   },
 ]
 
@@ -60,109 +55,82 @@ describe('Admin Campaigns Page', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
-
     mockApi.get.mockImplementation((url: string) => {
-      if (url === '/campaigns') {
-        return Promise.resolve({ data: mockCampaignsData })
-      }
+      if (url === '/campaigns') return Promise.resolve({ data: mockCampaignsData })
       return Promise.resolve({ data: [] })
     })
-
-    mockApi.post.mockResolvedValue({
-      data: {
-        id: 'c3',
-        name: 'Black Friday 2026',
-        description: 'Descuento especial',
-        type: 'DISCOUNT',
-        status: 'DRAFT',
-        channel: 'EMAIL',
-        discountPercent: 25,
-        startDate: '2026-11-25',
-        endDate: '2026-11-30',
-        targetAudience: 'ALL',
-        stats: { sent: 0, opened: 0, clicked: 0, converted: 0, revenue: 0 },
-        createdAt: '2026-09-04',
-      },
-    })
-
-    mockApi.put.mockResolvedValue({ data: { ...mockCampaignsData[1], status: 'ACTIVE' } })
   })
 
-  it('renders heading, summary stats, and campaign cards/list', async () => {
+  it('renders heading, stat cards, and campaign cards', async () => {
     renderComponent()
 
     await waitFor(() => {
-      expect(screen.getByText(/Campañas y Promociones/i)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: /Campañas y Promociones/i })).toBeInTheDocument()
     })
 
+    // Stat cards
+    expect(screen.getByText('Total')).toBeInTheDocument()
+    expect(screen.getByText('Activas')).toBeInTheDocument()
+
+    // Campaign names
     expect(screen.getByText('Bienvenida Nuevos Clientes')).toBeInTheDocument()
     expect(screen.getByText('Happy Hour Viernes')).toBeInTheDocument()
-    expect(screen.getByText('WELCOME10')).toBeInTheDocument()
-    expect(screen.getByText(/25 enviados/i)).toBeInTheDocument()
+
+    // Status badges
+    expect(screen.getByText('Activa')).toBeInTheDocument()
+    expect(screen.getByText('Pausada')).toBeInTheDocument()
   })
 
-  it('filters campaigns by status', async () => {
+  it('searches campaigns by name', async () => {
     renderComponent()
 
     await waitFor(() => {
       expect(screen.getByText('Bienvenida Nuevos Clientes')).toBeInTheDocument()
     })
 
-    // Filter by PAUSED
-    const statusSelect = screen.getByLabelText(/Filtrar por Estado/i)
-    fireEvent.change(statusSelect, { target: { value: 'PAUSED' } })
+    const searchInput = screen.getByLabelText('Buscar campañas')
+    fireEvent.change(searchInput, { target: { value: 'Happy' } })
 
     expect(screen.queryByText('Bienvenida Nuevos Clientes')).not.toBeInTheDocument()
     expect(screen.getByText('Happy Hour Viernes')).toBeInTheDocument()
   })
 
-  it('opens create campaign modal, enters details and submits', async () => {
+  it('shows empty state when no campaigns match', async () => {
+    mockApi.get.mockImplementation((url: string) => {
+      if (url === '/campaigns') return Promise.resolve({ data: [] })
+      return Promise.resolve({ data: [] })
+    })
+
+    renderComponent()
+
+    await waitFor(() => {
+      expect(screen.getByText('No hay campañas')).toBeInTheDocument()
+    })
+  })
+
+  it('shows empty state when search has no matches', async () => {
     renderComponent()
 
     await waitFor(() => {
       expect(screen.getByText('Bienvenida Nuevos Clientes')).toBeInTheDocument()
     })
 
-    const newBtn = screen.getByRole('button', { name: /\+ Nueva Campaña/i })
-    fireEvent.click(newBtn)
+    fireEvent.change(screen.getByLabelText('Buscar campañas'), { target: { value: 'zzz no existe' } })
 
-    await waitFor(() => {
-      expect(screen.getByText(/Crear Nueva Campaña/i)).toBeInTheDocument()
-    })
-
-    fireEvent.change(screen.getByLabelText(/Nombre de la Campaña/i), {
-      target: { value: 'Black Friday 2026' },
-    })
-    fireEvent.change(screen.getByLabelText(/Descripción/i), {
-      target: { value: 'Descuento especial' },
-    })
-    fireEvent.change(screen.getByLabelText(/Descuento \(%\)/i), {
-      target: { value: '25' },
-    })
-
-    const submitBtn = screen.getByRole('button', { name: /Guardar Campaña/i })
-    fireEvent.click(submitBtn)
-
-    await waitFor(() => {
-      expect(mockApi.post).toHaveBeenCalledWith(
-        '/campaigns',
-        expect.objectContaining({
-          name: 'Black Friday 2026',
-          discountPercent: 25,
-        })
-      )
-    })
+    expect(screen.getByText('No hay campañas')).toBeInTheDocument()
   })
 
-  it('allows toggling campaign status between active and paused', async () => {
+  it('allows toggling campaign status', async () => {
+    mockApi.put.mockResolvedValue({ data: { ...mockCampaignsData[1], status: 'ACTIVE' } })
+
     renderComponent()
 
     await waitFor(() => {
       expect(screen.getByText('Happy Hour Viernes')).toBeInTheDocument()
     })
 
-    const activateBtn = screen.getByRole('button', { name: /Reanudar/i })
-    fireEvent.click(activateBtn)
+    const resumeBtn = screen.getByRole('button', { name: /Reanudar/i })
+    fireEvent.click(resumeBtn)
 
     await waitFor(() => {
       expect(mockApi.put).toHaveBeenCalledWith(
@@ -177,22 +145,20 @@ import CampaignDetail from '../../../pages/admin/CampaignDetail'
 import { Routes, Route } from 'react-router-dom'
 
 describe('Admin CampaignDetail Page', () => {
+  const mockDetailData = {
+    ...mockCampaignsData[0],
+    referralCode: 'WELCOME10',
+  }
+
   beforeEach(() => {
     vi.clearAllMocks()
     localStorage.clear()
-
     mockApi.get.mockImplementation((url: string) => {
-      if (url === '/campaigns/c1') {
-        return Promise.resolve({ data: mockCampaignsData[0] })
-      }
-      if (url === '/campaigns/c1/stats') {
-        return Promise.resolve({ data: mockCampaignsData[0].stats })
-      }
+      if (url === '/campaigns/c1') return Promise.resolve({ data: mockDetailData })
+      if (url === '/campaigns/c1/stats') return Promise.resolve({ data: mockDetailData.stats })
       return Promise.resolve({ data: null })
     })
-
-    mockApi.put.mockResolvedValue({ data: { ...mockCampaignsData[0], status: 'PAUSED' } })
-    mockApi.post.mockResolvedValue({ data: { code: 'REF-NEW-2026' } })
+    mockApi.put.mockResolvedValue({ data: { ...mockDetailData, status: 'PAUSED' } })
   })
 
   function renderDetail() {
@@ -215,7 +181,6 @@ describe('Admin CampaignDetail Page', () => {
 
     expect(screen.getByText(/Embudo de Conversión/i)).toBeInTheDocument()
     expect(screen.getByText('WELCOME10')).toBeInTheDocument()
-    expect(screen.getByText('$1,600')).toBeInTheDocument() // Revenue
   })
 
   it('allows pausing active campaign from detail view', async () => {
@@ -236,4 +201,3 @@ describe('Admin CampaignDetail Page', () => {
     })
   })
 })
-

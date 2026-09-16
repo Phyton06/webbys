@@ -1,209 +1,278 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import api from '../../api/client'
-import LoadingSpinner from '../../components/LoadingSpinner'
-import { DataTable } from '../../components/shared/DataTable'
+import DataTable from '../../components/shared/DataTable'
+import { useNavigate } from 'react-router-dom'
 
 interface Client {
   id: string
   name: string
   email: string
   phone: string
+  status?: string
+}
+
+const WEEKDAYS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do']
+const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+
+function DatePicker({ label, value, onChange, align = 'left' }: { label: string; value: string | null; onChange: (v: string | null) => void; align?: 'left' | 'right' }) {
+  const [open, setOpen] = useState(false)
+  const [view, setView] = useState(() => {
+    const d = value ? new Date(value + 'T00:00:00') : new Date()
+    return { year: d.getFullYear(), month: d.getMonth() }
+  })
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const today = new Date()
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+
+  const firstDay = new Date(view.year, view.month, 1)
+  const startDow = (firstDay.getDay() + 6) % 7
+  const daysInMonth = new Date(view.year, view.month + 1, 0).getDate()
+
+  const days: (number | null)[] = [
+    ...Array(startDow).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ]
+
+  const fmt = (d: number) => `${view.year}-${String(view.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+
+  const display = value
+    ? new Date(value + 'T00:00:00').toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : ''
+
+  return (
+    <div ref={ref} className="flex-1 relative">
+      <label className="block text-[10px] uppercase tracking-wider text-gray-500 mb-1.5">{label}</label>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center gap-2 !bg-white/[0.03] !border !rounded-lg !px-3 !py-2 text-sm text-left transition-all ${open ? '!border-cyan/50 !ring-1 !ring-cyan/20' : '!border-white/10'}`}
+      >
+        <svg className="w-4 h-4 text-gray-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <span className={value ? 'text-white' : 'text-gray-500'}>{display || 'dd/mm/aaaa'}</span>
+      </button>
+      {open && (
+        <div className={`absolute z-50 mt-1 w-56 sm:w-64 bg-[#1A1A1A] border border-white/10 rounded-lg shadow-xl p-3 animate-fade-in ${align === 'right' ? 'right-0' : 'left-0'}`}>
+          <div className="flex items-center justify-between mb-3">
+            <button onClick={() => setView(v => ({ year: v.month === 0 ? v.year - 1 : v.year, month: v.month === 0 ? 11 : v.month - 1 }))} className="p-1 hover:bg-white/5 rounded transition-colors">
+              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+            <span className="text-sm font-medium text-white">{MONTHS[view.month]} {view.year}</span>
+            <button onClick={() => setView(v => ({ year: v.month === 11 ? v.year + 1 : v.year, month: v.month === 11 ? 0 : v.month + 1 }))} className="p-1 hover:bg-white/5 rounded transition-colors">
+              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
+          </div>
+          <div className="grid grid-cols-7 mb-1">
+            {WEEKDAYS.map(d => (
+              <div key={d} className="text-center text-[10px] text-gray-600 py-1">{d}</div>
+            ))}
+          </div>
+          <div className="grid grid-cols-7">
+            {days.map((day, i) => {
+              if (day === null) return <div key={`e${i}`} />
+              const dateStr = fmt(day)
+              const isSelected = value === dateStr
+              const isToday = dateStr === todayStr
+              return (
+                <button
+                  key={day}
+                  onClick={() => { onChange(dateStr); setOpen(false) }}
+                  className={`relative w-8 h-8 mx-auto flex items-center justify-center text-xs rounded-lg transition-all ${isSelected ? 'bg-cyan/20 text-cyan font-medium' : isToday ? 'text-cyan' : 'text-gray-400 hover:bg-white/5'}`}
+                >
+                  {day}
+                  {isToday && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-cyan" />}
+                </button>
+              )
+            })}
+          </div>
+          {value && (
+            <button
+              onClick={() => { onChange(null); setOpen(false) }}
+              className="w-full mt-2 py-1.5 text-xs text-gray-500 hover:text-white transition-colors"
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function Clients() {
+  const navigate = useNavigate()
   const [clients, setClients] = useState<Client[]>([])
-  const [loading, setLoading] = useState(true)
+  const [dateRange, setDateRange] = useState<{ from: string | null; to: string | null }>({ from: null, to: null })
   const [search, setSearch] = useState('')
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null)
-  const [history, setHistory] = useState<any[]>([])
-  const [loadingHistory, setLoadingHistory] = useState(false)
-  const [newNote, setNewNote] = useState('')
-  const [notes, setNotes] = useState<string>('Cliente puntual')
+  const [showFilters, setShowFilters] = useState(false)
+  const [page, setPage] = useState(1)
+  const PER_PAGE = 5
+  const hasActiveFilters = dateRange.from || dateRange.to
 
-  const load = () => {
-    api.get('/clients')
-      .then((r) => setClients(r.data.clients ?? r.data))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false))
-  }
+  const resetPage = () => setPage(1)
 
   useEffect(() => {
-    load()
+    api.get('/clients').then(r => setClients(r.data.clients ?? r.data ?? []))
   }, [])
 
-  const handleSelectClient = async (client: Client) => {
-    setSelectedClient(client)
-    setLoadingHistory(true)
-    try {
-      const r = await api.get('/appointments')
-      const appts = Array.isArray(r.data) ? r.data : r.data.appointments ?? []
-      setHistory(appts.filter((a: any) => a.clientId === client.id))
-    } catch (error) {
-      console.error('Error loading history:', error)
-    } finally {
-      setLoadingHistory(false)
+  const filtered = clients.filter(c => {
+    if (dateRange.from || dateRange.to) {
+      const cDate = (c as any).date || (c as any).createdAt || ''
+      if (dateRange.from && cDate < dateRange.from) return false
+      if (dateRange.to && cDate > dateRange.to) return false
     }
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      const match = (c.name || '').toLowerCase().includes(q) ||
+                    (c.email || '').toLowerCase().includes(q) ||
+                    (c.phone || '').toLowerCase().includes(q)
+      if (!match) return false
+    }
+    return true
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
+  const safePage = Math.min(page, totalPages)
+  const paged = filtered.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE)
+
+  const StatusBadge = ({ status }: { status: string | undefined }) => {
+    if (!status) return <span className="text-gray-500 text-xs">Sin estado</span>
+    const map: Record<string, { cls: string; label: string }> = {
+      ACTIVE: { cls: 'bg-emerald-500/20 text-emerald-400', label: 'Activo' },
+      INACTIVE: { cls: 'bg-red-500/20 text-red-400', label: 'Inactivo' },
+    }
+    const { cls, label } = map[status] ?? { cls: 'bg-white/10 text-white', label: status }
+    return <span className={`${cls} rounded px-2 py-0.5 text-xs font-medium whitespace-nowrap`}>{label}</span>
   }
-
-  const handleAddNote = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newNote.trim()) return
-    setNotes((prev) => prev ? `${prev}\n${newNote.trim()}` : newNote.trim())
-    setNewNote('')
-  }
-
-  const filtered = clients.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase()) ||
-      c.phone?.includes(search)
-  )
-
-  if (loading) return <LoadingSpinner />
-
-  const columns = [
-    {
-      key: 'name',
-      header: 'Cliente',
-      sortable: true,
-      render: (item: Client) => (
-        <div className="flex items-center gap-3">
-          <img
-            src="/avatar.jpg"
-            alt=""
-            className="w-10 h-10 rounded-full object-cover border border-cyan/30 shadow-[0_0_8px_rgba(0,188,212,0.2)] shrink-0"
-          />
-          <div>
-            <p className="font-semibold text-text-primary">{item.name}</p>
-            <p className="text-sm text-white/50">{item.email}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'email-phone',
-      header: 'Contacto',
-      render: (item: Client) => `${item.email} · ${item.phone}`,
-    },
-    {
-      key: 'actions',
-      header: 'Acciones',
-      render: (item: Client) => (
-        <button
-          onClick={() => handleSelectClient(item)}
-          className="text-xs font-semibold text-blue-600 hover:text-blue-900 transition"
-        >
-          Ver Ficha
-        </button>
-      ),
-    },
-  ]
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Clientes</h1>
+    <div className="space-y-5 min-h-screen">
+      <h1 className="text-2xl font-display font-bold text-white">Clientes</h1>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="search-input" className="text-xs font-semibold text-text-muted">
-          Buscar clientes por nombre, correo o teléfono
-        </label>
-        <input
-          id="search-input"
-          placeholder="Buscar por nombre, correo o teléfono..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full px-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-md"
-          aria-label="Buscar clientes por nombre, correo o teléfono"
-        />
+      {/* Search + filter toggle */}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); resetPage() }}
+            className="w-full !bg-transparent !border-0 !border-b !border-gray-700 !rounded-none !pl-6 !pr-0 !py-2.5 text-sm text-white placeholder-gray-600 focus:!outline-none focus:!border-cyan transition-colors"
+            aria-label="Buscar clientes"
+          />
+        </div>
+        <button
+          onClick={() => setShowFilters(f => !f)}
+          className={`p-2.5 transition-colors ${showFilters || hasActiveFilters ? 'text-cyan' : 'text-gray-500 hover:text-gray-300'}`}
+          aria-label="Filtros de fecha"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+          </svg>
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          {filtered.length === 0 ? (
-            <p className="text-white/50 text-sm">No se encontraron clientes</p>
-          ) : (
-            <DataTable
-              data={filtered}
-              columns={columns}
-              keyExtractor={(item) => item.id}
-            />
-          )}
+      {/* Collapsible filters */}
+      <div className={`overflow-hidden transition-all duration-300 ${showFilters ? 'max-h-40' : 'max-h-0'}`}>
+        <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 pt-1">
+          <DatePicker label="Desde" value={dateRange.from} onChange={v => { setDateRange({ from: v, to: dateRange.to }); resetPage() }} />
+          <DatePicker label="Hasta" value={dateRange.to} onChange={v => { setDateRange({ from: dateRange.from, to: v }); resetPage() }} align="right" />
         </div>
+      </div>
 
-        {selectedClient ? (
-          <div className="p-6 bg-surface-elevated rounded-lg border border-border shadow-sm space-y-6 self-start">
-            <div className="flex justify-between items-start">
-              <div>
-                <h2 className="text-xl font-bold text-text-primary">{selectedClient.name}</h2>
-                <p className="text-sm text-text-muted">{selectedClient.email}</p>
-                <p className="text-sm text-text-muted">{selectedClient.phone}</p>
-              </div>
-              <button
-                onClick={() => setSelectedClient(null)}
-                className="text-text-muted hover:text-gray-600 font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-text-primary mb-2">Notas Administrativas</h3>
-              <div className="max-h-32 overflow-y-auto space-y-2 mb-3">
-                {notes ? (
-                  notes.split('\n').map((note, index) => (
-                    <p key={index} className="text-xs text-gray-600 bg-yellow-50/50 p-2 rounded border border-yellow-100/50">
-                      {note}
-                    </p>
-                  ))
-                ) : (
-                  <p className="text-xs text-text-muted italic">No hay notas para este cliente.</p>
-                )}
-              </div>
-              <form onSubmit={handleAddNote} className="flex gap-2">
-                <input
-                  placeholder="Agregar una nota..."
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                  className="flex-1 px-3 py-1.5 text-xs border border-border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  type="submit"
-                  className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded hover:bg-blue-700 transition"
-                >
-                  Agregar
-                </button>
-              </form>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-text-primary mb-2">Historial de Citas</h3>
-              {loadingHistory ? (
-                <p className="text-xs text-text-muted italic">Cargando historial...</p>
-              ) : history.length === 0 ? (
-                <p className="text-xs text-text-muted italic">No registra citas anteriores.</p>
-              ) : (
-                <div className="space-y-2 max-h-40 overflow-y-auto">
-                  {history.map((h) => (
-                    <div key={h.id} className="text-xs p-2.5 bg-surface rounded border border-border flex justify-between items-center">
-                      <div>
-                        <p className="font-semibold text-text-primary">{h.serviceName || 'Servicio'}</p>
-                        <p className="text-[10px] text-text-muted">{h.date} • {h.time || h.startTime}</p>
-                      </div>
-                      <span className="px-1.5 py-0.5 rounded-full text-[9px] font-semibold bg-badge-success/20 text-badge-success">
-                        {h.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Mobile: Cards */}
+      <div className="sm:hidden space-y-3">
+        {filtered.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-8">
+            {hasActiveFilters ? 'No hay clientes con esos filtros' : 'No hay clientes'}
+          </p>
         ) : (
-          <div className="p-6 bg-surface rounded-lg border border-dashed border-border text-center py-16 self-start">
-            <p className="text-sm text-text-muted">Selecciona un cliente para ver su historial y agregar notas.</p>
-          </div>
+          paged.map(c => (
+            <button
+              key={c.id}
+              onClick={() => navigate(`/admin/clients/${c.id}`)}
+              className="w-full text-left p-4 rounded-xl bg-white/[0.03] border border-gray-800/50 active:bg-white/[0.06] transition-colors"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-white font-medium truncate">{c.name}</p>
+                  <p className="text-gray-500 text-xs mt-1">{c.email}</p>
+                </div>
+                <StatusBadge status={c.status} />
+              </div>
+              <div className="flex items-center gap-3 mt-3 text-xs text-gray-500">
+                <span>{c.phone}</span>
+              </div>
+            </button>
+          ))
         )}
       </div>
+
+      {/* Desktop: Table */}
+      <div className="hidden sm:block">
+        {filtered.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-8">
+            {hasActiveFilters ? 'No hay clientes con esos filtros' : 'No hay clientes'}
+          </p>
+        ) : (
+          <DataTable<Client>
+            columns={[
+              { key: 'name', header: 'Cliente', sortable: true },
+              { key: 'email', header: 'Email', sortable: true },
+              { key: 'phone', header: 'Teléfono', sortable: true },
+              { key: 'status', header: 'Estado', sortable: true, render: (item) => <StatusBadge status={item.status} /> },
+            ]}
+            data={paged}
+            keyExtractor={(item) => item.id}
+            onRowClick={(item) => navigate(`/admin/clients/${item.id}`)}
+            hideSearch
+          />
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between pt-2">
+          <span className="text-xs text-gray-500">{filtered.length} resultado{filtered.length !== 1 ? 's' : ''}</span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={safePage <= 1}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button
+                key={n}
+                onClick={() => setPage(n)}
+                className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${n === safePage ? 'bg-cyan/20 text-cyan' : 'text-gray-500 hover:text-white hover:bg-white/5'}`}
+              >
+                {n}
+              </button>
+            ))}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={safePage >= totalPages}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
