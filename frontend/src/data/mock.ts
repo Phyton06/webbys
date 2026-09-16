@@ -43,7 +43,7 @@ export interface Appointment {
   date: string // YYYY-MM-DD
   startTime: string // HH:mm
   endTime: string
-  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'
+  status: 'PENDING' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
   notes?: string
 }
 

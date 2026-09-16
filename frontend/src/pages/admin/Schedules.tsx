@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import api from '../../api/client'
 import LoadingSpinner from '../../components/LoadingSpinner'
-import type { WeeklySchedule, ScheduleEntry, ScheduleException } from '../../services/interfaces'
+import type { WeeklySchedule, ScheduleException } from '../../services/interfaces'
 
 interface BarberOption {
   id: string

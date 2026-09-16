@@ -107,7 +107,7 @@ export default function Analytics() {
                 {/* Area under polyline */}
                 {summary.retention.length > 1 && (
                   <polygon
-                    points={`40,140 ${summary.retention.map((r: any, i) => {
+                    points={`40,140 ${summary.retention.map((r: any, i: number) => {
                       const x = 40 + (i / (summary.retention.length - 1)) * 520
                       const y = 140 - (r.retained / 100) * 100
                       return `${x},${y}`
@@ -124,7 +124,7 @@ export default function Analytics() {
                     strokeWidth="3"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    points={summary.retention.map((r: any, i) => {
+                    points={summary.retention.map((r: any, i: number) => {
                       const x = 40 + (i / Math.max(summary.retention.length - 1, 1)) * 520
                       const y = 140 - (r.retained / 100) * 100
                       return `${x},${y}`
@@ -133,7 +133,7 @@ export default function Analytics() {
                 )}
 
                 {/* Point nodes and labels */}
-                {summary.retention.map((r: any, i) => (
+                {summary.retention.map((r: any, i: number) => (
                   <g key={i}>
                     <circle
                       cx={40 + (i / Math.max(summary.retention.length - 1, 1)) * 520}
