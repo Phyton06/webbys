@@ -177,7 +177,7 @@ interface EmployeesPageProps {
 - [x] **Step 2: Run `npm test -- src/components/AdminShell.test.tsx`;** observed the expected unavailable-Employees navigation failure before integration.
 - [x] **Step 3: Add the protected static route and navigation link.** The route uses the existing `AdminGate`; no parallel auth path was added.
 - [x] **Step 4: Run focused navigation, employee, booking, availability, store, and seed suites;** affected suites passed in the full 25-file run.
-- [x] **Step 5: Run `npm test`, `npm run check`, and `npm run build`;** observed 169/169 tests, 0 diagnostics, and seven generated static routes including `/empleados/`.
+- [x] **Step 5: Run `npm test`, `npm run check`, and `npm run build`;** latest run observed 170/170 tests, 0 diagnostics, and seven generated static routes including `/empleados/`.
 - [x] **Step 6: Inspect responsive layouts at 390px and 1440px** using Playwright only for visual/design review; observed no horizontal overflow, adjacent modal actions, and readable profile/invitation states.
 - [x] **Step 7: Record each task's commit, test results, risk line, and verification result in the feature document and mirror.** T1-T4 statuses and ordered feature-branch-chain slice boundaries are recorded. T1-T3 independent verification passed; T4 full verification and visual review passed. No push or PR operation is authorized.
 
