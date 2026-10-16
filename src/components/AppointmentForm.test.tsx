@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/preact';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import type { AgendaState } from '../types/agenda';
@@ -35,6 +35,31 @@ describe('AppointmentForm', () => {
     expect(after).not.toEqual(before);
   });
 
+  it('uses the branded month calendar to select an appointment date', () => {
+    render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn((_appointment: AppointmentRecord) => true)} onCancel={vi.fn()} />);
+    expect(screen.queryByLabelText('Fecha de la cita')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /^Fecha de la cita:/ }));
+    const calendar = within(screen.getByRole('dialog')).getByRole('region', { name: 'Calendario mensual' });
+
+    fireEvent.click(within(calendar).getByRole('button', { name: /^Viernes, 16 de octubre/ }));
+
+    expect(screen.getByRole('button', { name: 'Fecha de la cita: viernes, 16 de octubre' })).toBeTruthy();
+    expect(within(screen.getByRole('dialog')).queryByRole('region', { name: 'Calendario mensual' })).toBeNull();
+    expect(screen.getByRole('button', { name: /Horario 09:00/ })).toBeTruthy();
+  });
+
+  it('keeps the calendar open and date unchanged when navigating between months', () => {
+    render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn((_appointment: AppointmentRecord) => true)} onCancel={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /^Fecha de la cita:/ }));
+    const dialog = screen.getByRole('dialog');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Mes siguiente' }));
+
+    expect(within(dialog).getByRole('heading', { name: 'Noviembre de 2026' })).toBeTruthy();
+    expect(within(dialog).getByRole('region', { name: 'Calendario mensual' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Fecha de la cita: jueves, 15 de octubre' })).toBeTruthy();
+  });
+
   it('creates an appointment only after revalidating the selected slot', async () => {
     const state = createFormState();
     const onSave = vi.fn((_appointment: AppointmentRecord) => true);
@@ -59,7 +84,9 @@ describe('AppointmentForm', () => {
     const onSave = vi.fn((_appointment: AppointmentRecord) => true);
     render(<AppointmentForm state={state} now={now} onSave={onSave} onCancel={vi.fn()} />);
 
-    fireEvent.input(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-10-16' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Fecha de la cita:/ }));
+    const calendar = within(screen.getByRole('dialog')).getByRole('region', { name: 'Calendario mensual' });
+    fireEvent.click(within(calendar).getByRole('button', { name: /^Viernes, 16 de octubre/ }));
     fireEvent.click(screen.getByRole('button', { name: /Horario 11:15/ }));
     fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));

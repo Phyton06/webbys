@@ -4,6 +4,7 @@ import type { AgendaState, BookingFailure, BookingValidation, ClientRecord } fro
 import { BOOKING_FAILURE } from '../types/agenda';
 import { getAvailableSlots, validateBooking } from '../services/availability';
 import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
+import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { ClientCombobox } from './ClientCombobox';
 import { Dropdown } from './Dropdown';
 
@@ -57,6 +58,8 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
   const [barberId, setBarberId] = useState(appointment?.barberId ?? state.barbers[0]?.id ?? '');
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(appointment?.serviceIds ?? (state.services[0] ? [state.services[0].id] : []));
   const [date, setDate] = useState(() => localDateKey(appointment ? new Date(appointment.startsAt) : now));
+  const [calendarDate, setCalendarDate] = useState(() => appointment ? localDateKey(new Date(appointment.startsAt)) : localDateKey(now));
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedStart, setSelectedStart] = useState(() => appointment ? new Date(appointment.startsAt).toTimeString().slice(0, 5) : '');
   const [notes, setNotes] = useState(appointment?.notes ?? '');
   const [error, setError] = useState('');
@@ -238,20 +241,29 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
               <Dropdown label="Barbero" value={barberId} options={barberOptions} onChange={(value) => { setBarberId(value); setSelectedStart(''); setError(''); }} />
             </label>
 
-            <label class="appointment-form-control">
+            <div class="appointment-form-control appointment-date-picker-control">
               <span>Fecha</span>
-              <input
-                type="date"
-                aria-label="Fecha de la cita"
-                value={date}
-                onInput={(event) => {
-                  const value = (event.currentTarget as HTMLInputElement).value;
-                  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) setDate(value);
-                  setSelectedStart('');
-                  setError('');
-                }}
-              />
-            </label>
+              <button class="appointment-date-picker-trigger" type="button" aria-label={`Fecha de la cita: ${new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${date}T12:00:00`))}`} aria-expanded={datePickerOpen} onClick={() => setDatePickerOpen((open) => !open)}>
+                <span>{new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${date}T12:00:00`))}</span>
+                <span aria-hidden="true">Calendario</span>
+              </button>
+              {datePickerOpen && (
+                <div class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
+                  <MobileMonthCalendar
+                    selectedDate={calendarDate}
+                    appointments={state.appointments}
+                    onNavigateMonth={setCalendarDate}
+                    onSelectDate={(value) => {
+                      setDate(value);
+                      setCalendarDate(value);
+                      setSelectedStart('');
+                      setError('');
+                      setDatePickerOpen(false);
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <fieldset class="appointment-service-options">

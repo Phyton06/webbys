@@ -75,6 +75,18 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
     setAnnouncement('');
   }
 
+  function toggleUnavailable(checked: boolean) {
+    if (unavailable && !checked) {
+      setWorking(currentException?.working ?? [{ start: '09:00', end: '18:00' }]);
+      setBreaks(currentException?.breaks ?? [{ start: '13:00', end: '14:00' }]);
+    }
+    setUnavailable(checked);
+    setPendingRemoval(false);
+    setInvalidDraft(false);
+    setError('');
+    setAnnouncement('');
+  }
+
   function addInterval(setter: (update: (previous: TimeInterval[]) => TimeInterval[]) => void) {
     setter((previous) => [...previous, { start: '', end: '' }]);
     setPendingRemoval(false);
@@ -135,6 +147,11 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
 
     if (onSave(next)) {
       setDraftExceptions(next);
+      if (unavailable) {
+        setUnavailable(false);
+        setWorking([{ start: '09:00', end: '18:00' }]);
+        setBreaks([{ start: '13:00', end: '14:00' }]);
+      }
       setPendingRemoval(false);
       setError('');
       setInvalidDraft(false);
@@ -203,7 +220,7 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
             </div>
 
             <label class="availability-day-toggle">
-              <input type="checkbox" checked={unavailable} aria-label="Día libre" onChange={(event) => { setUnavailable((event.currentTarget as HTMLInputElement).checked); setPendingRemoval(false); setInvalidDraft(false); }} />
+              <input type="checkbox" checked={unavailable} aria-label="Día libre" onChange={(event) => toggleUnavailable((event.currentTarget as HTMLInputElement).checked)} />
               <span>Día libre para este barbero</span>
             </label>
 

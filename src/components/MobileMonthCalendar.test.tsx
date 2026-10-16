@@ -35,13 +35,15 @@ describe('MobileMonthCalendar', () => {
     expect(screen.getByRole('button', { name: 'Viernes, 16 de octubre', pressed: false })).toBeTruthy();
   });
 
-  it('selects the first day when navigating to another month', () => {
+  it('navigates months without selecting a date when a navigation callback is provided', () => {
     const onSelectDate = vi.fn();
-    render(<MobileMonthCalendar selectedDate="2026-10-15" appointments={[]} onSelectDate={onSelectDate} />);
+    const onNavigateMonth = vi.fn();
+    render(<MobileMonthCalendar selectedDate="2026-10-15" appointments={[]} onSelectDate={onSelectDate} onNavigateMonth={onNavigateMonth} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Mes siguiente' }));
 
-    expect(onSelectDate).toHaveBeenCalledWith('2026-11-01');
+    expect(onNavigateMonth).toHaveBeenCalledWith('2026-11-01');
+    expect(onSelectDate).not.toHaveBeenCalled();
   });
 
   it('selects a calendar day when its date button is activated', () => {

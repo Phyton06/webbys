@@ -490,7 +490,8 @@
 }
 
 .appointment-form-control input,
-.appointment-form-control textarea {
+.appointment-form-control textarea,
+.appointment-date-picker-trigger {
   width: 100%;
   min-width: 0;
   min-height: 2.75rem;
@@ -502,8 +503,35 @@
   font: inherit;
 }
 
-.appointment-form-control input[type="date"] {
-  color-scheme: dark;
+.appointment-date-picker-control { position: relative; }
+
+.appointment-date-picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  cursor: pointer;
+  text-align: left;
+}
+
+.appointment-date-picker-popover {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  width: min(22rem, calc(100vw - 3rem));
+  padding: var(--space-2);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.appointment-date-picker-popover .mobile-month-calendar { border: 0; padding: var(--space-2); }
+
+.appointment-date-picker-trigger:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .appointment-form-control textarea {
@@ -765,13 +793,10 @@
   outline-offset: 2px;
 }
 
-.agenda-availability-page {
+.agenda-availability-page,
+.settings-page {
   display: grid;
   gap: var(--space-8);
-}
-
-.agenda-availability-page[hidden] {
-  display: none;
 }
 
 .barber-availability-panel,

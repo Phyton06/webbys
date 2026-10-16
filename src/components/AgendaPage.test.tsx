@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
-import { AGENDA_STORAGE_KEY, loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminPage } from './AdminPage';
 import { AgendaPage } from './AgendaPage';
 
@@ -17,50 +17,13 @@ beforeEach(() => {
 });
 
 describe('AgendaPage availability settings', () => {
-  it('shows only the selected Agenda subsection', () => {
+  it('keeps availability management out of Agenda', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
     render(<AgendaPage />);
 
-    expect(screen.getByRole('region', { name: 'Agenda' })).toBeTruthy();
-    expect(screen.queryByRole('region', { name: 'Horarios de trabajo' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Disponibilidad' }));
-
-    expect(screen.queryByRole('region', { name: 'Agenda' })).toBeNull();
-    expect(screen.getByRole('region', { name: 'Horarios de trabajo' })).toBeTruthy();
-  });
-
-  it('opens the availability editor and persists an edited weekly schedule', async () => {
-    localStorage.setItem('webbys:demo-session', 'active');
-    saveAgendaState(localStorage, createAgendaSeed(now));
-    render(<AgendaPage />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Disponibilidad' }));
-    expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
-    fireEvent.input(screen.getByLabelText('Fin del horario lunes 1'), { target: { value: '19:00' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
-
-    await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());
-    const state = loadAgendaState(localStorage, now).state;
-    const monday = state.schedules.find(({ barberId }) => barberId === state.barbers[0]?.id)?.days.find(({ weekday }) => weekday === 1);
-    expect(monday?.working[0]?.end).toBe('19:00');
-  });
-
-  it('persists a date-specific day off and keeps other schedule state', async () => {
-    localStorage.setItem('webbys:demo-session', 'active');
-    const originalState = createAgendaSeed(now);
-    saveAgendaState(localStorage, originalState);
-    render(<AgendaPage />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Disponibilidad' }));
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
-    fireEvent.click(screen.getByLabelText('Día libre'));
-    fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
-
-    await waitFor(() => expect(screen.getByText('Excepción de disponibilidad guardada.')).toBeTruthy());
-    const saved = JSON.parse(localStorage.getItem(AGENDA_STORAGE_KEY) ?? '{}') as { state?: ReturnType<typeof createAgendaSeed> };
-    expect(saved.state?.exceptions.some(({ date, unavailable }) => date === '2026-10-16' && unavailable)).toBe(true);
-    expect(saved.state?.appointments).toEqual(originalState.appointments);
+    expect(screen.queryByRole('button', { name: 'Disponibilidad' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'Horarios de trabajo' })).toBeNull();
   });
 
   it('recomputes open starts in Citas after a saved weekly schedule change', async () => {
@@ -79,14 +42,20 @@ describe('AgendaPage availability settings', () => {
     const diegoAvailability = screen.getByRole('group', { name: 'Horarios de Diego' });
     expect(within(diegoAvailability).getByText('09:00')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Disponibilidad' }));
+    cleanup();
+    const { SettingsPage } = await import('./SettingsPage');
+    render(<SettingsPage />);
     fireEvent.input(screen.getByLabelText(`Inicio del horario ${weekday} 1`), { target: { value: '15:00' } });
     fireEvent.input(screen.getByLabelText(`Fin del horario ${weekday} 1`), { target: { value: '16:00' } });
     fireEvent.click(screen.getByRole('button', { name: `Eliminar descanso ${weekday} 1` }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());
 
-    fireEvent.click(screen.getByRole('button', { name: 'Citas' }));
+    cleanup();
+    render(<AgendaPage />);
+    fireEvent.input(screen.getByLabelText('Fecha de la agenda'), { target: { value: date } });
+    fireEvent.click(screen.getByRole('button', { name: 'Barbero: Todos' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Diego' }));
     const updatedAvailability = screen.getByRole('group', { name: 'Horarios de Diego' });
     expect(within(updatedAvailability).queryByText('09:00')).toBeNull();
     expect(within(updatedAvailability).getByText('15:00')).toBeTruthy();
@@ -117,7 +86,9 @@ describe('AgendaPage availability settings', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Nueva cita' }));
     expect(screen.getByRole('dialog', { name: 'Nueva cita' })).toBeTruthy();
-    fireEvent.input(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-10-16' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Fecha de la cita:/ }));
+    const datePicker = within(screen.getByRole('dialog')).getByRole('region', { name: 'Calendario mensual' });
+    fireEvent.click(within(datePicker).getByRole('button', { name: /^Viernes, 16 de octubre/ }));
     fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
     fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Corte · 45 min' }));
     fireEvent.click(screen.getByRole('button', { name: 'Horario 09:00' }));
@@ -129,7 +100,7 @@ describe('AgendaPage availability settings', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cliente' }));
 
     await waitFor(() => expect((screen.getByRole('combobox', { name: 'Cliente' }) as HTMLInputElement).value).toBe('Nueva Persona'));
-    expect((screen.getByLabelText('Fecha de la cita') as HTMLInputElement).value).toBe('2026-10-16');
+    expect(screen.getByRole('button', { name: 'Fecha de la cita: viernes, 16 de octubre' })).toBeTruthy();
     expect((screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }) as HTMLInputElement).checked).toBe(true);
     expect((screen.getByRole('checkbox', { name: 'Servicio Corte · 45 min' }) as HTMLInputElement).checked).toBe(false);
     expect(screen.getByRole('button', { name: 'Barbero: Diego' })).toBeTruthy();

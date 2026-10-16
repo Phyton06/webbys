@@ -1,0 +1,10 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/admin.css';
+import '../styles/agenda.css';
+import { SettingsPage } from '../components/SettingsPage';
+---
+
+<AppLayout title="Configuración · Webbys">
+  <SettingsPage client:load />
+</AppLayout>

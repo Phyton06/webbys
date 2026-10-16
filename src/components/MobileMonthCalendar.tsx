@@ -6,6 +6,7 @@ interface MobileMonthCalendarProps {
   selectedDate: string;
   appointments: AppointmentRecord[];
   onSelectDate: (date: string) => void;
+  onNavigateMonth?: (date: string) => void;
 }
 
 interface CalendarDay {
@@ -59,13 +60,13 @@ function getMonthDays(selectedDate: string, appointments: AppointmentRecord[]): 
   });
 }
 
-export function MobileMonthCalendar({ selectedDate, appointments, onSelectDate }: MobileMonthCalendarProps) {
+export function MobileMonthCalendar({ selectedDate, appointments, onSelectDate, onNavigateMonth = onSelectDate }: MobileMonthCalendarProps) {
   const selectedMonth = parseLocalDate(selectedDate);
   const days = getMonthDays(selectedDate, appointments);
 
   function moveMonth(offset: -1 | 1) {
     const nextMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + offset, 1, 12);
-    onSelectDate(localDateKey(nextMonth));
+    onNavigateMonth(localDateKey(nextMonth));
   }
 
   return (

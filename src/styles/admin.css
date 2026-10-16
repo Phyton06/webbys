@@ -310,7 +310,8 @@
   box-shadow: var(--shadow-raised);
 }
 
-.mobile-more-menu button {
+.mobile-more-menu button,
+.mobile-more-menu a {
   display: grid;
   min-height: 2.8rem;
   grid-template-columns: 1.5rem 1fr auto;
@@ -323,9 +324,11 @@
   color: var(--color-ink-muted);
   text-align: left;
   cursor: pointer;
+  text-decoration: none;
 }
 
-.mobile-more-menu button:hover {
+.mobile-more-menu button:hover,
+.mobile-more-menu a:hover {
   background: var(--color-surface-raised);
   color: var(--color-ink);
 }

@@ -1,7 +1,7 @@
 # Webbys Mobile Calendar and Booking Flow
 
 Objective: Improve mobile Agenda navigation and the local new-client/new-appointment flow. Branch: `webbys-replacement`.
-Delivery: `ask-on-risk` with the user's prior `feature-branch-chain` preference; forecast ~1,100 authored lines; test runner: `npm test` (Vitest), plus `npm run check` and `npm run build`.
+Delivery: `ask-on-risk` with the user's prior `feature-branch-chain` preference; updated forecast ~1,500 authored lines; test runner: `npm test` (Vitest), plus `npm run check` and `npm run build`.
 
 ## Specs
 
@@ -15,14 +15,22 @@ Acceptance: At mobile widths, render a compact month grid with a selected date a
 
 User request: “al generar nueva cita que se haga desde un sweetalert, y ademas ahi cambiar el selector de cliente por un buscador con selector, osea combinado, ademas a su lado el boton para agregar un cliente nuevo y ya que finalice el agregar al cliente continue con la generacion de la cita y al terminar de hacer la cita que se genere un link para que se lo envie al cliente donde el cliente terminaria su registro, ya que aqui el registro debe ser sencillo solo el nombre y el numero telefonico”. The user clarified: “no, solo hay que simular esto que te acabo de contar osea hacer el flujo como si en realidad lo hiciera pero sin back frontend-only”; “solo con que genere un link generico, no nececsita funcionar, que siempre de el mismo”; and “usa la opcion 3 del modal propio, di solo de ejemplo sweetalert pero mejor propio”.
 
-Acceptance: Use a custom, responsive Preact dialog rather than SweetAlert. It supports client text search plus selection and an adjacent add-client action. The add-client substep requires only name and phone; after saving, the new client is persisted locally, selected, and the booking draft resumes with its other choices intact. Saving an appointment continues to use the shared `validateBooking` path and local store. The success state displays a copyable generic link derived from the app origin plus fixed `/registro`; it is identical for all appointments, carries no personal data or token, and does not require a route, backend, or synchronization. Checks: modal, search, local persistence, client-step continuity, validation, generic-link consistency/copy tests; existing appointment/dashboard tests; full suite, type check, build, and browser checks at 390px and 1440px.
+
+Acceptance: Use a custom, responsive Preact dialog rather than SweetAlert. The appointment date control opens a custom month-grid calendar, not a browser-native date popup. The dialog supports client text search plus selection and an adjacent add-client action. The add-client substep requires only name and phone; after saving, the new client is persisted locally, selected, and the booking draft resumes with its other choices intact. Saving an appointment continues to use the shared `validateBooking` path and local store. The success state displays a copyable generic link derived from the app origin plus fixed `/registro`; it is identical for all appointments, carries no personal data or token, and does not require a route, backend, or synchronization. Checks: modal, date-picker selection, search, local persistence, client-step continuity, validation, generic-link consistency/copy tests; existing appointment/dashboard tests; full suite, type check, build, and browser checks at 390px and 1440px.
+
+### S3 — Availability editors belong in Configuration
+
+User request: “la pestaña de disponibilidad que es horarios de trabajo y todo eso debe manejarse desde configuracion no aqui en agenda”.
+
+Acceptance: The desktop and mobile navigation expose a working Configuración route. That route owns the existing barber weekly schedule and date-exception editors, saving through the same local agenda store. Agenda contains appointment/calendar views only and no availability subsection. Schedule edits saved in Configuración remain visible in Agenda's computed availability. Checks: navigation and route tests, SettingsPage persistence tests for both schedules and exceptions, Agenda cross-route availability test, full suite, `npm run check`, and `npm run build` including `/configuracion/`.
 
 ## Tasks
 
 - [x] T1 (S1) inline — mobile month-grid calendar and selected-day appointments; status: complete; commit: `2c2b127`; Risk: none.
 - [x] T2a (S2) inline — accessible searchable client combobox; status: complete; commit: `d483d93`; Risk: none.
-- [x] T2b (S2) inline — custom booking dialog, client search/add, local persistence, and appointment-draft continuity; status: complete; commit: `62b571a`; Risk: none.
+- [ ] T2b (S2) inline — custom booking dialog, client search/add, local persistence, appointment-draft continuity, and custom date picker; status: ready to commit after user review; prior commit: `62b571a`; follow-up commit: pending.
 - [x] T2c (S2) inline — identical generic registration-link success state and copy action; status: complete; commit: `fb90d95`; Risk: none.
+- [ ] T3 (S3) inline — move availability editors to Configuración; status: ready to commit after user review; commit: pending.
 
 ## Log
 
@@ -83,3 +91,19 @@ RED: the `AppointmentRegistrationLink` tests failed because the component did no
 ### L14 — Feature completion and delivery boundary
 
 Final verification: `npm test -- --reporter=dot` passed 112 tests across 19 files; `npm run check` reported 0 diagnostics; `npm run build` emitted `/`, `/admin/`, `/agenda/`, and `/login/`. Browser checks at 390px and 1440px showed the responsive calendar/modal without horizontal overflow; the local booking flow was manually exercised through client creation, appointment save, generic-link display, and clipboard confirmation. Work-unit commits: T1 `2c2b127`, T2a `d483d93`, T2b `62b571a`, T2c `fb90d95`. Remote `main` remains snapshot `bd8d89a`; no new commit from this feature was pushed.
+
+### L15 — User-requested corrections and testing preference
+
+“de aqui a adelante dejame a mi a probar el sistema, tu no lo pruebes con playwrigth, mira ya lo abri y note 2 detalles que quedaron, primero [Image 1] en la nueva cita el calendario se ve mal, otra cosa en la agenda la pensata;a de disponibilidad que es horarios de trabajo y todo eso debe manejarse desde configuracion no aqui en agenda”
+
+Implementation constraint: do not use Playwright to test or visually inspect the app; the user will perform manual system testing. T2b is reopened only for the appointment date-picker correction; T3 adds the requested settings-route relocation.
+
+### L17 — Calendar correction and Configuration relocation
+
+T2b replaces the browser-native appointment date popup with a compact month-grid popover based on the existing `MobileMonthCalendar`; selecting a day clears the stale time selection and updates available starts. T3 removes the availability-management subsection from Agenda, moves the existing schedule and date-exception editors to `/configuracion/`, and exposes the route in desktop and mobile navigation while preserving the existing local storage schema and shared availability rules.
+
+RED: appointment calendar test failed on the native date input; navigation/Agenda tests failed because Configuration was unavailable and availability remained in Agenda. GREEN: focused tests passed 23/23 and the full Vitest suite passed 115/115. `npm run check` and `npm run build` passed with 0 errors; build emitted `/configuracion/`. The first Astro check surfaced two unused schedule-save callbacks left behind in Agenda after relocating editors; removing them produced a clean final `npm run check` with 0 errors, warnings, or hints. The Impeccable detector reported advisory findings only; no unrelated design-system cleanup was made. User manually reviewed the interface and approved proceeding. Risk: none — no stored-data schema, shared availability contract, or unrequested shared behavior changed; local schedule persistence and Agenda integration are covered by tests.
+
+### L18 — Follow-up: month navigation and configuration styles
+
+The user reported that changing calendar month selects a date and closes the picker, and that Configuration appeared unstyled. They explicitly authorized Playwright for visual/design verification only. The Configuration route now imports `admin.css` and `agenda.css`; Playwright at 390px and 1440px confirmed styled responsive controls and no horizontal overflow. Appointment calendar browsing now tracks its visible month separately from the chosen booking date. Playwright confirmed month navigation keeps the picker open and selected date unchanged, while choosing a day updates the date and closes the picker. The user additionally clarified that mobile Configuration belongs in the More menu; the fixed bottom bar retains Inicio, Agenda, Clientes, and Más. Playwright confirmed that arrangement at 390px. Unchecking an existing date-off exception restores its saved special hours and breaks. User approved proceeding to commit. Full Vitest, Astro check, and build are being rerun before commit; no unrelated user flows were tested.

@@ -48,6 +48,20 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).getByRole('link', { name: 'Inicio' }).getAttribute('aria-current')).toBeNull();
   });
 
+  it('links to Configuration from desktop navigation and the mobile More menu', () => {
+    render(<AdminShell activeSection="Configuración"><p>Contenido principal</p></AdminShell>);
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+
+    expect(within(desktopNavigation).getByRole('link', { name: 'Configuración' }).getAttribute('href')).toBe('/configuracion/');
+    expect(within(desktopNavigation).getByRole('link', { name: 'Configuración' }).getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones disponibles próximamente' });
+    expect(within(moreNavigation).getByRole('link', { name: 'Configuración' }).getAttribute('href')).toBe('/configuracion/');
+    const mobileNavigation = screen.getByRole('navigation', { name: 'Navegación móvil' });
+    expect(within(mobileNavigation).queryByRole('link', { name: 'Configuración' })).toBeNull();
+  });
+
   it('opens the additional mobile sections and labels unavailable modules', () => {
     render(<AdminShell><p>Contenido principal</p></AdminShell>);
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));

@@ -53,6 +53,26 @@ The user approved this design:
 - The registration URL contains no client name, phone, appointment ID, token, or other personal data.
 - If a user opens the generic link, no registration workflow is implemented; its requested purpose is to be copied/shared as a placeholder only.
 
+## User-approved amendments (2026-10-16)
+
+The user requested:
+
+> “en la nueva cita el calendario se ve mal”
+
+Replace the browser-native date popup in the appointment form with the existing custom month-grid calendar component, styled with the established charcoal/red interface. Selecting a date must update the booking draft and recompute available starts through the existing rules.
+
+The user also requested:
+
+> “la pestaña de disponibilidad que es horarios de trabajo y todo eso debe manejarse desde configuracion no aqui en agenda”
+
+Move the weekly barber schedule and date-exception editors to a working Configuración route and remove their subsection from Agenda. Both routes continue reading/writing the same versioned local agenda state so schedule edits affect computed availability in Agenda.
+
+The user directed:
+
+> “de aqui a adelante dejame a mi a probar el sistema, tu no lo pruebes con playwrigth”
+
+Do not use Playwright for further app testing or visual inspection; the user will test the running application manually. Automated unit/integration tests, Astro checks, and builds remain in scope.
+
 ## Component and state flow
 
 - `AgendaPanel` owns the selected calendar date and modal visibility/state.

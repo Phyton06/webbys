@@ -18,7 +18,7 @@ import { endDemoSession } from '../lib/demo-auth';
 
 interface AdminShellProps {
   children: ComponentChildren;
-  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION];
+  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION] | 'Configuración';
   onSignOut?: () => void;
 }
 
@@ -44,7 +44,7 @@ const desktopSections: NavigationSection[] = [
   { label: 'Ventas', icon: CreditCard },
   { label: 'Analíticas', icon: BarChart3 },
   { label: 'Notificaciones', icon: Bell },
-  { label: 'Configuración', icon: Settings2 },
+  { label: 'Configuración', icon: Settings2, href: '/configuracion/' },
 ];
 
 const mobileQuickSections: NavigationSection[] = [
@@ -52,9 +52,7 @@ const mobileQuickSections: NavigationSection[] = [
   { label: 'Clientes', icon: UsersRound },
 ];
 
-const mobileMoreSections = desktopSections.filter(
-  ({ label, href }) => !href && label !== 'Clientes',
-);
+const mobileMoreSections = desktopSections.filter(({ label }) => label !== 'Inicio' && label !== 'Agenda' && label !== 'Clientes');
 
 export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME, onSignOut }: AdminShellProps) {
   const [moreOpen, setMoreOpen] = useState(false);
@@ -144,17 +142,19 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
 
       {moreOpen && (
         <nav id="mobile-more-sections" class="mobile-more-menu" aria-label="Más secciones disponibles próximamente">
-          {mobileMoreSections.map(({ label, icon: Icon }) => (
-            <button
-              type="button"
-              aria-label={`${label}, próximamente`}
-              onClick={() => showUnavailable(label)}
-              key={label}
-            >
-              <Icon size={18} aria-hidden="true" />
-              <span>{label}</span>
-              <span class="coming-soon-label">Próximamente</span>
-            </button>
+          {mobileMoreSections.map(({ label, icon: Icon, href }) => (
+            href ? (
+              <a href={href} aria-current={activeSection === label ? 'page' : undefined} key={label}>
+                <Icon size={18} aria-hidden="true" />
+                <span>{label}</span>
+              </a>
+            ) : (
+              <button type="button" aria-label={`${label}, próximamente`} onClick={() => showUnavailable(label)} key={label}>
+                <Icon size={18} aria-hidden="true" />
+                <span>{label}</span>
+                <span class="coming-soon-label">Próximamente</span>
+              </button>
+            )
           ))}
         </nav>
       )}
