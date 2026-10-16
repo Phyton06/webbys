@@ -36,7 +36,7 @@ Acceptance: add `/empleados/` under the existing protected shell, with the Clien
 ## Tasks
 
 - [x] T1 (S1) inline — employee domain records, legacy store normalization, barber compatibility projection, seed data, and persistence tests; status: complete; commit: `f122661`; independent verification: pass; Risk: item 1 (additive persisted employee records and legacy normalization).
-- [ ] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: pending; Risk: none.
+- [x] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: complete; commit: pending; Risk: none.
 - [ ] T3 (S3) inline — barber eligibility filtering and employee/agenda synchronization with history preservation; status: pending; Risk: item 3 (shared booking-selector contract).
 - [ ] T4 (S5) inline — protected route/navigation, docs, and full checks; status: pending; Risk: none.
 
@@ -67,3 +67,7 @@ The user selected “Feature-branch chain (Recommended)” for this feature afte
 ### L4 — T1 employee domain and legacy storage
 
 RED: the employee helper tests failed because `src/services/employees.ts` did not exist; the legacy migration and seed tests failed because no employee records were returned. GREEN: focused employee, agenda-store, and seed tests passed 25/25; `npm run check` reported 0 errors, warnings, or hints. The independent verifier used a fresh scratch copy and confirmed exact SHA-256 equality before/after legacy load and rejected-record load, plus identical appointment/schedule/exception fingerprints against baseline `1498415`. No stored bytes or history were changed by read normalization. Commit: `f122661` (`feat(employees): add employee domain and storage compatibility`), 328 changed lines. `Risk: item 1` — the version-1 shape gains an additive employee collection; invalid and legacy records are covered through the public store adapter.
+
+### L5 — T2 Employees directory and profile
+
+RED: `EmployeeForm` and `EmployeesPage` tests failed before their components existed; a later assertion caught duplicated save announcements, and a last-admin role-edit test confirmed the role control must be locked as well as deactivation. GREEN: EmployeeForm/EmployeesPage focused tests passed 14/14; `npm run check` reported 0 errors, warnings, or hints. Coverage includes name/phone search, role/active filters, sorting, linked appointments, weekly schedule/date exceptions, create/edit, generic link display, manual invitation status, last-admin protection, reversible deactivation, and save-failure preservation. `Risk: none` — this UI consumes the existing local storage boundary without changing its format or shared public booking contract.
