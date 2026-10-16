@@ -228,7 +228,7 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
 
           <div class="appointment-form-fields">
             <div class="appointment-client-selection">
-              <ClientCombobox clients={state.clients} selectedClientId={clientId} onSelect={(value) => { setClientId(value); setError(''); }} />
+              <ClientCombobox clients={state.clients} selectedClientId={clientId} includeInactiveClientId={appointment?.clientId} onSelect={(value) => { setClientId(value); setError(''); }} />
               {onClientSave && (
                 <button class="appointment-add-client-button" type="button" onClick={() => { setView(APPOINTMENT_FORM_VIEW.ADD_CLIENT); setError(''); }}>
                   Agregar cliente

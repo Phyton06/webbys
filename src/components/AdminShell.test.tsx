@@ -21,7 +21,7 @@ describe('AdminShell', () => {
     expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe('#main-content');
   });
 
-  it('links to Agenda and keeps unimplemented modules clearly unavailable', () => {
+  it('links to Agenda and Clients while keeping other unimplemented modules clearly unavailable', () => {
     render(
       <AdminShell onSignOut={vi.fn()}>
         <p>Contenido principal</p>
@@ -32,10 +32,13 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).getByRole('link', { name: 'Inicio' }).getAttribute('aria-current')).toBe('page');
     const agendaLink = within(mobileNavigation).getByRole('link', { name: 'Agenda' });
     expect(agendaLink.getAttribute('href')).toBe('/agenda/');
-    const clientsButton = within(mobileNavigation).getByRole('button', { name: 'Clientes, próximamente' });
-    expect(within(clientsButton).getByText('Próx.')).toBeTruthy();
-    fireEvent.click(clientsButton);
-    expect(screen.getByRole('status').textContent).toContain('La sección Clientes aún no está disponible');
+    expect(within(mobileNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('href')).toBe('/clientes/');
+    fireEvent.click(within(mobileNavigation).getByRole('button', { name: 'Más secciones' }));
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones disponibles próximamente' });
+    const employeesButton = within(moreNavigation).getByRole('button', { name: 'Empleados, próximamente' });
+    expect(within(employeesButton).getByText('Próximamente')).toBeTruthy();
+    fireEvent.click(employeesButton);
+    expect(screen.getByRole('status').textContent).toContain('La sección Empleados aún no está disponible');
   });
 
   it('marks Agenda current in desktop and mobile navigation when its route is active', () => {
@@ -46,6 +49,15 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).getByRole('link', { name: 'Agenda' }).getAttribute('aria-current')).toBe('page');
     expect(within(desktopNavigation).getByRole('link', { name: 'Agenda' }).getAttribute('aria-current')).toBe('page');
     expect(within(mobileNavigation).getByRole('link', { name: 'Inicio' }).getAttribute('aria-current')).toBeNull();
+  });
+
+  it('marks Clients current in desktop and mobile navigation when its route is active', () => {
+    render(<AdminShell activeSection="Clientes"><p>Contenido principal</p></AdminShell>);
+    const mobileNavigation = screen.getByRole('navigation', { name: 'Navegación móvil' });
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+
+    expect(within(mobileNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('aria-current')).toBe('page');
+    expect(within(desktopNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('aria-current')).toBe('page');
   });
 
   it('links to Configuration from desktop navigation and the mobile More menu', () => {

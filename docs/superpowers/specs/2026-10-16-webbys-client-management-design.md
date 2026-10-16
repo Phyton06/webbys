@@ -13,6 +13,9 @@ The `/clientes/` page presents a searchable, filterable, sortable client list. S
 - Editing preserves client identity and appointment references. Deactivation is reversible and preserves appointment history; inactive clients are not offered for new appointments but remain available in profile/history views.
 - Client profiles list associated appointments from the shared agenda state. The current sale model has no client association, so show an honest empty purchase-history state rather than inventing client purchases or altering the sales model in this phase.
 - Show the same fixed, copyable `{application-origin}/registro` placeholder used by the booking flow. It is intentionally identical for all clients, carries no token, and does not create a registration route or imply server submission. A unique invitation flow is future work.
+- New-client creation collects only name and phone. Email stays optional on existing client profiles and remains searchable. The custom form keeps Save and Cancel side by side and gives Close and Cancel clear, styled secondary actions.
+- Apply the same Close button treatment and side-by-side primary/Cancel action layout to appointment create/edit and nested add-client dialogs without changing their flows.
+- Apply that same Close and adjacent Save/Cancel treatment to the existing appointment create, edit, and add-client modals; preserve each modal's existing flow and copy.
 
 ## Verification and risk
 

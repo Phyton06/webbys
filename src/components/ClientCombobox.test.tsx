@@ -63,4 +63,36 @@ describe('ClientCombobox', () => {
 
     expect(screen.getByRole('status').textContent).toBe('No hay clientes que coincidan.');
   });
+
+  it('hides inactive clients from new appointment choices', () => {
+    const clientsWithInactive: ClientRecord[] = [
+      ...clients,
+      { id: 'client-inactive', name: 'Cliente Inactivo', phone: '555-0199', active: false },
+    ];
+    render(<ClientCombobox clients={clientsWithInactive} selectedClientId="" onSelect={vi.fn()} />);
+    fireEvent.focus(screen.getByRole('combobox', { name: 'Cliente' }));
+
+    expect(screen.getByRole('option', { name: 'Lucía Torres · 555-0101' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Cliente Inactivo · 555-0199' })).toBeNull();
+  });
+
+  it('keeps the inactive client attached to an appointment available while editing it', () => {
+    const clientsWithInactive: ClientRecord[] = [
+      { id: 'client-inactive', name: 'Cliente Inactivo', phone: '555-0199', active: false },
+      { id: 'client-other-inactive', name: 'Otro Inactivo', active: false },
+      ...clients,
+    ];
+    render(
+      <ClientCombobox
+        clients={clientsWithInactive}
+        selectedClientId="client-inactive"
+        includeInactiveClientId="client-inactive"
+        onSelect={vi.fn()}
+      />,
+    );
+    fireEvent.focus(screen.getByRole('combobox', { name: 'Cliente' }));
+
+    expect(screen.getByRole('option', { name: 'Cliente Inactivo · 555-0199' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Otro Inactivo' })).toBeNull();
+  });
 });

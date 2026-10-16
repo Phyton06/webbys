@@ -18,7 +18,7 @@ import { endDemoSession } from '../lib/demo-auth';
 
 interface AdminShellProps {
   children: ComponentChildren;
-  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION] | 'Configuración';
+  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION] | 'Clientes' | 'Configuración';
   onSignOut?: () => void;
 }
 
@@ -36,7 +36,7 @@ interface NavigationSection {
 const desktopSections: NavigationSection[] = [
   { label: ACTIVE_ADMIN_SECTION.HOME, icon: Home, href: '/admin/' },
   { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
-  { label: 'Clientes', icon: UsersRound },
+  { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
   { label: 'Empleados', icon: UsersRound },
   { label: 'Servicios', icon: Scissors },
   { label: 'Productos', icon: Package },
@@ -49,7 +49,7 @@ const desktopSections: NavigationSection[] = [
 
 const mobileQuickSections: NavigationSection[] = [
   { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
-  { label: 'Clientes', icon: UsersRound },
+  { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
 ];
 
 const mobileMoreSections = desktopSections.filter(({ label }) => label !== 'Inicio' && label !== 'Agenda' && label !== 'Clientes');

@@ -5,6 +5,7 @@ import '../styles/client-combobox.css';
 interface ClientComboboxProps {
   clients: ClientRecord[];
   selectedClientId: string;
+  includeInactiveClientId?: string;
   onSelect: (clientId: string) => void;
 }
 
@@ -12,16 +13,18 @@ function clientOptionLabel(client: ClientRecord): string {
   return client.phone ? `${client.name} · ${client.phone}` : client.name;
 }
 
-export function ClientCombobox({ clients, selectedClientId, onSelect }: ClientComboboxProps) {
+export function ClientCombobox({ clients, selectedClientId, includeInactiveClientId, onSelect }: ClientComboboxProps) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
-  const selectedClient = clients.find(({ id }) => id === selectedClientId);
+  const selectableClients = clients.filter(({ id, active }) => active !== false || id === includeInactiveClientId);
+  const selectedClient = selectableClients.find(({ id }) => id === selectedClientId);
   const normalizedQuery = query.trim().toLocaleLowerCase('es');
-  const filteredClients = clients.filter(({ name, phone }) => (
+  const filteredClients = selectableClients.filter(({ name, phone, email }) => (
     !normalizedQuery
     || name.toLocaleLowerCase('es').includes(normalizedQuery)
     || phone?.toLocaleLowerCase('es').includes(normalizedQuery)
+    || email?.toLocaleLowerCase('es').includes(normalizedQuery)
   ));
   const activeClient = filteredClients[activeIndex];
 
