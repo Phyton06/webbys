@@ -41,6 +41,24 @@ describe('loadAgendaState and saveAgendaState', () => {
     expect(loadAgendaState(storage, new Date(2027, 0, 1)).state).toEqual(savedState);
   });
 
+  it.each([
+    ['email', 42],
+    ['active', 'false'],
+  ] as const)('rejects a malformed optional client %s field without overwriting stored data', (field, value) => {
+    const state = createAgendaSeed(now);
+    const firstClient = state.clients[0];
+    if (!firstClient) throw new Error('Expected a seeded client');
+    const malformedState = {
+      ...state,
+      clients: state.clients.map((client) => client.id === firstClient.id ? { ...client, [field]: value } : client),
+    };
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: malformedState });
+    const storage = createMemoryStorage(original);
+
+    expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
   it('returns a seed for malformed JSON while preserving the unreadable bytes', () => {
     const storage = createMemoryStorage('{not-json');
     const original = storage.storedValue();

@@ -9,6 +9,8 @@ export interface ClientRecord {
   id: string;
   name: string;
   phone?: string;
+  email?: string;
+  active?: boolean;
 }
 
 export interface ServiceRecord {

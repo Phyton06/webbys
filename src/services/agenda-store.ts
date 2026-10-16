@@ -58,7 +58,9 @@ function isClient(value: unknown): value is ClientRecord {
   return isRecord(value)
     && isString(value.id)
     && isString(value.name)
-    && (value.phone === undefined || isString(value.phone));
+    && (value.phone === undefined || isString(value.phone))
+    && (value.email === undefined || isString(value.email))
+    && (value.active === undefined || typeof value.active === 'boolean');
 }
 
 function isService(value: unknown): value is ServiceRecord {
