@@ -106,7 +106,7 @@ describe('EmployeesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo empleado' }));
     fireEvent.input(screen.getByLabelText('Nombre del empleado'), { target: { value: 'Ana Torres' } });
     fireEvent.input(screen.getByLabelText('Teléfono del empleado'), { target: { value: '555-0199' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Rol: Barbero' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Rol: Selecciona un rol' }));
     fireEvent.click(screen.getByRole('option', { name: 'Asistente' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar empleado' }));
 
@@ -185,6 +185,8 @@ describe('EmployeesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo empleado' }));
     fireEvent.input(screen.getByLabelText('Nombre del empleado'), { target: { value: 'Ana Torres' } });
     fireEvent.input(screen.getByLabelText('Teléfono del empleado'), { target: { value: '555-0199' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Rol: Selecciona un rol' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Asistente' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar empleado' }));
 
     expect((await screen.findByRole('alert')).textContent).toContain('No se pudo guardar el empleado');

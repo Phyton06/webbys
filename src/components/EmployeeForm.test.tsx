@@ -24,7 +24,7 @@ describe('EmployeeForm', () => {
     const onSave = vi.fn((_employee: EmployeeRecord) => true);
     render(<EmployeeForm onSave={onSave} onCancel={() => undefined} />);
     fillRequiredFields();
-    fireEvent.click(screen.getByRole('button', { name: 'Rol: Barbero' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Rol: Selecciona un rol' }));
     fireEvent.click(screen.getByRole('option', { name: 'Administrador' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar empleado' }));
 
@@ -52,6 +52,16 @@ describe('EmployeeForm', () => {
     expect(onSave).not.toHaveBeenCalled();
     expect((screen.getByLabelText('Nombre del empleado') as HTMLInputElement).checkValidity()).toBe(false);
     expect((screen.getByLabelText('Teléfono del empleado') as HTMLInputElement).checkValidity()).toBe(false);
+  });
+
+  it('requires an explicit role assignment before creating the invitation', () => {
+    const onSave = vi.fn((_employee: EmployeeRecord) => true);
+    render(<EmployeeForm onSave={onSave} onCancel={() => undefined} />);
+    fillRequiredFields();
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar empleado' }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert').textContent).toContain('Selecciona un rol');
   });
 
   it('rejects whitespace-only values with an actionable message', () => {
@@ -87,6 +97,8 @@ describe('EmployeeForm', () => {
     const onSave = vi.fn((_employee: EmployeeRecord) => false);
     render(<EmployeeForm onSave={onSave} onCancel={() => undefined} />);
     fillRequiredFields();
+    fireEvent.click(screen.getByRole('button', { name: 'Rol: Selecciona un rol' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Asistente' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar empleado' }));
 
     expect(screen.getByRole('heading', { name: 'Nuevo empleado' })).toBeTruthy();

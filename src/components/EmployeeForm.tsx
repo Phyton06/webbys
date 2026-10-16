@@ -18,7 +18,10 @@ interface EmployeeFormProps {
   onCancel: () => void;
 }
 
-const employeeRoleOptions: DropdownOption<EmployeeRole>[] = [
+type EmployeeRoleSelection = EmployeeRole | '';
+
+const employeeRoleOptions: DropdownOption<EmployeeRoleSelection>[] = [
+  { value: '', label: 'Selecciona un rol' },
   { value: EMPLOYEE_ROLE.ADMINISTRATOR, label: 'Administrador' },
   { value: EMPLOYEE_ROLE.BARBER, label: 'Barbero' },
   { value: EMPLOYEE_ROLE.ASSISTANT, label: 'Asistente' },
@@ -33,7 +36,7 @@ export function EmployeeForm({ employee, roleLocked = false, onSave, onCancel }:
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [name, setName] = useState(employee?.name ?? '');
   const [phone, setPhone] = useState(employee?.phone ?? '');
-  const [role, setRole] = useState<EmployeeRole>(employee?.role ?? EMPLOYEE_ROLE.BARBER);
+  const [role, setRole] = useState<EmployeeRoleSelection>(employee?.role ?? '');
   const [invitationStatus, setInvitationStatus] = useState<EmployeeInvitationStatus>(
     employee?.invitationStatus ?? EMPLOYEE_INVITATION_STATUS.PENDING,
   );
@@ -57,6 +60,10 @@ export function EmployeeForm({ employee, roleLocked = false, onSave, onCancel }:
     const normalizedPhone = phone.trim();
     if (!normalizedName || !normalizedPhone) {
       setError('Escribe el nombre y el teléfono del empleado para continuar.');
+      return;
+    }
+    if (!role) {
+      setError('Selecciona un rol antes de generar la invitación.');
       return;
     }
 
@@ -130,7 +137,7 @@ export function EmployeeForm({ employee, roleLocked = false, onSave, onCancel }:
                   <span>El rol no se puede cambiar mientras sea el último administrador activo.</span>
                 </div>
               ) : (
-                <Dropdown label="Rol" value={role} options={employeeRoleOptions} onChange={setRole} />
+              <Dropdown label="Rol" value={role} options={employeeRoleOptions} onChange={setRole} />
               )}
             </label>
             {employee && (
