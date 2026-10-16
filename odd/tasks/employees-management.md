@@ -82,7 +82,7 @@ RED: `AdminShell` tests failed because Employees was still an unavailable module
 
 ### L8 — Local feature-branch review slices
 
-User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Ordered local review slices if/when remote publication is separately authorized: T1 `f122661` + documentation record `d4bbaa3`; T2 `40d1e34`, `0511a24` + `5e61f08` and its pending follow-up record; T3 `0e18f00` + `8f7eb6e`; T4 `2984b44` + its pending documentation record. T2 is one integrated 1,328-line CRUD/profile work unit; it was not split by file type. No remote PRs or push were created.
+User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Ordered local review slices if/when remote publication is separately authorized: T1 `f122661` + `d4bbaa3`; T2 `40d1e34`, `0511a24` + `5e61f08` and the T2 follow-up record; T3 `0e18f00` + `8f7eb6e`; T4 route/navigation `2984b44` with final delivery evidence recorded in `75fae28`. T2 is one integrated 1,328-line CRUD/profile work unit; it was not split by file type. No remote PRs or push were created.
 
 ### L9 — T2 mobile form action fit
 
