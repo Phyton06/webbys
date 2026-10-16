@@ -1,0 +1,103 @@
+import type { AppointmentRecord } from './domain';
+
+export interface BarberRecord {
+  id: string;
+  name: string;
+}
+
+export interface ClientRecord {
+  id: string;
+  name: string;
+  phone?: string;
+}
+
+export interface ServiceRecord {
+  id: string;
+  name: string;
+  durationMinutes: number;
+  price: number;
+}
+
+export interface AgendaState {
+  barbers: BarberRecord[];
+  clients: ClientRecord[];
+  services: ServiceRecord[];
+  schedules: BarberSchedule[];
+  exceptions: AvailabilityException[];
+  appointments: AppointmentRecord[];
+}
+
+export const AGENDA_LOAD_STATUS = {
+  LOADED: 'loaded',
+  SEEDED: 'seeded',
+  INVALID: 'invalid',
+} as const;
+
+export type AgendaLoadStatus = (typeof AGENDA_LOAD_STATUS)[keyof typeof AGENDA_LOAD_STATUS];
+
+export interface AgendaLoadResult {
+  state: AgendaState;
+  status: AgendaLoadStatus;
+}
+
+export interface TimeInterval {
+  start: string;
+  end: string;
+}
+
+export interface ScheduledDay {
+  weekday: number;
+  working: TimeInterval[];
+  breaks: TimeInterval[];
+}
+
+export interface BarberSchedule {
+  barberId: string;
+  days: ScheduledDay[];
+}
+
+export interface AvailabilityException {
+  barberId: string;
+  date: string;
+  unavailable: boolean;
+  working?: TimeInterval[];
+  breaks?: TimeInterval[];
+}
+
+export interface BookingCandidate {
+  id?: string;
+  barberId: string;
+  startsAt: string;
+  durationMinutes: number;
+}
+
+export const BOOKING_FAILURE = {
+  INVALID_DATE: 'invalid-date',
+  INVALID_DURATION: 'invalid-duration',
+  INVALID_TIME_INCREMENT: 'invalid-time-increment',
+  PAST: 'past',
+  BARBER_OFF: 'barber-off',
+  INVALID_SCHEDULE: 'invalid-schedule',
+  OUTSIDE_WORKING_HOURS: 'outside-working-hours',
+  BREAK_CONFLICT: 'break-conflict',
+  APPOINTMENT_CONFLICT: 'appointment-conflict',
+} as const;
+
+export type BookingFailure = (typeof BOOKING_FAILURE)[keyof typeof BOOKING_FAILURE];
+
+export type BookingValidation =
+  | { valid: true }
+  | { valid: false; reason: BookingFailure };
+
+export const SCHEDULE_FAILURE = {
+  INVALID_INTERVAL: 'invalid-interval',
+  OVERLAPPING_WORKING_INTERVALS: 'overlapping-working-intervals',
+  BREAK_OUTSIDE_WORKING_HOURS: 'break-outside-working-hours',
+  OVERLAPPING_BREAKS: 'overlapping-breaks',
+} as const;
+
+export type ScheduleFailure = (typeof SCHEDULE_FAILURE)[keyof typeof SCHEDULE_FAILURE];
+
+export type ScheduleValidation =
+  | { valid: true }
+  | { valid: false; reason: ScheduleFailure };

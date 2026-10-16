@@ -1,0 +1,12 @@
+---
+import { LoginForm } from '../components/LoginForm';
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/login.css';
+---
+
+<AppLayout
+  title="Acceso · Webbys"
+  description="Acceso al panel de administración de Webby's Barbershop."
+>
+  <LoginForm client:load />
+</AppLayout>

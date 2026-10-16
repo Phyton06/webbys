@@ -1,0 +1,875 @@
+.agenda-panel {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.agenda-heading h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  letter-spacing: -0.055em;
+  line-height: 1.08;
+}
+
+.agenda-heading p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-muted);
+}
+
+.agenda-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.agenda-service-control {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.agenda-view-switch {
+  display: inline-grid;
+  width: min(100%, 14rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.agenda-view-switch button {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.agenda-view-switch button[aria-pressed="true"] {
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+}
+
+.agenda-date-control,
+.agenda-barber-control {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.agenda-date-control input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  color-scheme: dark;
+  font: inherit;
+}
+
+.agenda-date-control input:focus-visible,
+.agenda-view-switch button:focus-visible,
+.agenda-date-arrow:focus-visible,
+.agenda-week-day-heading:focus-visible,
+.agenda-appointment summary:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.agenda-date-navigation {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.agenda-date-navigation h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 650;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.agenda-date-arrow {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.agenda-date-arrow:hover {
+  border-color: var(--color-accent);
+  background: var(--color-surface-muted);
+}
+
+.agenda-appointment-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-appointment {
+  border-bottom: 1px solid var(--color-line);
+}
+
+.agenda-appointment details > summary {
+  display: grid;
+  min-height: 3.5rem;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-1);
+  color: var(--color-ink);
+  cursor: pointer;
+  list-style-position: inside;
+}
+
+.agenda-appointment time {
+  color: var(--color-ink-muted);
+  font-family: var(--font-data);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-appointment strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.agenda-status-label {
+  justify-self: end;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.agenda-appointment.status-pending .agenda-status-label {
+  color: var(--color-warning);
+}
+
+.agenda-appointment.status-confirmed .agenda-status-label {
+  color: var(--color-success);
+}
+
+.agenda-appointment.status-completed .agenda-status-label {
+  color: var(--color-ink-muted);
+}
+
+.agenda-appointment.status-cancelled .agenda-status-label {
+  color: var(--color-danger);
+}
+
+.agenda-appointment-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0 var(--space-3) var(--space-4) calc(3.5rem + var(--space-4));
+}
+
+.agenda-appointment-details div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.agenda-appointment-details dt {
+  color: var(--color-ink-subtle);
+  font-size: var(--text-xs);
+}
+
+.agenda-appointment-details dd {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+}
+
+.agenda-new-appointment {
+  width: min(100%, 16rem);
+  min-height: 3.25rem;
+  margin-bottom: var(--space-3);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-accent-action);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-action);
+  color: var(--color-accent-ink);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.agenda-new-appointment:hover {
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+}
+
+.agenda-reschedule-button {
+  min-height: 2.75rem;
+  margin: 0 var(--space-3) var(--space-3) calc(3.5rem + var(--space-4));
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.agenda-reschedule-button:hover {
+  border-color: var(--color-accent);
+}
+
+.appointment-form {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+
+.appointment-form-heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.appointment-form-heading h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.appointment-form-heading p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.appointment-form-close,
+.appointment-form-cancel {
+  min-height: 2.75rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.appointment-form-fields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.appointment-form-control {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.appointment-form-control input,
+.appointment-form-control textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.appointment-form-control input[type="date"] {
+  color-scheme: dark;
+}
+
+.appointment-form-control textarea {
+  min-height: 5rem;
+  resize: vertical;
+}
+
+.appointment-service-options,
+.appointment-slot-fieldset {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.appointment-service-options legend,
+.appointment-slot-fieldset legend {
+  margin-bottom: var(--space-2);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.appointment-service-option {
+  display: grid;
+  min-height: 2.75rem;
+  grid-template-columns: 1.25rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.appointment-service-option input {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+}
+
+.appointment-service-option strong {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.appointment-estimate {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+}
+
+.appointment-estimate p {
+  margin: 0;
+}
+
+.appointment-slot-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.appointment-slot-options button {
+  min-width: 3.75rem;
+  min-height: 2.75rem;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink-muted);
+  font-family: var(--font-data);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.appointment-slot-options button:hover,
+.appointment-slot-options button.is-selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-action);
+  color: var(--color-accent-ink);
+}
+
+.appointment-slot-fieldset > p {
+  margin: 0;
+  padding-block: var(--space-3);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.appointment-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (min-width: 48rem) {
+  .appointment-form-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.agenda-empty,
+.agenda-week-empty {
+  margin: 0;
+  padding: var(--space-6) var(--space-3);
+  color: var(--color-ink-muted);
+  text-align: center;
+}
+
+.agenda-day-content {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.agenda-availability {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-line);
+}
+
+.agenda-availability-heading h2 {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 650;
+}
+
+.agenda-availability-heading p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.agenda-availability-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.agenda-availability-group {
+  min-width: 0;
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.agenda-availability-group h3 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.agenda-availability-group details > summary {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.agenda-availability-group details > summary strong {
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.agenda-availability-group details > summary span {
+  color: var(--color-ink-subtle);
+  font-size: var(--text-xs);
+}
+
+.agenda-available-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-available-times li {
+  display: grid;
+  min-width: 3.25rem;
+  min-height: 2.75rem;
+  place-items: center;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font-family: var(--font-data);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-page-switch {
+  display: inline-grid;
+  width: min(100%, 20rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin-bottom: var(--space-5);
+  padding: 0.2rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.agenda-page-switch button {
+  min-height: 2.75rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.agenda-page-switch button[aria-pressed="true"] {
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+}
+
+.agenda-page-switch button:focus-visible,
+.availability-day-toggle input:focus-visible,
+.availability-interval input:focus-visible,
+.availability-add-button:focus-visible,
+.availability-remove-button:focus-visible,
+.availability-save-button:focus-visible,
+.availability-existing-exceptions button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.agenda-availability-page {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.agenda-availability-page[hidden] {
+  display: none;
+}
+
+.barber-availability-panel,
+.availability-exception-editor {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.barber-availability-heading h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.barber-availability-heading p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-muted);
+}
+
+.availability-barber-control,
+.availability-control {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.availability-workdays {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.availability-day {
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.availability-day legend {
+  padding: 0 var(--space-2) 0 0;
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: 650;
+  text-transform: capitalize;
+}
+
+.availability-day-toggle {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.availability-day-toggle input {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+}
+
+.availability-day-settings {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-line);
+}
+
+.availability-day-settings h3,
+.availability-special-hours h3,
+.availability-existing-exceptions h3 {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.availability-interval-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.availability-interval {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.availability-interval label {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--color-ink-subtle);
+  font-size: var(--text-xs);
+}
+
+.availability-interval input,
+.availability-exception-controls input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+  color-scheme: dark;
+  font: inherit;
+}
+
+.availability-interval button,
+.availability-existing-exceptions button {
+  min-height: 2.75rem;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.availability-interval button:hover,
+.availability-existing-exceptions button:hover {
+  border-color: var(--color-control-border);
+  color: var(--color-ink);
+}
+
+.availability-add-button {
+  justify-self: start;
+  min-height: 2.75rem;
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.availability-add-button:hover {
+  border-color: var(--color-accent);
+}
+
+.availability-save-button {
+  width: min(100%, 18rem);
+  min-height: 3.25rem;
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-accent-action);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-action);
+  color: var(--color-accent-ink);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.availability-save-button:hover {
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+}
+
+.availability-error {
+  margin: 0;
+  color: var(--color-error-ink);
+  font-size: var(--text-sm);
+}
+
+.availability-announcement {
+  min-height: var(--text-sm);
+  margin: 0;
+  color: var(--color-success);
+  font-size: var(--text-sm);
+}
+
+.availability-exception-controls {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.availability-special-hours {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.availability-existing-exceptions {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+
+.availability-existing-exceptions ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.availability-existing-exceptions li {
+  display: grid;
+  min-height: 3.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-line);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.availability-existing-exceptions > p {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 40rem) {
+  .availability-exception-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .availability-workdays {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-6);
+  }
+
+  .availability-day {
+    padding: var(--space-4) 0;
+  }
+}
+
+.agenda-week-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+.agenda-week-day {
+  min-width: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.agenda-week-day-heading {
+  display: grid;
+  width: 100%;
+  min-height: 3.5rem;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.agenda-week-day-heading strong {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-week-day-heading > span:last-child {
+  color: var(--color-ink-subtle);
+  font-size: var(--text-xs);
+}
+
+.agenda-week-day-heading.is-selected {
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+}
+
+.agenda-week-day .agenda-appointment details > summary {
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  gap: var(--space-2);
+}
+
+@media (min-width: 40rem) {
+  .agenda-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .agenda-view-switch {
+    grid-column: 1 / -1;
+  }
+
+  .agenda-week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+@media (min-width: 72rem) {
+  .agenda-toolbar {
+    grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  }
+
+  .agenda-view-switch {
+    grid-column: auto;
+  }
+
+  .agenda-week-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

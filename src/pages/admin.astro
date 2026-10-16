@@ -1,0 +1,15 @@
+---
+import { AdminPage } from '../components/AdminPage';
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/admin.css';
+import '../styles/dashboard.css';
+---
+
+<AppLayout
+  title="Panel de administración · Webbys"
+  description="Panel de administración de Webby's Barbershop."
+>
+  <AdminPage client:only="preact">
+    <p slot="fallback" class="admin-gate-status" role="status">Preparando el panel…</p>
+  </AdminPage>
+</AppLayout>

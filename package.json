@@ -1,0 +1,26 @@
+{
+  "name": "webbys-admin",
+  "version": "1.0.0",
+  "description": "Mobile-first frontend demo for the Webbys barber shop administration panel",
+  "scripts": {
+    "test": "vitest run",
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "check": "astro check"
+  },
+  "type": "module",
+  "dependencies": {
+    "@astrojs/preact": "^6.0.6",
+    "astro": "^7.3.8",
+    "lucide-preact": "^1.57.0",
+    "preact": "^10.29.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@testing-library/preact": "^3.2.4",
+    "jsdom": "^30.1.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.4"
+  },
+  "private": true
+}

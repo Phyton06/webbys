@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+coverage/
+*.tsbuildinfo
+.playwright-mcp/
+.impeccable/review/
+.impeccable/mocks/
+.env*
+!.env.example

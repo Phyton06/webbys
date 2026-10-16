@@ -1,0 +1,120 @@
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/preact';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createAgendaSeed } from '../data/agenda-demo';
+import type { AgendaState } from '../types/agenda';
+import type { AppointmentRecord } from '../types/domain';
+import { AppointmentForm } from './AppointmentForm';
+
+afterEach(cleanup);
+
+const now = new Date(2026, 9, 15, 8, 0);
+
+function createFormState(): AgendaState {
+  const state = createAgendaSeed(now);
+  state.appointments = state.appointments.filter((appointment) => appointment.id !== 'demo-appointment-1');
+  return state;
+}
+
+describe('AppointmentForm', () => {
+  it('shows total duration and price for selected services', () => {
+    render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
+
+    expect(screen.getByText('Duración total: 75 min')).toBeTruthy();
+    expect(screen.getByText('Precio estimado: $550')).toBeTruthy();
+  });
+
+  it('updates available starts when the selected barber changes', () => {
+    render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+    const before = screen.getAllByRole('button', { name: /^Horario/ }).map((option) => option.textContent);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Barbero: Diego' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Raúl' }));
+
+    const after = screen.getAllByRole('button', { name: /^Horario/ }).map((option) => option.textContent);
+    expect(after).not.toEqual(before);
+  });
+
+  it('creates an appointment only after revalidating the selected slot', async () => {
+    const state = createFormState();
+    const onSave = vi.fn((_appointment: AppointmentRecord) => true);
+    render(<AppointmentForm state={state} now={now} onSave={onSave} onCancel={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Horario 09:15/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));
+
+    await waitFor(() => expect(onSave).toHaveBeenCalledOnce());
+    const saved = onSave.mock.calls[0]?.[0];
+    expect(saved?.clientName).toBe('Lucía Torres');
+    expect(saved?.startsAt).toBe(new Date(2026, 9, 15, 9, 15).toISOString());
+    expect(saved?.status).toBe('pending');
+  });
+
+  it('clears a selected start when a longer service no longer fits and does not save', () => {
+    const state = createFormState();
+    const day = state.schedules[0]?.days.find(({ weekday }) => weekday === 4);
+    if (!day) throw new Error('Expected a Thursday schedule');
+    day.working = [{ start: '09:00', end: '12:00' }];
+    day.breaks = [];
+    const onSave = vi.fn((_appointment: AppointmentRecord) => true);
+    render(<AppointmentForm state={state} now={now} onSave={onSave} onCancel={vi.fn()} />);
+
+    fireEvent.input(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-10-16' } });
+    fireEvent.click(screen.getByRole('button', { name: /Horario 11:15/ }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));
+
+    expect(screen.getByRole('alert').textContent).toContain('horario disponible');
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('revalidates a stale slot against appointments added after the form opened', () => {
+    const state = createFormState();
+    const onSave = vi.fn((_appointment: AppointmentRecord) => true);
+    render(<AppointmentForm state={state} now={now} onSave={onSave} onCancel={vi.fn()} />);
+    fireEvent.click(screen.getByRole('button', { name: /Horario 09:15/ }));
+    state.appointments.push({
+      id: 'new-conflict',
+      startsAt: new Date(2026, 9, 15, 9, 15).toISOString(),
+      clientId: 'client-1',
+      clientName: 'Lucía Torres',
+      barberId: 'barber-1',
+      barberName: 'Diego',
+      serviceIds: ['service-1'],
+      serviceName: 'Corte',
+      status: 'confirmed',
+      durationMinutes: 45,
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));
+
+    expect(screen.getByRole('alert').textContent).toContain('ya no está disponible');
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it('preselects the existing record and allows its own slot during rescheduling', () => {
+    const state = createFormState();
+    state.appointments = [];
+    const existing = {
+      id: 'existing-booking',
+      startsAt: new Date(2026, 9, 15, 10, 0).toISOString(),
+      clientId: 'client-1',
+      clientName: 'Lucía Torres',
+      barberId: 'barber-1',
+      barberName: 'Diego',
+      serviceIds: ['service-1'],
+      serviceName: 'Corte',
+      status: 'confirmed' as const,
+      durationMinutes: 45,
+    };
+    state.appointments.push(existing);
+    const onSave = vi.fn((_appointment: AppointmentRecord) => true);
+    render(<AppointmentForm state={state} appointment={existing} now={now} onSave={onSave} onCancel={vi.fn()} />);
+
+    expect(screen.getByRole('button', { name: /Horario 10:00/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(screen.queryByRole('alert')?.textContent).toBeFalsy();
+    expect(onSave.mock.calls[0]?.[0]?.id).toBe(existing.id);
+  });
+});
