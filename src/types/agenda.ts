@@ -40,8 +40,10 @@ export interface ClientRecord {
 export interface ServiceRecord {
   id: string;
   name: string;
+  description?: string;
   durationMinutes: number;
   price: number;
+  active?: boolean;
 }
 
 export interface AgendaState {

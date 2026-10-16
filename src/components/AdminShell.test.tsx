@@ -35,10 +35,10 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('href')).toBe('/clientes/');
     fireEvent.click(within(mobileNavigation).getByRole('button', { name: 'Más secciones' }));
     const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    const servicesButton = within(moreNavigation).getByRole('button', { name: 'Servicios, próximamente' });
-    expect(within(servicesButton).getByText('Próximamente')).toBeTruthy();
-    fireEvent.click(servicesButton);
-    expect(screen.getByRole('status').textContent).toContain('La sección Servicios aún no está disponible');
+    const productsButton = within(moreNavigation).getByRole('button', { name: 'Productos, próximamente' });
+    expect(within(productsButton).getByText('Próximamente')).toBeTruthy();
+    fireEvent.click(productsButton);
+    expect(screen.getByRole('status').textContent).toContain('La sección Productos aún no está disponible');
   });
 
   it('marks Agenda current in desktop and mobile navigation when its route is active', () => {
@@ -72,6 +72,20 @@ describe('AdminShell', () => {
     const employeesMobileLink = within(moreNavigation).getByRole('link', { name: 'Empleados' });
     expect(employeesMobileLink.getAttribute('href')).toBe('/empleados/');
     expect(employeesMobileLink.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('links Services from desktop and the mobile More menu and marks the current route', () => {
+    render(<AdminShell activeSection="Servicios"><p>Contenido principal</p></AdminShell>);
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const servicesDesktopLink = within(desktopNavigation).getByRole('link', { name: 'Servicios' });
+    expect(servicesDesktopLink.getAttribute('href')).toBe('/servicios/');
+    expect(servicesDesktopLink.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const servicesMobileLink = within(moreNavigation).getByRole('link', { name: 'Servicios' });
+    expect(servicesMobileLink.getAttribute('href')).toBe('/servicios/');
+    expect(servicesMobileLink.getAttribute('aria-current')).toBe('page');
   });
 
   it('links to Configuration from desktop navigation and the mobile More menu', () => {

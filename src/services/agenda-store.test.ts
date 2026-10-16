@@ -109,6 +109,27 @@ describe('loadAgendaState and saveAgendaState', () => {
     expect(storage.storedValue()).toBe(original);
   });
 
+  it('persists service descriptions and active state while retaining legacy service records', () => {
+    const state = createAgendaSeed(now);
+    state.services[0] = { ...state.services[0]!, description: 'Corte clásico', active: true };
+    const storage = createMemoryStorage();
+
+    saveAgendaState(storage, state);
+
+    const loaded = loadAgendaState(storage, now);
+    expect(loaded.state.services[0]).toMatchObject({ description: 'Corte clásico', active: true });
+  });
+
+  it('rejects an invalid service active state without overwriting stored bytes', () => {
+    const state = createAgendaSeed(now);
+    const malformed = { ...state, services: state.services.map((service) => ({ ...service, active: 'yes' })) };
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: malformed });
+    const storage = createMemoryStorage(original);
+
+    expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
   it.each([
     ['email', 42],
     ['active', 'false'],

@@ -56,9 +56,11 @@ function resolveValidationError(result: BookingValidation): string | undefined {
 export function AppointmentForm({ state, appointment, now, onSave, onClientSave, onCancel }: AppointmentFormProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bookableBarbers = getBookableBarbers(state.employees, state.barbers, appointment?.barberId);
+  const selectableServices = state.services.filter((service) => service.active !== false
+    || appointment?.serviceIds.includes(service.id));
   const [clientId, setClientId] = useState(appointment?.clientId ?? state.clients[0]?.id ?? '');
   const [barberId, setBarberId] = useState(appointment?.barberId ?? getBookableBarbers(state.employees, state.barbers)[0]?.id ?? '');
-  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(appointment?.serviceIds ?? (state.services[0] ? [state.services[0].id] : []));
+  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(appointment?.serviceIds ?? (selectableServices[0] ? [selectableServices[0].id] : []));
   const [date, setDate] = useState(() => localDateKey(appointment ? new Date(appointment.startsAt) : now));
   const [calendarDate, setCalendarDate] = useState(() => appointment ? localDateKey(new Date(appointment.startsAt)) : localDateKey(now));
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -80,8 +82,8 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
   }, []);
 
   const selectedServices = useMemo(
-    () => state.services.filter(({ id }) => selectedServiceIds.includes(id)),
-    [selectedServiceIds, state.services],
+    () => selectableServices.filter(({ id }) => selectedServiceIds.includes(id)),
+    [selectedServiceIds, selectableServices],
   );
   const durationMinutes = selectedServices.reduce((sum, service) => sum + service.durationMinutes, 0);
   const estimatedPrice = selectedServices.reduce((sum, service) => sum + service.price, 0);
@@ -274,7 +276,7 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
 
           <fieldset class="appointment-service-options">
             <legend>Servicios</legend>
-            {state.services.map((service) => (
+            {selectableServices.map((service) => (
               <label class="appointment-service-option" key={service.id}>
                 <input aria-label={`Servicio ${service.name} · ${service.durationMinutes} min`} type="checkbox" checked={selectedServiceIds.includes(service.id)} onChange={() => toggleService(service.id)} />
                 <span>{service.name} · {service.durationMinutes} min</span>

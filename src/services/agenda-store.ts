@@ -91,12 +91,14 @@ function isService(value: unknown): value is ServiceRecord {
   return isRecord(value)
     && isString(value.id)
     && isString(value.name)
+    && (value.description === undefined || isString(value.description))
     && typeof value.durationMinutes === 'number'
     && Number.isInteger(value.durationMinutes)
     && value.durationMinutes > 0
     && typeof value.price === 'number'
     && Number.isFinite(value.price)
-    && value.price >= 0;
+    && value.price >= 0
+    && (value.active === undefined || typeof value.active === 'boolean');
 }
 
 function isAppointmentStatus(value: unknown): value is AppointmentStatus {

@@ -1,0 +1,233 @@
+import { useMemo, useState } from 'preact/hooks';
+import type { AgendaState, ServiceRecord } from '../types/agenda';
+import { createAgendaSeed } from '../data/agenda-demo';
+import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { AdminGate } from './AdminGate';
+import { AdminShell } from './AdminShell';
+import '../styles/services.css';
+
+interface ServicesPageProps {
+  now?: Date;
+}
+
+function loadInitialState(now: Date): AgendaState {
+  try {
+    return loadAgendaState(window.localStorage, now).state;
+  } catch {
+    return createAgendaSeed(now);
+  }
+}
+
+function ServiceForm({
+  service,
+  onSave,
+  onCancel,
+}: {
+  service?: ServiceRecord;
+  onSave: (service: ServiceRecord) => boolean;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState(service?.name ?? '');
+  const [description, setDescription] = useState(service?.description ?? '');
+  const [price, setPrice] = useState(service ? String(service.price) : '');
+  const [duration, setDuration] = useState(service ? String(service.durationMinutes) : '');
+  const [error, setError] = useState('');
+
+  function submit(event: SubmitEvent) {
+    event.preventDefault();
+    const normalizedName = name.trim();
+    const normalizedDescription = description.trim();
+    const normalizedPrice = Number(price);
+    const normalizedDuration = Number(duration);
+    if (!normalizedName || !Number.isFinite(normalizedPrice) || normalizedPrice < 0
+      || !Number.isInteger(normalizedDuration) || normalizedDuration <= 0) {
+      setError('Revisa el nombre, el precio y la duración del servicio.');
+      return;
+    }
+    const next: ServiceRecord = {
+      id: service?.id ?? `service-${crypto.randomUUID()}`,
+      name: normalizedName,
+      description: normalizedDescription,
+      price: normalizedPrice,
+      durationMinutes: normalizedDuration,
+      active: service?.active ?? true,
+    };
+    if (!onSave(next)) {
+      setError('No se pudo guardar el servicio. Revisa el almacenamiento e inténtalo de nuevo.');
+    }
+  }
+
+  return (
+    <dialog class="service-modal" open aria-labelledby="service-form-title">
+      <form class="service-form" onSubmit={submit}>
+        <header class="service-form-heading">
+          <div>
+            <h2 id="service-form-title">{service ? 'Editar servicio' : 'Nuevo servicio'}</h2>
+            <p>Define los datos que se usarán para calcular las citas.</p>
+          </div>
+          <button type="button" class="service-secondary-button" onClick={onCancel}>Cerrar</button>
+        </header>
+        <label>
+          <span>Nombre del servicio</span>
+          <input autoFocus required value={name} onInput={(event) => setName(event.currentTarget.value)} />
+        </label>
+        <label>
+          <span>Descripción</span>
+          <textarea value={description} onInput={(event) => setDescription(event.currentTarget.value)} />
+        </label>
+        <div class="service-form-numbers">
+          <label>
+            <span>Precio</span>
+            <input type="number" min="0" step="0.01" required value={price} onInput={(event) => setPrice(event.currentTarget.value)} />
+          </label>
+          <label>
+            <span>Duración en minutos</span>
+            <input type="number" min="1" step="1" required value={duration} onInput={(event) => setDuration(event.currentTarget.value)} />
+          </label>
+        </div>
+        {error && <p class="availability-error" role="alert">{error}</p>}
+        <div class="service-form-actions">
+          <button class="availability-save-button" type="submit">Guardar servicio</button>
+          <button class="service-secondary-button" type="button" onClick={onCancel}>Cancelar</button>
+        </div>
+      </form>
+    </dialog>
+  );
+}
+
+export function ServicesPage({ now = new Date() }: ServicesPageProps) {
+  const [state, setState] = useState(() => loadInitialState(now));
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedId, setSelectedId] = useState<string>();
+  const [editingService, setEditingService] = useState<ServiceRecord>();
+  const [formOpen, setFormOpen] = useState(false);
+  const [error, setError] = useState('');
+  const selectedService = state.services.find(({ id }) => id === selectedId);
+
+  const visibleServices = useMemo(() => {
+    const search = query.trim().toLocaleLowerCase('es');
+    return state.services
+      .filter((service) => statusFilter === 'all'
+        || (statusFilter === 'active' ? service.active !== false : service.active === false))
+      .filter(({ name, description }) => !search
+        || name.toLocaleLowerCase('es').includes(search)
+        || (description ?? '').toLocaleLowerCase('es').includes(search))
+      .sort((first, second) => first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
+  }, [query, state.services, statusFilter]);
+
+  function persist(services: ServiceRecord[]): boolean {
+    const next: AgendaState = { ...state, services };
+    try {
+      saveAgendaState(window.localStorage, next);
+      setState(next);
+      setError('');
+      return true;
+    } catch {
+      setError('No se pudieron guardar los cambios. Revisa el almacenamiento e inténtalo de nuevo.');
+      return false;
+    }
+  }
+
+  function saveService(service: ServiceRecord): boolean {
+    const exists = state.services.some(({ id }) => id === service.id);
+    const services = exists
+      ? state.services.map((current) => current.id === service.id ? service : current)
+      : [...state.services, service];
+    if (!persist(services)) return false;
+    setFormOpen(false);
+    setEditingService(undefined);
+    setSelectedId(service.id);
+    return true;
+  }
+
+  function setActive(service: ServiceRecord, active: boolean) {
+    persist(state.services.map((current) => current.id === service.id ? { ...current, active } : current));
+  }
+
+  function closeForm() {
+    setFormOpen(false);
+    setEditingService(undefined);
+  }
+
+  return (
+    <AdminGate>
+      <AdminShell activeSection="Servicios">
+        <section class="services-page" aria-labelledby="services-title">
+          <header class="agenda-heading services-heading">
+            <div>
+              <h1 id="services-title">Servicios</h1>
+              <p>Administra precios y duraciones para calcular las citas.</p>
+            </div>
+            <button class="availability-save-button" type="button" onClick={() => { setEditingService(undefined); setFormOpen(true); }}>Nuevo servicio</button>
+          </header>
+
+          {error && <p class="availability-error" role="alert">{error}</p>}
+
+          {selectedService ? (
+            <section class="service-detail" aria-labelledby="service-detail-title">
+              <button class="service-secondary-button" type="button" onClick={() => setSelectedId(undefined)}>Volver a servicios</button>
+              <header>
+                <div>
+                  <h2 id="service-detail-title">{selectedService.name}</h2>
+                  <span class={`service-status${selectedService.active === false ? ' is-inactive' : ''}`}>{selectedService.active === false ? 'Inactivo' : 'Activo'}</span>
+                </div>
+                <div class="service-actions">
+                  <button class="service-secondary-button" type="button" onClick={() => { setEditingService(selectedService); setFormOpen(true); }}>Editar</button>
+                  {selectedService.active === false
+                    ? <button class="service-secondary-button" type="button" onClick={() => setActive(selectedService, true)}>Activar</button>
+                    : <button class="service-secondary-button" type="button" onClick={() => setActive(selectedService, false)}>Desactivar</button>}
+                </div>
+              </header>
+              <p>{selectedService.description || 'Sin descripción.'}</p>
+              <dl>
+                <div><dt>Precio</dt><dd>${selectedService.price.toLocaleString('es')}</dd></div>
+                <div><dt>Duración estimada</dt><dd>{selectedService.durationMinutes} min</dd></div>
+              </dl>
+            </section>
+          ) : (
+            <>
+              <div class="services-toolbar">
+                <label>
+                  <span>Buscar</span>
+                  <input type="search" aria-label="Buscar servicios" placeholder="Nombre o descripción" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+                </label>
+                <label>
+                  <span>Estado</span>
+                  <select aria-label="Estado de servicios" value={statusFilter} onChange={(event) => setStatusFilter(event.currentTarget.value as typeof statusFilter)}>
+                    <option value="all">Todos</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                  </select>
+                </label>
+              </div>
+              <ul class="service-list" aria-label="Lista de servicios">
+                {visibleServices.map((service) => (
+                  <li key={service.id}>
+                    <article class="service-row" aria-label={`Servicio ${service.name}`}>
+                      <button class="service-row-open" type="button" onClick={() => setSelectedId(service.id)}>
+                        <strong>{service.name}</strong>
+                        <span>{service.description || 'Sin descripción.'}</span>
+                      </button>
+                      <span class="service-row-price">${service.price.toLocaleString('es')}</span>
+                      <span>{service.durationMinutes} min</span>
+                      <span class={`service-status${service.active === false ? ' is-inactive' : ''}`}>{service.active === false ? 'Inactivo' : 'Activo'}</span>
+                      <div class="service-actions">
+                        <button class="service-secondary-button" type="button" aria-label={`Editar servicio ${service.name}`} onClick={() => { setEditingService(service); setFormOpen(true); }}>Editar</button>
+                        {service.active === false
+                          ? <button class="service-secondary-button" type="button" aria-label={`Activar servicio ${service.name}`} onClick={() => setActive(service, true)}>Activar</button>
+                          : <button class="service-secondary-button" type="button" aria-label={`Desactivar servicio ${service.name}`} onClick={() => setActive(service, false)}>Desactivar</button>}
+                      </div>
+                    </article>
+                  </li>
+                ))}
+              </ul>
+              {visibleServices.length === 0 && <p class="agenda-empty">No hay servicios que coincidan con la búsqueda.</p>}
+            </>
+          )}
+          {formOpen && <ServiceForm service={editingService} onSave={saveService} onCancel={closeForm} />}
+        </section>
+      </AdminShell>
+    </AdminGate>
+  );
+}

@@ -79,6 +79,37 @@ describe('AppointmentForm', () => {
     expect(screen.queryByRole('option', { name: 'Andrés' })).toBeNull();
   });
 
+  it('offers only active services for new appointments', () => {
+    const state = createFormState();
+    state.services = state.services.map((service, index) => index === 1 ? { ...service, active: false } : service);
+    render(<AppointmentForm state={state} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+
+    expect(screen.getByLabelText(/Servicio Corte ·/)).toBeTruthy();
+    expect(screen.queryByLabelText(/Servicio Barba ·/)).toBeNull();
+  });
+
+  it('retains an assigned inactive service and its estimate while editing an appointment', () => {
+    const state = createFormState();
+    const appointment = {
+      id: 'appointment-existing',
+      startsAt: new Date(2026, 9, 15, 10, 0).toISOString(),
+      clientId: 'client-1',
+      clientName: 'Lucía Torres',
+      barberId: 'barber-1',
+      barberName: 'Diego',
+      serviceIds: ['service-2'],
+      serviceName: 'Barba',
+      status: 'confirmed' as const,
+      durationMinutes: 30,
+    };
+    state.appointments = [appointment];
+    state.services = state.services.map((service) => service.id === 'service-2' ? { ...service, active: false } : service);
+    render(<AppointmentForm state={state} appointment={appointment} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+
+    expect(screen.getByLabelText(/Servicio Barba ·/)).toBeTruthy();
+    expect(screen.getByText(/Precio estimado:/)).toBeTruthy();
+  });
+
   it('uses the branded month calendar to select an appointment date', () => {
     render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn((_appointment: AppointmentRecord) => true)} onCancel={vi.fn()} />);
     expect(screen.queryByLabelText('Fecha de la cita')).toBeNull();
