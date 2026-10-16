@@ -145,7 +145,7 @@ interface EmployeesPageProps {
 - [x] **Step 7: Add mobile-first responsive styles and accessibility.** Used existing design tokens, semantic headings, visible focus, labels, modal focus management, and status text; action controls are responsive.
 - [x] **Step 8: Run `npm test -- src/components/EmployeeForm.test.tsx src/components/EmployeesPage.test.tsx`;** passed 14/14.
 - [x] **Step 9: Update `DESIGN.md` with the Employees navigation, profile, role/status, and generic invitation behavior.** The user-facing behavior now follows the approved design.
-- [ ] **Step 10: Commit Task 2** with tests, styles, and documentation in the same work unit.
+- [x] **Step 10: Commit Task 2** with tests, styles, and documentation in the same work unit. Commit: `40d1e34` (`feat(employees): add employee directory and profile`), 1,328 changed lines; kept as one integrated directory/profile workflow rather than splitting by file type.
 
 ### Task 3: Barber identity and booking eligibility integration
 
