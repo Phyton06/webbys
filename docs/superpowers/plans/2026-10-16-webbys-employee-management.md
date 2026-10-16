@@ -1,0 +1,179 @@
+# Employees and Roles Implementation Plan
+
+> **For agentic workers:** Execute this plan task-by-task in order. Keep each task's tests and documentation with its work-unit commit. Use test-first RED → GREEN → REFACTOR.
+
+**Goal:** Build the approved Employees module for staff CRUD, roles, local invitation tracking, and barber compatibility.
+
+**Architecture:** Keep employee role/status rules in a pure TypeScript service. Add employees as an optional additive field on the existing Agenda v1 state; normalize legacy barbers in memory and serialize the employee records on the next successful save. Retain `AgendaState.barbers` as the history-preserving scheduling projection, with employee IDs as barber IDs, and filter active Barber employees only at new-booking boundaries. Astro hosts a Preact Employees page using the existing AdminShell, ClientForm/ClientsPage patterns, agenda persistence, and fixed registration-link component.
+
+**Tech Stack:** Astro 7, Preact 10, TypeScript 6, Vitest 5, localStorage, existing lucide-preact icons, and the shared custom `Dropdown`.
+
+**Delivery:** The feature document selects `ask-on-risk` with the user's `feature-branch-chain` strategy. Keep work on `feat/employees-management`; remote publication remains separately unauthorized.
+
+## Global Constraints
+
+- Employees are created with only a name, phone number, and assigned role.
+- Roles are Administrator, Barber, and Assistant.
+- All invitations use the same fixed `{application-origin}/registro` link; no employee identifier or token is included.
+- Invitation completion is local and manually controlled; opening or copying the link never marks it complete.
+- Preserve existing barber IDs, appointments, schedules, and date exceptions through role and activation changes.
+- Exclude inactive staff and non-Barber roles from new bookings; keep an existing appointment's assigned barber selectable while editing it.
+- Deactivation is reversible; do not hard-delete staff or scheduling history.
+- Do not deactivate the last active Administrator.
+- Do not add backend services, authentication, email/password fields, remote storage, or a registration route.
+- User-facing copy stays Spanish and must follow the current mobile-first charcoal/red design system.
+- Do not push, create remote branches, or open PRs.
+
+---
+
+## File map
+
+- `src/types/agenda.ts` — define employee role/invitation unions and `EmployeeRecord`; add optional `employees` to `AgendaState` for compile-time legacy compatibility.
+- `src/services/employees.ts` — normalize legacy barbers, retain/update the barber projection, filter bookable barbers, and guard last-admin deactivation.
+- `src/services/employees.test.ts` — pure migration/projection/eligibility/guard tests.
+- `src/services/agenda-store.ts` — validate optional employee records, migrate legacy state in memory, and persist normalized state without changing the storage version.
+- `src/services/agenda-store.test.ts` — legacy migration, raw-byte preservation, invalid employees, save/load round trip, and history integrity.
+- `src/data/agenda-demo.ts` — seed the three existing barbers as employees with identical IDs, active Barber role, completed registration status, and empty phone when legacy demo data has none.
+- `src/data/agenda-demo.test.ts` — assert seed employee/barber identity and role consistency.
+- `src/components/EmployeesPage.tsx` — load shared agenda state, directory/profile selection, CRUD actions, safe deactivation, save feedback, linked appointment history, and barber schedule details.
+- `src/components/EmployeesPage.test.tsx` — directory search/filter/sort, profile details/history, CRUD, activation, role, invitation, and last-admin behavior.
+- `src/components/EmployeeForm.tsx` — create/edit employee fields, role selection, active/invitation state on edit, save/cancel, and generic-link confirmation after creation.
+- `src/components/EmployeeForm.test.tsx` — required name/phone/role, callback behavior, fixed generic link, and save failure.
+- `src/components/AppointmentForm.tsx` — use employee eligibility to filter barber options for new appointments while retaining the currently assigned barber during edits.
+- `src/components/AppointmentForm.test.tsx` — active Barber filtering and existing inactive/non-Barber barber preservation during edit.
+- `src/components/AgendaAvailabilityPanel.tsx` — display open starts for active Barber employees only.
+- `src/components/AgendaAvailabilityPanel.test.tsx` — exclude inactive and non-Barber staff while preserving eligible barber slots.
+- `src/components/AgendaPage.tsx` — no independent employee store; continue passing the shared normalized `AgendaState` to Agenda.
+- `src/components/SettingsPage.tsx` — retain schedule administration for history-preserving barber records; only narrow choices if an explicit active-booking boundary requires it.
+- `src/components/AdminShell.tsx` and `src/components/AdminShell.test.tsx` — add the Employees route link and active section behavior for desktop/mobile navigation.
+- `src/pages/empleados.astro` — add protected static Employees route using existing `AppLayout` and island conventions.
+- `src/styles/employees.css` — responsive directory, profile, status, and form presentation using existing tokens.
+- `src/styles/admin.css` or `src/styles/clients.css` — only adjust shared styles if the existing styles cannot support the Employees page; avoid unrelated restyling.
+- `DESIGN.md` — document employee list/profile, role/activation, and generic invitation-link semantics.
+
+## Tasks
+
+### Task 1: Employee domain and legacy agenda persistence
+
+**Files:** Modify `src/types/agenda.ts`, `src/services/agenda-store.ts`, `src/services/agenda-store.test.ts`, `src/data/agenda-demo.ts`, and `src/data/agenda-demo.test.ts`; create `src/services/employees.ts` and `src/services/employees.test.ts`.
+
+**Interfaces:**
+
+```ts
+export type EmployeeRole = 'administrator' | 'barber' | 'assistant';
+export type EmployeeInvitationStatus = 'pending' | 'completed';
+
+export interface EmployeeRecord {
+  id: string;
+  name: string;
+  phone: string;
+  role: EmployeeRole;
+  active: boolean;
+  invitationStatus: EmployeeInvitationStatus;
+}
+
+export interface AgendaState {
+  // Existing fields remain unchanged.
+  employees?: EmployeeRecord[];
+}
+
+export function normalizeEmployees(
+  employees: EmployeeRecord[] | undefined,
+  barbers: BarberRecord[],
+): EmployeeRecord[];
+
+export function syncBarberProjection(
+  employees: EmployeeRecord[],
+  existingBarbers: BarberRecord[],
+): BarberRecord[];
+
+export function getBookableBarbers(
+  employees: EmployeeRecord[] | undefined,
+  barbers: BarberRecord[],
+  includeBarberId?: string,
+): BarberRecord[];
+
+export function canDeactivateEmployee(employeeId: string, employees: EmployeeRecord[]): boolean;
+```
+
+- [ ] **Step 1: Add failing domain tests.** Assert legacy barbers normalize to active Barber employees with the same IDs and completed invitation state; existing employee records win over normalization; a Barber role adds a barber projection; changing role retains the old barber ID/name projection; bookable results contain only active Barber employees plus an optional currently assigned barber; the last active Administrator cannot be deactivated, but an Administrator can be deactivated when another active Administrator remains.
+- [ ] **Step 2: Run `npm test -- src/services/employees.test.ts`;** expected result: fail because employee types/helpers do not exist.
+- [ ] **Step 3: Add the employee unions/interface and pure helper implementations.** Generate no identifiers in the helpers. Preserve old barber records by ID and update their display names from matching employees.
+- [ ] **Step 4: Add failing storage tests.** Use a raw version-1 envelope without `employees`; assert loading returns normalized employees but leaves the exact original serialized string unchanged. Add cases for invalid role/status/duplicate employee IDs, employee round trip on save, and unchanged appointments/schedules/exceptions.
+- [ ] **Step 5: Validate `employees` only when present and normalize valid legacy Agenda state in memory.** Keep `AGENDA_STORAGE_VERSION` at 1, add employees when a successful save serializes a legacy state, and reject invalid employee arrays without overwriting stored bytes.
+- [ ] **Step 6: Seed employees from the existing barber records.** Keep the exact IDs (`barber-1`, `barber-2`, `barber-3`), mark demo records active with Barber role and completed registration, and use an empty phone string where demo barber phone data does not exist.
+- [ ] **Step 7: Run focused persistence and seed tests.** Run `npm test -- src/services/employees.test.ts src/services/agenda-store.test.ts src/data/agenda-demo.test.ts`; expected result: all pass.
+- [ ] **Step 8: Run `npm run check`;** expected result: 0 errors, warnings, and hints.
+- [ ] **Step 9: Record the persisted-format risk and commit Task 1** with domain helpers, normalization, seeds, and tests together. Verify the active global author is `Luis Angel Cardona Becerra <luis.lncb51@gmail.com>` before commit. After Task 1's own checks, obtain independent verification of legacy normalization/history preservation before treating this task as proven.
+
+### Task 2: Employees directory, profile, CRUD, and invitation
+
+**Files:** Create `src/components/EmployeesPage.tsx`, `src/components/EmployeesPage.test.tsx`, `src/components/EmployeeForm.tsx`, `src/components/EmployeeForm.test.tsx`, and `src/styles/employees.css`; reuse `src/components/AppointmentRegistrationLink.tsx` and patterns from `ClientsPage.tsx`/`ClientForm.tsx`; modify `DESIGN.md` only for the user-visible employee rules.
+
+**Interfaces:**
+
+```ts
+interface EmployeeFormProps {
+  employee?: EmployeeRecord;
+  onSave: (employee: EmployeeRecord) => boolean;
+  onCancel: () => void;
+}
+
+interface EmployeesPageProps {
+  now?: Date;
+}
+```
+
+- [ ] **Step 1: Add failing `EmployeeForm` tests.** Assert create collects only name, phone, and role; rejects missing values; edit keeps the stable ID and invitation status; a failed save keeps the form open with an alert; a successful new employee displays the shared `/registro` link and does not encode the employee ID.
+- [ ] **Step 2: Run `npm test -- src/components/EmployeeForm.test.tsx`;** expected result: fail because the component does not exist.
+- [ ] **Step 3: Implement controlled English identifiers and Spanish copy for the form.** New records use `employee-${crypto.randomUUID()}`, start active with pending registration, and have no email/password fields. Editing preserves the ID. Link presentation is shared and explicitly generic; never mark the invitation complete from copy/open.
+- [ ] **Step 4: Add failing `EmployeesPage` tests.** Cover employee list search by name/phone, role/active filters, sort, profile fields, only that employee's appointments, barber schedule when applicable, save failure preserving state, reversible deactivation, reactivation, role edits, manual pending/completed toggle, and last-admin action disabled with explanatory text.
+- [ ] **Step 5: Implement `EmployeesPage` around `loadAgendaState`/`saveAgendaState`.** Every successful mutation builds one next AgendaState, synchronizes the barber projection, writes once, and updates React state only after the write succeeds. Never hard-delete an employee.
+- [ ] **Step 6: Build profile relations from stable IDs.** Match appointments by `barberId === employee.id`; show schedules and exceptions only when employee role is Barber, while preserving historical records for inactive/changed-role employees.
+- [ ] **Step 7: Add mobile-first responsive styles and accessibility.** Use existing design tokens, semantic headings, visible focus, labels, dialogs, and status text; ensure action controls fit at narrow widths.
+- [ ] **Step 8: Run `npm test -- src/components/EmployeeForm.test.tsx src/components/EmployeesPage.test.tsx`;** expected result: all focused tests pass.
+- [ ] **Step 9: Update `DESIGN.md` with the Employees navigation, profile, role/status, and generic invitation behavior.** Keep the public-copy specification aligned with the approved design.
+- [ ] **Step 10: Commit Task 2** with tests, styles, and documentation in the same work unit.
+
+### Task 3: Barber identity and booking eligibility integration
+
+**Files:** Modify `src/components/AppointmentForm.tsx`, `src/components/AppointmentForm.test.tsx`, `src/components/AgendaAvailabilityPanel.tsx`, `src/components/AgendaAvailabilityPanel.test.tsx`, `src/services/employees.ts`, and its tests only where behavior is required.
+
+**Interfaces:**
+
+- `AppointmentForm` obtains options from `getBookableBarbers(state.employees, state.barbers, appointment?.barberId)`.
+- `AgendaAvailabilityPanel` offers open starts only for `getBookableBarbers(state.employees, state.barbers)`.
+- `AgendaState.barbers` retains prior IDs, so `agenda-store` appointment/schedule/exception foreign-key validation remains satisfied.
+
+- [ ] **Step 1: Add failing booking tests.** Assert inactive Barbers and active Assistants/Administrators are absent from new appointment options; an existing appointment edit retains its assigned inactive or changed-role barber; all current active Barber options and valid available slots remain unchanged.
+- [ ] **Step 2: Run `npm test -- src/components/AppointmentForm.test.tsx src/components/AgendaAvailabilityPanel.test.tsx`;** expected result: the new eligibility assertions fail.
+- [ ] **Step 3: Apply the pure `getBookableBarbers` helper at the new-booking selector boundaries.** Do not remove IDs from `AgendaState.barbers`, schedules, exceptions, or appointments.
+- [ ] **Step 4: Verify role changes and deactivation preserve stored appointment history and schedule/exception records.** Assert the barber ID still resolves and no new booking slots are offered until an active Barber schedule is available.
+- [ ] **Step 5: Run focused booking/availability/persistence tests and `npm run check`;** expected result: all focused tests pass and Astro reports 0 diagnostics.
+- [ ] **Step 6: Commit Task 3** with booking and history regression tests. After Task 3's own checks, obtain independent verification of booking eligibility and history preservation.
+
+### Task 4: Employees route, navigation, final checks, and proof
+
+**Files:** Modify `src/components/AdminShell.tsx`, `src/components/AdminShell.test.tsx`, `DESIGN.md`, and project/task documentation; create `src/pages/empleados.astro`; update `odd/tasks/employees-management.md` and its Engram mirror.
+
+**Interfaces:**
+
+- `AdminShell` accepts active section `Empleados` and links desktop/mobile navigation to `/empleados/`.
+- `src/pages/empleados.astro` mounts `EmployeesPage` under the existing `AppLayout` and `AdminGate` conventions.
+
+- [ ] **Step 1: Add failing navigation tests** for active Employees links in desktop and mobile menus and correct `aria-current` behavior.
+- [ ] **Step 2: Run `npm test -- src/components/AdminShell.test.tsx`;** expected result: Employees route tests fail before navigation integration.
+- [ ] **Step 3: Add the protected static route and navigation link.** Preserve all current route behavior and use the existing admin gate rather than a new auth path.
+- [ ] **Step 4: Run focused navigation, employee, booking, availability, store, and seed suites;** expected result: all affected tests pass.
+- [ ] **Step 5: Run `npm test`, `npm run check`, and `npm run build`;** record every failure honestly. Existing unrelated failures are not fixed unless they block the approved feature or user authorizes scope expansion.
+- [ ] **Step 6: Inspect responsive layouts at 390px and 1440px** using Playwright only for visual/design review; verify no horizontal overflow, usable action buttons, and readable profile/invitation states.
+- [ ] **Step 7: Record each task's commit, test results, risk line, and verification result in the feature document and mirror.** Treat unavailable proof as blocked, not PASS. No push or PR operation is authorized.
+
+## Plan self-review
+
+- S1 maps to Task 1; S2/S4 map to Task 2; S3 maps to Task 3; S5 and overall proof map to Task 4.
+- The migration is additive and retains version 1; no bytes are rewritten during read-only normalization.
+- Existing barber IDs stay in the compatibility projection even when an employee changes role or becomes inactive; new booking filters are applied at selector boundaries only.
+- The fixed URL is shared, has no token, and never changes invitation status automatically.
+- Last-admin protection is tested in both the pure service and the user-facing action.
+- All new route and copy requirements are covered without adding a backend, auth, email, password, or registration route.

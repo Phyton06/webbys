@@ -1,7 +1,7 @@
 # Webbys Employees and Roles
 
 Objective: Manage employee records, roles, invitation status, and barber scheduling identity. Branch: `feat/employees-management`.
-Delivery: `ask-on-risk` (default), forecast ~900 authored changed lines; test runner: `npm test` (Vitest), plus `npm run check` and `npm run build`.
+Delivery: `ask-on-risk` with user-selected `feature-branch-chain`, forecast ~900 authored changed lines; test runner: `npm test` (Vitest), plus `npm run check` and `npm run build`.
 
 ## Specs
 
@@ -38,7 +38,7 @@ Acceptance: add `/empleados/` under the existing protected shell, with the Clien
 - [ ] T1 (S1) inline — employee domain records, legacy store normalization, barber compatibility projection, seed data, and persistence tests; status: pending; Risk: item 1 (additive persisted employee records and legacy normalization).
 - [ ] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: pending; Risk: none.
 - [ ] T3 (S3) inline — barber eligibility filtering and employee/agenda synchronization with history preservation; status: pending; Risk: item 3 (shared booking-selector contract).
-- [ ] T4 (S5) inline — protected route/navigation, docs, full checks, and independent persisted-data verification; status: pending; Risk: item 1 (persisted data compatibility).
+- [ ] T4 (S5) inline — protected route/navigation, docs, and full checks; status: pending; Risk: none.
 
 ## Log
 
@@ -58,4 +58,8 @@ The user approved a unified employee/barber identity that preserves existing bar
 
 ### L2 — Starting baseline
 
-The local feature branch starts from the published `main` snapshot `1498415`, which contains Agenda and Clients. Prior recovery work remains preserved on `feat/webbys-production-ui`; no remote branch or push is authorized for this feature. RDD mode is globally off. Before implementation, reconcile this task file with the approved design and inspect the actual persisted-store and booking-selector code.
+The local feature branch starts from the published `main` snapshot `1498415`, which contains Agenda and Clients. Prior recovery work remains preserved on `feat/webbys-production-ui`; no remote branch or push is authorized for this feature. RDD mode is globally off. The approved design is `docs/superpowers/specs/2026-10-16-webbys-employee-management-design.md`; implementation plan: `docs/superpowers/plans/2026-10-16-webbys-employee-management.md`. Before implementation, reconcile this task file with the approved design and inspect the actual persisted-store and booking-selector code.
+
+### L3 — Delivery strategy
+
+The user selected “Feature-branch chain (Recommended)” for this feature after the ~900-line forecast. Keep work on `feat/employees-management`; organize future review slices by coherent work unit. This does not authorize pushes, remote branches, or pull requests.
