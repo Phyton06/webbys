@@ -32,8 +32,8 @@ Acceptance: After client creation, show the same copyable `{application-origin}/
 ## Tasks
 
 - [x] T1 (S2, S4) inline — backward-compatible client metadata and shared local persistence; status: complete; commit: `14c3c40`; Risk: item 1 (persisted client fields).
-- [ ] T2 (S1, S2) inline — Clients route, responsive directory, search/filter/sort, create/edit/deactivate/reactivate, inactive-client booking exclusion, and consistent modal actions; status: implementation and checks complete; user authorized delivery with S4 independent runtime proof unavailable; commit: pending; Risk: item 3 (shared client selector contract).
-- [ ] T3 (S3, S4) inline — client profile, appointment history, purchase empty state, and reusable generic registration-link feedback; status: implementation and checks complete; user authorized delivery with S4 independent runtime proof unavailable; commit: pending; Risk: none.
+- [x] T2 (S1, S2) inline — Clients route, responsive directory, search/filter/sort, create/edit/deactivate/reactivate, inactive-client booking exclusion, and consistent modal actions; status: complete with user-authorized S4 verification limitation; commit: `fec0ba1`; Risk: item 3 (shared client selector contract).
+- [x] T3 (S3, S4) inline — client profile, appointment history, purchase empty state, and reusable generic registration-link feedback; status: complete with user-authorized S4 verification limitation; commit: `fec0ba1`; Risk: none.
 
 ## Log
 
@@ -139,4 +139,4 @@ Applied the shared styled Close button and two-column Save/Cancel actions to app
 
 User request: “perfecto, haz commit pushea a main y pasemos a la siguiente fase”
 
-The user was informed that S4's independent scratch runtime check remained unavailable. They explicitly authorized committing and pushing the Clients work anyway. Preserve the verification result as unavailable; do not report an independent S4 PASS. Commits/push and next-phase scope remain to be recorded after execution.
+The user was informed that S4's independent scratch runtime check remained unavailable. They explicitly authorized committing and pushing the Clients work anyway. Preserve the verification result as unavailable; do not report an independent S4 PASS. Code, tests, design documentation, and the surface brief were committed as `fec0ba1` (`feat(clients): add client management module`) and pushed to `origin/main` (fast-forward from `765dc4d` to `fec0ba1`).
