@@ -201,7 +201,7 @@
 - [x] **Step 6: Run focused lifecycle, availability, dashboard, and storage tests.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/DashboardPanel.test.tsx src/services/availability.test.ts src/services/agenda-store.test.ts`; expected result is all pass.
 - [x] **Step 7: Run `npm test`, `npm run check`, and `npm run build`.** Expected result: all tests pass, zero Astro diagnostics, and all static routes build including `/agenda/`.
 - [x] **Step 8: Inspect one mobile and one desktop browser render.** Verify day/week navigation, dropdown appearance, no horizontal overflow at 390px, and schedule editor/form fit at 1440px.
-- [x] **Step 9: Commit the lifecycle and final verified integration.** Use `feat(agenda): complete appointment lifecycle`; commit `50d9cac` (254 changed lines including tests and documentation).
+- [x] **Step 9: Commit the lifecycle and final verified integration.** Use `feat(agenda): complete appointment lifecycle`; commit `50d9cac` (268 changed lines including tests and documentation).
 
 ## Delivery and rollback
 
