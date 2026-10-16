@@ -37,7 +37,7 @@ const desktopSections: NavigationSection[] = [
   { label: ACTIVE_ADMIN_SECTION.HOME, icon: Home, href: '/admin/' },
   { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
   { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
-  { label: 'Empleados', icon: UsersRound },
+  { label: 'Empleados', icon: UsersRound, href: '/empleados/' },
   { label: 'Servicios', icon: Scissors },
   { label: 'Productos', icon: Package },
   { label: 'Promociones', icon: Tag },
@@ -141,7 +141,7 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
       </div>
 
       {moreOpen && (
-        <nav id="mobile-more-sections" class="mobile-more-menu" aria-label="Más secciones disponibles próximamente">
+        <nav id="mobile-more-sections" class="mobile-more-menu" aria-label="Más secciones de administración">
           {mobileMoreSections.map(({ label, icon: Icon, href }) => (
             href ? (
               <a href={href} aria-current={activeSection === label ? 'page' : undefined} key={label}>

@@ -81,6 +81,17 @@ describe('EmployeesPage', () => {
     expect(within(availability).getAllByText('09:00–18:00').length).toBeGreaterThan(0);
   });
 
+  it('returns the profile to the top of the scrollable content area', () => {
+    renderEmployeesPage();
+    const workspace = document.querySelector('.admin-workspace');
+    if (!(workspace instanceof HTMLElement)) throw new Error('Expected the admin workspace');
+    workspace.scrollTop = 420;
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ver perfil de Raúl' }));
+
+    expect(workspace.scrollTop).toBe(0);
+  });
+
   it('shows date-specific availability exceptions in the barber profile', () => {
     renderEmployeesPage();
     fireEvent.click(screen.getByRole('button', { name: 'Ver perfil de Raúl' }));

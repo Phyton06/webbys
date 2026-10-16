@@ -21,7 +21,7 @@ describe('AdminShell', () => {
     expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe('#main-content');
   });
 
-  it('links to Agenda and Clients while keeping other unimplemented modules clearly unavailable', () => {
+  it('links to Agenda and Clients while keeping remaining unimplemented modules clearly unavailable', () => {
     render(
       <AdminShell onSignOut={vi.fn()}>
         <p>Contenido principal</p>
@@ -34,11 +34,11 @@ describe('AdminShell', () => {
     expect(agendaLink.getAttribute('href')).toBe('/agenda/');
     expect(within(mobileNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('href')).toBe('/clientes/');
     fireEvent.click(within(mobileNavigation).getByRole('button', { name: 'Más secciones' }));
-    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones disponibles próximamente' });
-    const employeesButton = within(moreNavigation).getByRole('button', { name: 'Empleados, próximamente' });
-    expect(within(employeesButton).getByText('Próximamente')).toBeTruthy();
-    fireEvent.click(employeesButton);
-    expect(screen.getByRole('status').textContent).toContain('La sección Empleados aún no está disponible');
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const servicesButton = within(moreNavigation).getByRole('button', { name: 'Servicios, próximamente' });
+    expect(within(servicesButton).getByText('Próximamente')).toBeTruthy();
+    fireEvent.click(servicesButton);
+    expect(screen.getByRole('status').textContent).toContain('La sección Servicios aún no está disponible');
   });
 
   it('marks Agenda current in desktop and mobile navigation when its route is active', () => {
@@ -60,6 +60,20 @@ describe('AdminShell', () => {
     expect(within(desktopNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('aria-current')).toBe('page');
   });
 
+  it('links Employees from desktop and the mobile More menu and marks the current route', () => {
+    render(<AdminShell activeSection="Empleados"><p>Contenido principal</p></AdminShell>);
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const employeesDesktopLink = within(desktopNavigation).getByRole('link', { name: 'Empleados' });
+    expect(employeesDesktopLink.getAttribute('href')).toBe('/empleados/');
+    expect(employeesDesktopLink.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const employeesMobileLink = within(moreNavigation).getByRole('link', { name: 'Empleados' });
+    expect(employeesMobileLink.getAttribute('href')).toBe('/empleados/');
+    expect(employeesMobileLink.getAttribute('aria-current')).toBe('page');
+  });
+
   it('links to Configuration from desktop navigation and the mobile More menu', () => {
     render(<AdminShell activeSection="Configuración"><p>Contenido principal</p></AdminShell>);
     const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
@@ -68,7 +82,7 @@ describe('AdminShell', () => {
     expect(within(desktopNavigation).getByRole('link', { name: 'Configuración' }).getAttribute('aria-current')).toBe('page');
 
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
-    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones disponibles próximamente' });
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
     expect(within(moreNavigation).getByRole('link', { name: 'Configuración' }).getAttribute('href')).toBe('/configuracion/');
     const mobileNavigation = screen.getByRole('navigation', { name: 'Navegación móvil' });
     expect(within(mobileNavigation).queryByRole('link', { name: 'Configuración' })).toBeNull();
@@ -78,7 +92,7 @@ describe('AdminShell', () => {
     render(<AdminShell><p>Contenido principal</p></AdminShell>);
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
 
-    const moreSections = screen.getByRole('navigation', { name: 'Más secciones disponibles próximamente' });
+    const moreSections = screen.getByRole('navigation', { name: 'Más secciones de administración' });
     expect(within(moreSections).getByRole('button', { name: 'Productos, próximamente' })).toBeTruthy();
     const desktopSections = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
     const productButton = within(desktopSections).getByRole('button', { name: 'Productos, próximamente' });

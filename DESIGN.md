@@ -212,7 +212,7 @@ Control and small-action corners use the compact radius; larger work surfaces us
 ### Navigation
 - **Mobile:** persistent four-destination bottom bar; current page uses the accent icon, while upcoming areas show “Próx.” and explain their status when activated.
 - **Desktop:** fixed-width side rail with a readable current-page state and visible “Próx.” labels.
-- **More menu:** compact raised menu with the same section names and “Próximamente” status.
+- **More menu:** compact raised menu with the same section names and “Próximamente” status for unfinished modules. Employees is linked from desktop navigation and the mobile More menu.
 
 ### Data Surface
 - **Sales summary:** a single raised surface pairs the selected period, net total, a responsive bar chart, and gross/discount breakdown.

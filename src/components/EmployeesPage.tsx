@@ -206,6 +206,13 @@ export function EmployeesPage({ now = new Date() }: EmployeesPageProps) {
     );
   }
 
+  function openProfile(employeeId: string) {
+    setSelectedEmployeeId(employeeId);
+    setAnnouncement('');
+    const workspace = document.querySelector('.admin-workspace');
+    if (workspace instanceof HTMLElement) workspace.scrollTop = 0;
+  }
+
   function renderEmployeeRow(employee: EmployeeRecord) {
     const active = isEmployeeActive(employee);
     const canDeactivate = canDeactivateEmployee(employee.id, employees);
@@ -225,7 +232,7 @@ export function EmployeesPage({ now = new Date() }: EmployeesPageProps) {
           </span>
           <span class="employee-appointment-count">{appointmentCount} {appointmentCount === 1 ? 'cita' : 'citas'}</span>
           <div class="employee-row-actions">
-            <button class="employee-text-action" type="button" aria-label={`Ver perfil de ${employee.name}`} onClick={() => { setSelectedEmployeeId(employee.id); setAnnouncement(''); }}>
+            <button class="employee-text-action" type="button" aria-label={`Ver perfil de ${employee.name}`} onClick={() => openProfile(employee.id)}>
               Ver perfil
             </button>
             <button class="employee-text-action" type="button" aria-label={`Editar empleado ${employee.name}`} onClick={() => beginEdit(employee)}>

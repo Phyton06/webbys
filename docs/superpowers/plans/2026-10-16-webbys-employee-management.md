@@ -173,12 +173,12 @@ interface EmployeesPageProps {
 - `AdminShell` accepts active section `Empleados` and links desktop/mobile navigation to `/empleados/`.
 - `src/pages/empleados.astro` mounts `EmployeesPage` under the existing `AppLayout` and `AdminGate` conventions.
 
-- [ ] **Step 1: Add failing navigation tests** for active Employees links in desktop and mobile menus and correct `aria-current` behavior.
-- [ ] **Step 2: Run `npm test -- src/components/AdminShell.test.tsx`;** expected result: Employees route tests fail before navigation integration.
-- [ ] **Step 3: Add the protected static route and navigation link.** Preserve all current route behavior and use the existing admin gate rather than a new auth path.
-- [ ] **Step 4: Run focused navigation, employee, booking, availability, store, and seed suites;** expected result: all affected tests pass.
-- [ ] **Step 5: Run `npm test`, `npm run check`, and `npm run build`;** record every failure honestly. Existing unrelated failures are not fixed unless they block the approved feature or user authorizes scope expansion.
-- [ ] **Step 6: Inspect responsive layouts at 390px and 1440px** using Playwright only for visual/design review; verify no horizontal overflow, usable action buttons, and readable profile/invitation states.
+- [x] **Step 1: Add failing navigation tests** for active Employees links in desktop and mobile menus and correct `aria-current` behavior.
+- [x] **Step 2: Run `npm test -- src/components/AdminShell.test.tsx`;** observed the expected unavailable-Employees navigation failure before integration.
+- [x] **Step 3: Add the protected static route and navigation link.** The route uses the existing `AdminGate`; no parallel auth path was added.
+- [x] **Step 4: Run focused navigation, employee, booking, availability, store, and seed suites;** affected suites passed in the full 25-file run.
+- [x] **Step 5: Run `npm test`, `npm run check`, and `npm run build`;** observed 169/169 tests, 0 diagnostics, and seven generated static routes including `/empleados/`.
+- [x] **Step 6: Inspect responsive layouts at 390px and 1440px** using Playwright only for visual/design review; observed no horizontal overflow, adjacent modal actions, and readable profile/invitation states.
 - [ ] **Step 7: Record each task's commit, test results, risk line, and verification result in the feature document and mirror.** Treat unavailable proof as blocked, not PASS. No push or PR operation is authorized.
 
 ## Plan self-review
