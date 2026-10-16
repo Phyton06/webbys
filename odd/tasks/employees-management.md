@@ -58,11 +58,11 @@ The user approved a unified employee/barber identity that preserves existing bar
 
 ### L2 — Starting baseline
 
-The local feature branch starts from the published `main` snapshot `1498415`, which contains Agenda and Clients. Prior recovery work remains preserved on `feat/webbys-production-ui`; no remote branch or push is authorized for this feature. RDD mode is globally off. The approved design is `docs/superpowers/specs/2026-10-16-webbys-employee-management-design.md`; implementation plan: `docs/superpowers/plans/2026-10-16-webbys-employee-management.md`. Before source edits, the task and design were reconciled with the persisted Agenda store and booking-selector call sites.
+The local feature branch started from the published `main` snapshot `1498415`, which contained Agenda and Clients. Prior recovery work remains preserved on `feat/webbys-production-ui`. The user later authorized pushing this completed feature to `Phyton06/webbys:main` using the Phyton06 GitHub CLI session; the feature was fast-forwarded to `main` at `377ff76` without opening a PR. RDD mode is globally off. The approved design is `docs/superpowers/specs/2026-10-16-webbys-employee-management-design.md`; implementation plan: `docs/superpowers/plans/2026-10-16-webbys-employee-management.md`. Before source edits, the task and design were reconciled with the persisted Agenda store and booking-selector call sites.
 
 ### L3 — Delivery strategy
 
-The user selected “Feature-branch chain (Recommended)” for this feature after the ~900-line forecast. Keep work on `feat/employees-management`; organize future review slices by coherent work unit. This does not authorize pushes, remote branches, or pull requests.
+The user selected “Feature-branch chain (Recommended)” for this feature after the ~900-line forecast. Keep work on `feat/employees-management`; organize local review slices by coherent work unit. The user separately authorized the push to `Phyton06/webbys:main`; no PR was requested or opened.
 
 ### L4 — T1 employee domain and legacy storage
 
@@ -82,7 +82,7 @@ RED: `AdminShell` tests failed because Employees was still an unavailable module
 
 ### L8 — Local feature-branch review slices
 
-User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Ordered local review slices if/when remote publication is separately authorized: T1 `f122661` + `d4bbaa3`; T2 `40d1e34`, `0511a24`, `7c05506` + `5e61f08` and the T2 follow-up record; T3 `0e18f00` + `8f7eb6e`; T4 route/navigation `2984b44` with final delivery evidence recorded in `75fae28`. T2 comprises 1,340 authored lines for the integrated CRUD/profile commit plus 57 authored lines of mobile-action fit and explicit-role follow-ups; it was not split by file type. Total authored changes across work-unit code commits: 1,997 lines. No remote PRs or push were created.
+User-selected `feature-branch-chain` is recorded. Ordered local review slices: T1 `f122661` + `d4bbaa3`; T2 `40d1e34`, `0511a24`, `7c05506` + `5e61f08` and the T2 follow-up record; T3 `0e18f00` + `8f7eb6e`; T4 route/navigation `2984b44` with final delivery evidence in `75fae28`. T2 comprises 1,340 authored lines for the integrated CRUD/profile commit plus 57 authored lines of mobile-action fit and explicit-role follow-ups; it was not split by file type. Total authored changes across work-unit code commits: 1,997 lines. No PR was opened.
 
 ### L9 — T2 mobile form action fit
 
@@ -91,3 +91,9 @@ The visual capture at 390px showed the primary “Guardar empleado” label wrap
 ### L10 — T2 explicit employee role assignment
 
 RED: the creation test failed because the form implicitly assigned Barber when no role had been selected. GREEN: creation now starts with no role selected and cannot save or show an invitation link until the administrator explicitly chooses one. EmployeeForm/EmployeesPage focused tests passed 16/16; `npm run check` reported 0 diagnostics; `npm run build` generated seven routes. Commit: `7c05506` (`fix(employees): require assigned role before inviting`), 31 authored changed lines. `Risk: none` — the change enforces the user-approved role-before-invitation rule and does not change storage format.
+
+### L11 — User-requested main delivery
+
+User request: “perfecto, ahora haz los commits, pushea a main y despues sigamos con la siguiente fase, recuerda es una tarea sencilla asi que solo lo escencial, guarda esta decision para que lo apliques a este proyecto y todos los que haga”
+
+The employee feature commits were pushed as a fast-forward to `Phyton06/webbys:main`, advancing `1498415` to `377ff76`; no PR was opened. The user's preference for essential-only workflow on simple tasks was saved in personal Engram memory.
