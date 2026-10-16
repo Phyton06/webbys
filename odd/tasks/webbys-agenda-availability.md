@@ -65,7 +65,7 @@ Acceptance: Spanish interface uses existing charcoal/red tokens, keyboard-operab
 
 ### L5 — Current evidence and next step
 
-Design spec: `docs/superpowers/specs/2026-10-15-webbys-agenda-availability-design.md`. Implementation plan: `docs/superpowers/plans/2026-10-15-webbys-agenda-availability.md`. Feature baseline: `80628d4`; plan/tracker commit: `574feb3`. Current status: seven inline work units planned; user selected `feature-branch-chain` on 2026-10-15. The current branch is the integration/tracker branch; no remote branches or PRs have been created or authorized. T1 through T4 and T5a are complete; T5b is in progress. Original unsplit T1 commit `7fbbc19` is preserved on local backup branch `backup/agenda-availability-t1`.
+Design spec: `docs/superpowers/specs/2026-10-15-webbys-agenda-availability-design.md`. Implementation plan: `docs/superpowers/plans/2026-10-15-webbys-agenda-availability.md`. Feature baseline: `80628d4`; plan/tracker commit: `574feb3`. Current status: seven inline work units planned; user selected `feature-branch-chain` on 2026-10-15. The current local branch is `webbys-replacement`; the user explicitly authorized replacing repository `Phyton06/webbys` main with snapshot `bd8d89a`. No PR or further remote operation is part of this continuation. T1 through T4 and T5a are complete; T5b/T6 remain in progress until the verified lifecycle work-unit commit. The source checkout's commit object is corrupt, so this clean clone is the current implementation workspace.
 
 ### L6 — Delivery strategy
 
@@ -102,3 +102,11 @@ Visual checks at 390px and 1440px confirmed the weekly schedule and exception ed
 ### L15 — T5a appointment form
 
 RED: `npm test -- src/components/AppointmentForm.test.tsx` initially failed because the form module did not exist; after implementation, rescheduling tests exposed that available-slot generation did not exclude the appointment being edited. GREEN: all 6 form tests and 22 availability tests pass; `npm run check` reports 0 diagnostics. Commit: `d770b3c` (`feat(agenda): add validated appointment form`), 337 changed lines. `Risk: none` — booking save revalidates availability and the interface operates solely on local records.
+
+### L16 — User continuation request
+
+“bien ahora si continuemos con el resto de la tarea”
+
+### L17 — T5b/T6 implementation and verification in progress
+
+T5b integration in published snapshot `bd8d89a` includes create/reschedule persistence; added regression checks cover stable reschedule identity, cancel-without-save, and shared persisted appointments in Dashboard. T6 RED: the three status-transition tests failed because appointment status actions did not exist; a weekly-view test also failed because successful status feedback was not announced outside the daily view. GREEN: status transitions now cover pending→confirmed, confirmed→completed/cancelled; cancellation retains the record and existing availability tests prove cancelled intervals no longer block. Dashboard reads the same persisted appointment collection and excludes cancelled records from upcoming appointments. Browser checks at 390px and 1440px found no horizontal overflow; a live weekly-view confirm action announced “Estado actualizado: Confirmada.” Focused Agenda/availability integration tests passed 42 tests; full suite passed 99 tests, `npm run check` reported 0 diagnostics, and `npm run build` emitted all four routes. Work-unit commit and final task closure remain pending.

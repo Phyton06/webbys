@@ -177,11 +177,11 @@
 - `AgendaPanel` accepts optional `onAppointmentSave(appointment): boolean`; it opens a form for new and existing appointment records.
 - `AgendaPage` upserts by stable appointment ID and persists via `saveAgendaState`; failed persistence leaves prior state unchanged and the form open with an error.
 
-- [ ] **Step 1: Write failing AgendaPanel integration tests.** Assert a new-cita action opens the form, a selected valid appointment is delivered to `onAppointmentSave`, reprogramming keeps the same ID, and cancel closes without saving.
-- [ ] **Step 2: Run `npm test -- src/components/AgendaPanel.test.tsx -t "opens a booking form"`; confirm expected failure before UI integration.**
-- [ ] **Step 3: Wire new and reschedule actions into the day appointment list.** Offer rescheduling only for pending and confirmed appointments.
-- [ ] **Step 4: Upsert and persist through `AgendaPage`.** Preserve existing sales data; on storage failure show an error and keep the form available for retry.
-- [ ] **Step 5: Verify a created appointment is visible in Agenda and survives reload for Dashboard.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/AgendaPage.test.tsx src/components/AdminPage.test.tsx`.
+- [x] **Step 1: Write failing AgendaPanel integration tests.** Assert a new-cita action opens the form, a selected valid appointment is delivered to `onAppointmentSave`, reprogramming keeps the same ID, and cancel closes without saving.
+- [x] **Step 2: Run `npm test -- src/components/AgendaPanel.test.tsx -t "opens a booking form"`; confirm expected failure before UI integration.**
+- [x] **Step 3: Wire new and reschedule actions into the day appointment list.** Offer rescheduling only for pending and confirmed appointments.
+- [x] **Step 4: Upsert and persist through `AgendaPage`.** Preserve existing sales data; on storage failure show an error and keep the form available for retry.
+- [x] **Step 5: Verify a created appointment is visible in Agenda and survives reload for Dashboard.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/AgendaPage.test.tsx src/components/AdminPage.test.tsx`.
 - [ ] **Step 6: Commit Agenda integration.** Use `feat(agenda): add validated appointment booking`.
 
 ### Task 6: Appointment lifecycle, cross-view persistence, and final proof
@@ -193,14 +193,14 @@
 - Pending and confirmed appointments remain blocking; completed history remains visible; cancellation persists a cancelled status and makes the interval available again.
 - Dashboard and Agenda load the same saved `AppointmentRecord[]` while sales data remains unchanged.
 
-- [ ] **Step 1: Write failing lifecycle tests.** Cover confirming a pending appointment, completing a confirmed appointment, cancelling an appointment, verifying a cancelled interval is returned by `getAvailableSlots`, and reloading the page state so Agenda and Dashboard show the same appointment list.
-- [ ] **Step 2: Run `npm test -- src/components/AgendaPanel.test.tsx src/components/DashboardPanel.test.tsx` and confirm the new lifecycle assertions fail for missing actions/state synchronization.**
-- [ ] **Step 3: Implement appointment detail and status actions.** Keep status text accessible, and ensure cancellation immediately updates the controlled `AgendaState` and shared persisted store.
-- [ ] **Step 4: Connect Dashboard and Agenda reads to the same stored appointment collection.** Preserve current sales summary calculations and chronological upcoming-appointment behavior.
-- [ ] **Step 5: Document Agenda layout and status semantics in `DESIGN.md`.** Include mobile day-first behavior, 15-minute choices, text status alongside color, and exception precedence.
-- [ ] **Step 6: Run focused lifecycle, availability, dashboard, and storage tests.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/DashboardPanel.test.tsx src/services/availability.test.ts src/services/agenda-store.test.ts`; expected result is all pass.
-- [ ] **Step 7: Run `npm test`, `npm run check`, and `npm run build`.** Expected result: all tests pass, zero Astro diagnostics, and all static routes build including `/agenda/`.
-- [ ] **Step 8: Inspect one mobile and one desktop browser render.** Verify day/week navigation, dropdown appearance, no horizontal overflow at 390px, and schedule editor/form fit at 1440px.
+- [x] **Step 1: Write failing lifecycle tests.** Cover confirming a pending appointment, completing a confirmed appointment, cancelling an appointment, verifying a cancelled interval is returned by `getAvailableSlots`, and reloading the page state so Agenda and Dashboard show the same appointment list.
+- [x] **Step 2: Run `npm test -- src/components/AgendaPanel.test.tsx src/components/DashboardPanel.test.tsx` and confirm the new lifecycle assertions fail for missing actions/state synchronization.**
+- [x] **Step 3: Implement appointment detail and status actions.** Keep status text accessible, and ensure cancellation immediately updates the controlled `AgendaState` and shared persisted store.
+- [x] **Step 4: Connect Dashboard and Agenda reads to the same stored appointment collection.** Preserve current sales summary calculations and chronological upcoming-appointment behavior.
+- [x] **Step 5: Document Agenda layout and status semantics in `DESIGN.md`.** Include mobile day-first behavior, 15-minute choices, text status alongside color, and exception precedence.
+- [x] **Step 6: Run focused lifecycle, availability, dashboard, and storage tests.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/DashboardPanel.test.tsx src/services/availability.test.ts src/services/agenda-store.test.ts`; expected result is all pass.
+- [x] **Step 7: Run `npm test`, `npm run check`, and `npm run build`.** Expected result: all tests pass, zero Astro diagnostics, and all static routes build including `/agenda/`.
+- [x] **Step 8: Inspect one mobile and one desktop browser render.** Verify day/week navigation, dropdown appearance, no horizontal overflow at 390px, and schedule editor/form fit at 1440px.
 - [ ] **Step 9: Commit the lifecycle and final verified integration.** Use `feat(agenda): complete appointment lifecycle`.
 
 ## Delivery and rollback

@@ -120,4 +120,107 @@ describe('AgendaPanel', () => {
     expect(onAppointmentSave.mock.calls[0]?.[0]?.status).toBe('pending');
   });
 
+  it('confirms a pending appointment through the save callback', () => {
+    const pending = appointment('status-pending', 15, 11, 'barber-diego', 'Diego', 'pending');
+    const onAppointmentSave = vi.fn((_appointment: AppointmentRecord) => true);
+    const bookingState: AgendaState = {
+      ...state,
+      clients: [{ id: pending.clientId, name: pending.clientName }],
+      services: [{ id: 'service-cut', name: 'Corte', durationMinutes: 45, price: 300 }],
+      schedules: [{ barberId: 'barber-diego', days: [{ weekday: 4, working: [{ start: '09:00', end: '17:00' }], breaks: [] }] }],
+      appointments: [pending],
+    };
+    render(<AgendaPanel state={bookingState} now={now} onAppointmentSave={onAppointmentSave} />);
+    const details = screen.getByText(pending.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(pending.clientName));
+
+    fireEvent.click(within(details).getByRole('button', { name: `Confirmar cita de ${pending.clientName}` }));
+
+    expect(onAppointmentSave.mock.calls[0]?.[0]?.id).toBe(pending.id);
+    expect(onAppointmentSave.mock.calls[0]?.[0]?.status).toBe('confirmed');
+  });
+
+  it('completes a confirmed appointment through the save callback', () => {
+    const confirmed = appointment('status-confirmed', 15, 11, 'barber-diego', 'Diego', 'confirmed');
+    const onAppointmentSave = vi.fn((_appointment: AppointmentRecord) => true);
+    const bookingState: AgendaState = {
+      ...state,
+      clients: [{ id: confirmed.clientId, name: confirmed.clientName }],
+      services: [{ id: 'service-cut', name: 'Corte', durationMinutes: 45, price: 300 }],
+      schedules: [{ barberId: 'barber-diego', days: [{ weekday: 4, working: [{ start: '09:00', end: '17:00' }], breaks: [] }] }],
+      appointments: [confirmed],
+    };
+    render(<AgendaPanel state={bookingState} now={now} onAppointmentSave={onAppointmentSave} />);
+    const details = screen.getByText(confirmed.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(confirmed.clientName));
+
+    fireEvent.click(within(details).getByRole('button', { name: `Completar cita de ${confirmed.clientName}` }));
+
+    expect(onAppointmentSave.mock.calls[0]?.[0]?.status).toBe('completed');
+  });
+
+  it('cancels an active appointment through the save callback', () => {
+    const confirmed = appointment('status-cancel', 15, 11, 'barber-diego', 'Diego', 'confirmed');
+    const onAppointmentSave = vi.fn((_appointment: AppointmentRecord) => true);
+    const bookingState: AgendaState = {
+      ...state,
+      clients: [{ id: confirmed.clientId, name: confirmed.clientName }],
+      services: [{ id: 'service-cut', name: 'Corte', durationMinutes: 45, price: 300 }],
+      schedules: [{ barberId: 'barber-diego', days: [{ weekday: 4, working: [{ start: '09:00', end: '17:00' }], breaks: [] }] }],
+      appointments: [confirmed],
+    };
+    render(<AgendaPanel state={bookingState} now={now} onAppointmentSave={onAppointmentSave} />);
+    const details = screen.getByText(confirmed.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(confirmed.clientName));
+
+    fireEvent.click(within(details).getByRole('button', { name: `Cancelar cita de ${confirmed.clientName}` }));
+
+    expect(onAppointmentSave.mock.calls[0]?.[0]?.status).toBe('cancelled');
+  });
+
+  it('keeps the appointment identity when rescheduling and closes without saving on cancel', () => {
+    const existing = appointment('reschedule-identity', 15, 11, 'barber-diego', 'Diego', 'confirmed');
+    const onAppointmentSave = vi.fn((_appointment: AppointmentRecord) => true);
+    const bookingState: AgendaState = {
+      ...state,
+      clients: [{ id: existing.clientId, name: existing.clientName }],
+      services: [{ id: 'service-cut', name: 'Corte', durationMinutes: 45, price: 300 }],
+      schedules: [{ barberId: 'barber-diego', days: [{ weekday: 4, working: [{ start: '09:00', end: '17:00' }], breaks: [] }] }],
+      appointments: [existing],
+    };
+    render(<AgendaPanel state={bookingState} now={now} onAppointmentSave={onAppointmentSave} />);
+    const details = screen.getByText(existing.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(existing.clientName));
+    fireEvent.click(within(details).getByRole('button', { name: `Reprogramar cita de ${existing.clientName}` }));
+    expect(screen.getByRole('heading', { name: 'Reprogramar cita' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(onAppointmentSave.mock.calls[0]?.[0]?.id).toBe(existing.id);
+    expect(onAppointmentSave.mock.calls[0]?.[0]?.startsAt).toBe(existing.startsAt);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nueva cita' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(onAppointmentSave).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('heading', { name: 'Nueva cita' })).toBeNull();
+  });
+
+  it('announces a successful status change from the weekly view', () => {
+    const pending = state.appointments[0];
+    if (!pending) throw new Error('Expected a pending appointment');
+    const onAppointmentSave = vi.fn((_appointment: AppointmentRecord) => true);
+    render(<AgendaPanel state={{ ...state, appointments: [pending] }} now={now} onAppointmentSave={onAppointmentSave} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Semana' }));
+    const details = screen.getByText(pending.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(pending.clientName));
+
+    fireEvent.click(within(details).getByRole('button', { name: `Confirmar cita de ${pending.clientName}` }));
+
+    expect(screen.getByRole('status').textContent).toContain('Estado actualizado: Confirmada.');
+  });
+
 });

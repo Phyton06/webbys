@@ -205,6 +205,9 @@ Control and small-action corners use the compact radius; larger work surfaces us
 ### Chips
 - **Demo status:** warm amber foreground on a dark amber surface; always accompanied by explicit “Modo demo” or “Datos de demostración” text.
 - **Appointment status:** pending, confirmed, completed, and cancelled states use readable text as well as color.
+- **Appointment lifecycle:** expanded pending appointments can be confirmed or cancelled; expanded confirmed appointments can be completed or cancelled. Completed and cancelled appointments remain visible as history but expose no further status actions.
+- **Availability effect:** pending and confirmed appointments block their full service interval; cancelling immediately releases it, while completion preserves the historical record.
+- **Status feedback:** successful changes are announced as status; storage failures use an alert and leave the previous appointment state intact.
 
 ### Navigation
 - **Mobile:** persistent four-destination bottom bar; current page uses the accent icon, while upcoming areas show “Próx.” and explain their status when activated.

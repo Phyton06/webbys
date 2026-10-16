@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { AGENDA_STORAGE_KEY, loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { AdminPage } from './AdminPage';
 import { AgendaPage } from './AgendaPage';
 
 const now = new Date(2026, 9, 15, 8, 0);
@@ -103,6 +104,58 @@ describe('AgendaPage availability settings', () => {
     await waitFor(() => expect(screen.getByText('Cita guardada.')).toBeTruthy());
     const state = loadAgendaState(localStorage, now).state;
     expect(state.appointments.some((entry) => entry.startsAt === new Date(2026, 9, 15, 9).toISOString() && entry.status === 'pending')).toBe(true);
+  });
+
+  it('persists a status change for both Agenda and Dashboard to read', async () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    const state = createAgendaSeed(now);
+    const appointment = state.appointments[0];
+    if (!appointment) throw new Error('Expected a seeded appointment');
+    const pending = {
+      ...appointment,
+      startsAt: new Date(2026, 9, 15, 11).toISOString(),
+      status: 'pending' as const,
+    };
+    state.appointments = [pending];
+    saveAgendaState(localStorage, state);
+    render(<AgendaPage />);
+    const details = screen.getByText(pending.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(pending.clientName));
+
+    fireEvent.click(within(details).getByRole('button', { name: `Confirmar cita de ${pending.clientName}` }));
+
+    await waitFor(() => expect(loadAgendaState(localStorage, now).state.appointments[0]?.status).toBe('confirmed'));
+    cleanup();
+    render(<AdminPage />);
+    const upcoming = screen.getByRole('region', { name: 'Próximas citas' });
+    expect(within(upcoming).getByText(pending.clientName)).toBeTruthy();
+    expect(within(upcoming).getByText('Confirmada')).toBeTruthy();
+  });
+
+  it('persists cancellation and excludes the cancelled appointment from Dashboard upcoming items', async () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    const state = createAgendaSeed(now);
+    const appointment = state.appointments[0];
+    if (!appointment) throw new Error('Expected a seeded appointment');
+    const confirmed = {
+      ...appointment,
+      startsAt: new Date(2026, 9, 15, 11).toISOString(),
+      status: 'confirmed' as const,
+    };
+    state.appointments = [confirmed];
+    saveAgendaState(localStorage, state);
+    render(<AgendaPage />);
+    const details = screen.getByText(confirmed.clientName).closest('details');
+    if (!details) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(details).getByText(confirmed.clientName));
+
+    fireEvent.click(within(details).getByRole('button', { name: `Cancelar cita de ${confirmed.clientName}` }));
+
+    await waitFor(() => expect(loadAgendaState(localStorage, now).state.appointments[0]?.status).toBe('cancelled'));
+    cleanup();
+    render(<AdminPage />);
+    expect(within(screen.getByRole('region', { name: 'Próximas citas' })).queryByText(confirmed.clientName)).toBeNull();
   });
 
 });

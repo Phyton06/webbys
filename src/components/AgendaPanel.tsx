@@ -19,6 +19,19 @@ const appointmentStatusLabels: Record<AppointmentStatus, string> = {
   cancelled: 'Cancelada',
 };
 
+const APPOINTMENT_STATUS_ACTIONS: Record<AppointmentStatus, Array<{ status: AppointmentStatus; label: string }>> = {
+  pending: [
+    { status: 'confirmed', label: 'Confirmar cita' },
+    { status: 'cancelled', label: 'Cancelar cita' },
+  ],
+  confirmed: [
+    { status: 'completed', label: 'Completar cita' },
+    { status: 'cancelled', label: 'Cancelar cita' },
+  ],
+  completed: [],
+  cancelled: [],
+};
+
 interface AgendaPanelProps {
   state: AgendaState;
   now?: Date;
@@ -90,7 +103,15 @@ function appointmentsForDate(
     .sort((first, second) => first.startsAt.localeCompare(second.startsAt));
 }
 
-function AppointmentDisclosure({ appointment, onReschedule }: { appointment: AppointmentRecord; onReschedule?: () => void }) {
+function AppointmentDisclosure({
+  appointment,
+  onReschedule,
+  onStatusChange,
+}: {
+  appointment: AppointmentRecord;
+  onReschedule?: () => void;
+  onStatusChange?: (status: AppointmentStatus) => void;
+}) {
   const statusLabel = appointmentStatusLabels[appointment.status];
 
   return (
@@ -125,6 +146,17 @@ function AppointmentDisclosure({ appointment, onReschedule }: { appointment: App
             Reprogramar cita
           </button>
         )}
+        {onStatusChange && APPOINTMENT_STATUS_ACTIONS[appointment.status].map(({ status, label }) => (
+          <button
+            class="agenda-status-action"
+            type="button"
+            aria-label={`${label} de ${appointment.clientName}`}
+            onClick={() => onStatusChange(status)}
+            key={status}
+          >
+            {label}
+          </button>
+        ))}
       </details>
     </li>
   );
@@ -137,6 +169,7 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
   const [appointmentFormState, setAppointmentFormState] = useState<AppointmentFormState>(APPOINTMENT_FORM_STATE.CLOSED);
   const [editingAppointment, setEditingAppointment] = useState<AppointmentRecord | undefined>();
   const [formAnnouncement, setFormAnnouncement] = useState('');
+  const [announcementIsError, setAnnouncementIsError] = useState(false);
   const selectedDateValue = parseLocalDate(selectedDate);
   const weekDates = getWeekDates(selectedDateValue);
   const weekStart = weekDates[0] ?? selectedDateValue;
@@ -156,18 +189,21 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
   function openCreateForm() {
     setEditingAppointment(undefined);
     setFormAnnouncement('');
+    setAnnouncementIsError(false);
     setAppointmentFormState(APPOINTMENT_FORM_STATE.CREATE);
   }
 
   function openEditForm(appointment: AppointmentRecord) {
     setEditingAppointment(appointment);
     setFormAnnouncement('');
+    setAnnouncementIsError(false);
     setAppointmentFormState(APPOINTMENT_FORM_STATE.EDIT);
   }
 
   function saveAppointment(appointment: AppointmentRecord): boolean {
     if (!onAppointmentSave || !onAppointmentSave(appointment)) return false;
     setFormAnnouncement(editingAppointment ? 'Cambios de la cita guardados.' : 'Cita guardada.');
+    setAnnouncementIsError(false);
     setAppointmentFormState(APPOINTMENT_FORM_STATE.CLOSED);
     setEditingAppointment(undefined);
     return true;
@@ -176,6 +212,17 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
   function closeAppointmentForm() {
     setAppointmentFormState(APPOINTMENT_FORM_STATE.CLOSED);
     setEditingAppointment(undefined);
+  }
+
+  function updateAppointmentStatus(appointment: AppointmentRecord, status: AppointmentStatus) {
+    if (!onAppointmentSave) return;
+    if (!onAppointmentSave({ ...appointment, status })) {
+      setFormAnnouncement('No se pudo guardar el cambio de estado. Inténtalo de nuevo.');
+      setAnnouncementIsError(true);
+      return;
+    }
+    setFormAnnouncement(`Estado actualizado: ${appointmentStatusLabels[status]}.`);
+    setAnnouncementIsError(false);
   }
 
   return (
@@ -252,6 +299,7 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
                     onReschedule={onAppointmentSave ? () => {
                       openEditForm(appointment);
                     } : undefined}
+                    onStatusChange={onAppointmentSave ? (status) => updateAppointmentStatus(appointment, status) : undefined}
                     key={appointment.id}
                   />
                 ))}
@@ -268,7 +316,6 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
                 onCancel={closeAppointmentForm}
               />
             )}
-            {formAnnouncement && <p class="availability-announcement" role="status" aria-live="polite">{formAnnouncement}</p>}
           </section>
 
           <AgendaAvailabilityPanel state={state} date={selectedDate} barberId={selectedBarber} now={now} />
@@ -297,6 +344,7 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
                       <AppointmentDisclosure
                         appointment={appointment}
                         onReschedule={onAppointmentSave ? () => openEditForm(appointment) : undefined}
+                        onStatusChange={onAppointmentSave ? (status) => updateAppointmentStatus(appointment, status) : undefined}
                         key={appointment.id}
                       />
                     ))}
@@ -308,6 +356,11 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
             );
           })}
         </section>
+      )}
+      {formAnnouncement && (
+        <p class="availability-announcement" role={announcementIsError ? 'alert' : 'status'} aria-live={announcementIsError ? 'assertive' : 'polite'}>
+          {formAnnouncement}
+        </p>
       )}
     </section>
   );
