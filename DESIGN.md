@@ -238,4 +238,5 @@ Control and small-action corners use the compact radius; larger work surfaces us
 - Mobile Agenda uses a compact month grid with the selected day's appointments below it; the desktop day/week agenda remains available at wider sizes.
 - Appointment create/reschedule uses a custom Preact dialog with keyboard-operable controls and focus management; do not introduce SweetAlert as a modal dependency.
 - The booking dialog combines client search and selection with an adjacent add-client action. Newly added local clients need only a name and phone number and return to the preserved appointment draft.
+- After a new appointment is saved, show the same generic, copyable `{application-origin}/registro` placeholder for every booking. It contains no client data and does not imply a functioning public registration flow or server synchronization.
 - Brand name: Webby's Barbershop. Use the supplied `public/logo.jpeg` asset for visible brand marks.

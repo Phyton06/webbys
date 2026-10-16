@@ -476,6 +476,11 @@
   gap: var(--space-4);
 }
 
+.appointment-registration-link {
+  display: grid;
+  gap: var(--space-3);
+}
+
 .appointment-form-control {
   display: grid;
   min-width: 0;

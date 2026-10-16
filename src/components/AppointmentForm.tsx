@@ -3,6 +3,7 @@ import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
 import type { AgendaState, BookingFailure, BookingValidation, ClientRecord } from '../types/agenda';
 import { BOOKING_FAILURE } from '../types/agenda';
 import { getAvailableSlots, validateBooking } from '../services/availability';
+import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
 import { ClientCombobox } from './ClientCombobox';
 import { Dropdown } from './Dropdown';
 
@@ -185,6 +186,7 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
             </div>
             <button class="appointment-form-close" type="button" aria-label="Cerrar confirmación" onClick={onCancel}>Cerrar</button>
           </header>
+          {!appointment && <AppointmentRegistrationLink />}
         </section>
       ) : view === APPOINTMENT_FORM_VIEW.ADD_CLIENT ? (
         <section class="appointment-client-create">

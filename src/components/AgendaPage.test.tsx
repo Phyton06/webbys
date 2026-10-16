@@ -102,6 +102,8 @@ describe('AgendaPage availability settings', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));
 
     await waitFor(() => expect(screen.getByText('Cita guardada.')).toBeTruthy());
+    expect((screen.getByLabelText('Enlace de registro genérico') as HTMLInputElement).value)
+      .toBe(`${window.location.origin}/registro`);
     const state = loadAgendaState(localStorage, now).state;
     expect(state.appointments.some((entry) => entry.startsAt === new Date(2026, 9, 15, 9).toISOString() && entry.status === 'pending')).toBe(true);
   });
