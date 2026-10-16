@@ -106,6 +106,44 @@ describe('AgendaPage availability settings', () => {
     expect(state.appointments.some((entry) => entry.startsAt === new Date(2026, 9, 15, 9).toISOString() && entry.status === 'pending')).toBe(true);
   });
 
+  it('adds a client inside the booking modal and resumes the draft through appointment save', async () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    const state = createAgendaSeed(now);
+    state.appointments = [];
+    saveAgendaState(localStorage, state);
+    render(<AgendaPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nueva cita' }));
+    expect(screen.getByRole('dialog', { name: 'Nueva cita' })).toBeTruthy();
+    fireEvent.input(screen.getByLabelText('Fecha de la cita'), { target: { value: '2026-10-16' } });
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Corte · 45 min' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Horario 09:00' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Agregar cliente' }));
+    const addClientDialog = screen.getByRole('dialog', { name: 'Agregar cliente' });
+    expect(within(addClientDialog).getAllByRole('textbox')).toHaveLength(2);
+    fireEvent.input(screen.getByLabelText('Nombre del cliente'), { target: { value: 'Nueva Persona' } });
+    fireEvent.input(screen.getByLabelText('Teléfono del cliente'), { target: { value: '555-0199' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cliente' }));
+
+    await waitFor(() => expect((screen.getByRole('combobox', { name: 'Cliente' }) as HTMLInputElement).value).toBe('Nueva Persona'));
+    expect((screen.getByLabelText('Fecha de la cita') as HTMLInputElement).value).toBe('2026-10-16');
+    expect((screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }) as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByRole('checkbox', { name: 'Servicio Corte · 45 min' }) as HTMLInputElement).checked).toBe(false);
+    expect(screen.getByRole('button', { name: 'Barbero: Diego' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Horario 09:00', pressed: true })).toBeTruthy();
+    const savedClient = loadAgendaState(localStorage, now).state.clients.find(({ phone }) => phone === '555-0199');
+    expect(savedClient?.name).toBe('Nueva Persona');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));
+
+    expect(await screen.findByRole('heading', { name: 'Cita guardada.' })).toBeTruthy();
+    const savedState = loadAgendaState(localStorage, now).state;
+    expect(savedState.appointments.some((entry) => entry.clientId === savedClient?.id && entry.clientName === 'Nueva Persona')).toBe(true);
+    expect(savedState.appointments[0]?.startsAt).toBe(new Date(2026, 9, 16, 9).toISOString());
+    expect(savedState.appointments[0]?.serviceIds).toEqual(['service-2']);
+  });
+
   it('persists a status change for both Agenda and Dashboard to read', async () => {
     localStorage.setItem('webbys:demo-session', 'active');
     const state = createAgendaSeed(now);

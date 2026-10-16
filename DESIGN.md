@@ -235,4 +235,7 @@ Control and small-action corners use the compact radius; larger work surfaces us
 
 - Dropdown menus use the reusable `Dropdown` component, not native `<select>` popups: browsers and operating systems control those popup colors and can ignore CSS. Preserve the charcoal surface, clear selected state, keyboard interaction, and visible focus when adding dropdowns in later stages.
 - User-facing copy presents the intended production experience; do not expose internal demo/synthetic-data terminology.
+- Mobile Agenda uses a compact month grid with the selected day's appointments below it; the desktop day/week agenda remains available at wider sizes.
+- Appointment create/reschedule uses a custom Preact dialog with keyboard-operable controls and focus management; do not introduce SweetAlert as a modal dependency.
+- The booking dialog combines client search and selection with an adjacent add-client action. Newly added local clients need only a name and phone number and return to the preserved appointment draft.
 - Brand name: Webby's Barbershop. Use the supplied `public/logo.jpeg` asset for visible brand marks.

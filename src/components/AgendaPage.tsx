@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { createAgendaSeed } from '../data/agenda-demo';
-import { AGENDA_LOAD_STATUS, type AgendaLoadResult, type AgendaState } from '../types/agenda';
+import { AGENDA_LOAD_STATUS, type AgendaLoadResult, type AgendaState, type ClientRecord } from '../types/agenda';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
@@ -56,6 +56,11 @@ export function AgendaPage() {
     return persistState({ ...state, appointments });
   }
 
+  function saveClient(client: ClientRecord): boolean {
+    if (state.clients.some(({ id }) => id === client.id)) return false;
+    return persistState({ ...state, clients: [...state.clients, client] });
+  }
+
   return (
     <AdminGate>
       <AdminShell activeSection="Agenda">
@@ -81,7 +86,7 @@ export function AgendaPage() {
           </button>
         </div>
         <div hidden={view !== AGENDA_PAGE_VIEW.APPOINTMENTS}>
-          <AgendaPanel state={state} now={initial.now} onAppointmentSave={saveAppointment} />
+          <AgendaPanel state={state} now={initial.now} onAppointmentSave={saveAppointment} onClientSave={saveClient} />
         </div>
         <div class="agenda-availability-page" hidden={view !== AGENDA_PAGE_VIEW.AVAILABILITY}>
           <BarberAvailabilityPanel barbers={state.barbers} schedules={state.schedules} onSave={saveSchedules} />

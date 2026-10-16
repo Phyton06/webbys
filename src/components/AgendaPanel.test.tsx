@@ -212,6 +212,7 @@ describe('AgendaPanel', () => {
     expect(onAppointmentSave.mock.calls[0]?.[0]?.id).toBe(existing.id);
     expect(onAppointmentSave.mock.calls[0]?.[0]?.startsAt).toBe(existing.startsAt);
 
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar confirmación' }));
     fireEvent.click(screen.getByRole('button', { name: 'Nueva cita' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(onAppointmentSave).toHaveBeenCalledOnce();

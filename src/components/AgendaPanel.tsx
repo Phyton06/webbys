@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-preact';
 import { useState } from 'preact/hooks';
 import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
-import type { AgendaState } from '../types/agenda';
+import type { AgendaState, ClientRecord } from '../types/agenda';
 import { ALL_BARBERS, AgendaAvailabilityPanel } from './AgendaAvailabilityPanel';
 import { AppointmentForm } from './AppointmentForm';
 import { Dropdown } from './Dropdown';
@@ -37,6 +37,7 @@ interface AgendaPanelProps {
   state: AgendaState;
   now?: Date;
   onAppointmentSave?: (appointment: AppointmentRecord) => boolean;
+  onClientSave?: (client: ClientRecord) => boolean;
 }
 
 const APPOINTMENT_FORM_STATE = {
@@ -163,7 +164,7 @@ function AppointmentDisclosure({
   );
 }
 
-export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: AgendaPanelProps) {
+export function AgendaPanel({ state, now = new Date(), onAppointmentSave, onClientSave }: AgendaPanelProps) {
   const [view, setView] = useState<(typeof AGENDA_VIEW)[keyof typeof AGENDA_VIEW]>(AGENDA_VIEW.DAY);
   const [selectedDate, setSelectedDate] = useState(() => localDateKey(now));
   const [selectedBarber, setSelectedBarber] = useState(ALL_BARBERS);
@@ -203,10 +204,8 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
 
   function saveAppointment(appointment: AppointmentRecord): boolean {
     if (!onAppointmentSave || !onAppointmentSave(appointment)) return false;
-    setFormAnnouncement(editingAppointment ? 'Cambios de la cita guardados.' : 'Cita guardada.');
+    setFormAnnouncement('');
     setAnnouncementIsError(false);
-    setAppointmentFormState(APPOINTMENT_FORM_STATE.CLOSED);
-    setEditingAppointment(undefined);
     return true;
   }
 
@@ -347,6 +346,7 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
           appointment={editingAppointment}
           now={now}
           onSave={saveAppointment}
+          onClientSave={onClientSave}
           onCancel={closeAppointmentForm}
         />
       )}
