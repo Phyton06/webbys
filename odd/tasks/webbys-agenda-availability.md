@@ -42,8 +42,8 @@ Acceptance: Spanish interface uses existing charcoal/red tokens, keyboard-operab
 - [x] T3 (S1, S2, S5) inline — protected Agenda route, shared navigation, responsive day/week views, and computed open starts; status: complete; commits: `6cf516a`, `22a75bc`, `f6046e4`, `9fe8a98`, `d61d8a3`; Risk: none.
 - [x] T4 (S2, S5) inline — weekly barber schedule and date-exception editor; status: complete; commits: `d038047`, `38f1895`, `fd9bfc5`, `c0dd68b`; Risk: none.
 - [x] T5a (S3) inline — validated appointment form with service estimates and save-time rule checks; status: complete; commit: `d770b3c`; Risk: none.
-- [ ] T5b (S3, S4, S5) inline — create/reschedule wiring, local persistence, and cross-view regression; status: in_progress; commit: pending.
-- [ ] T6 (S3, S4, S5) inline — appointment status/cancellation lifecycle, dashboard synchronization, documentation, full checks, and browser proof; commit: pending.
+- [x] T5b (S3, S4, S5) inline — create/reschedule wiring, local persistence, and cross-view regression; status: complete; commit: `50d9cac`; Risk: none.
+- [x] T6 (S3, S4, S5) inline — appointment status/cancellation lifecycle, dashboard synchronization, documentation, full checks, and browser proof; status: complete; commit: `50d9cac`; Risk: none.
 
 ## Log
 
@@ -63,9 +63,9 @@ Acceptance: Spanish interface uses existing charcoal/red tokens, keyboard-operab
 
 “procede” — approved proceeding from the written design specification to planning.
 
-### L5 — Current evidence and next step
+### L5 — Planning baseline (2026-10-15)
 
-Design spec: `docs/superpowers/specs/2026-10-15-webbys-agenda-availability-design.md`. Implementation plan: `docs/superpowers/plans/2026-10-15-webbys-agenda-availability.md`. Feature baseline: `80628d4`; plan/tracker commit: `574feb3`. Current status: seven inline work units planned; user selected `feature-branch-chain` on 2026-10-15. The current local branch is `webbys-replacement`; the user explicitly authorized replacing repository `Phyton06/webbys` main with snapshot `bd8d89a`. No PR or further remote operation is part of this continuation. T1 through T4 and T5a are complete; T5b/T6 remain in progress until the verified lifecycle work-unit commit. The source checkout's commit object is corrupt, so this clean clone is the current implementation workspace.
+Design spec: `docs/superpowers/specs/2026-10-15-webbys-agenda-availability-design.md`. Implementation plan: `docs/superpowers/plans/2026-10-15-webbys-agenda-availability.md`. Feature baseline: `80628d4`; plan/tracker commit: `574feb3`. At planning time, seven inline work units were planned and the user had selected `feature-branch-chain`. The original source checkout later developed a corrupt commit object; current work proceeded in the clean publish clone. Later delivery authorization and completion state are recorded in L18.
 
 ### L6 — Delivery strategy
 
@@ -107,6 +107,11 @@ RED: `npm test -- src/components/AppointmentForm.test.tsx` initially failed beca
 
 “bien ahora si continuemos con el resto de la tarea”
 
-### L17 — T5b/T6 implementation and verification in progress
+### L17 — T5b/T6 completion
 
-T5b integration in published snapshot `bd8d89a` includes create/reschedule persistence; added regression checks cover stable reschedule identity, cancel-without-save, and shared persisted appointments in Dashboard. T6 RED: the three status-transition tests failed because appointment status actions did not exist; a weekly-view test also failed because successful status feedback was not announced outside the daily view. GREEN: status transitions now cover pending→confirmed, confirmed→completed/cancelled; cancellation retains the record and existing availability tests prove cancelled intervals no longer block. Dashboard reads the same persisted appointment collection and excludes cancelled records from upcoming appointments. Browser checks at 390px and 1440px found no horizontal overflow; a live weekly-view confirm action announced “Estado actualizado: Confirmada.” Focused Agenda/availability integration tests passed 42 tests; full suite passed 99 tests, `npm run check` reported 0 diagnostics, and `npm run build` emitted all four routes. Work-unit commit and final task closure remain pending.
+
+T5b integration in published snapshot `bd8d89a` includes create/reschedule persistence; regression checks cover stable reschedule identity, cancel-without-save, and shared persisted appointments in Dashboard. T6 RED: three status-transition tests failed because status actions did not exist; a weekly-view test failed because status feedback was not announced outside the day view. GREEN: pending→confirmed and confirmed→completed/cancelled persist through the shared appointment store; cancelled records remain visible, no longer block availability, and disappear from Dashboard upcoming items. Browser checks at 390px and 1440px found no horizontal overflow; a live weekly-view confirm action announced “Estado actualizado: Confirmada.” Focused lifecycle/availability/Page tests passed 42 tests; full suite passed 99 tests, `npm run check` reported 0 diagnostics, and `npm run build` emitted `/`, `/admin/`, `/agenda/`, and `/login/`. Commit: `50d9cac` (`feat(agenda): complete appointment lifecycle`), 254 changed lines including tests/docs. `Risk: none` — existing local persistence format and dashboard API are unchanged, and lifecycle behavior plus shared-state effects are covered.
+
+### L18 — Completion and delivery boundary
+
+T5b and T6 are complete locally on branch `webbys-replacement` at `50d9cac`. Remote `main` remains the user's published snapshot `bd8d89a`; the lifecycle commit has not been pushed. The earlier authorization covered replacement of the old remote project; no later push is included in this continuation.

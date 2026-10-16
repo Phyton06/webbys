@@ -161,13 +161,13 @@
 - Submit always invokes `validateBooking` with the latest state; invalid submissions remain unsaved and map typed validation reasons to Spanish feedback.
 - Rescheduling excludes the appointment being edited when calculating available starts as well as during final validation.
 
-- [ ] **Step 1: Write failing booking-form tests.** Cover service duration/price calculation, selected barber/date/service changing the slot list, creating a valid appointment, rejecting a stale now-conflicted slot without persistence, rejecting a duration that crosses a break or shift end, and rescheduling without conflicting with the appointment being edited.
-- [ ] **Step 2: Run `npm test -- src/components/AppointmentForm.test.tsx` and confirm expected failures.**
-- [ ] **Step 3: Implement the form's controlled inputs, multi-service selection, estimates, and errors.** New bookings select an existing client; selected service duration and price add together; all display text remains Spanish.
-- [ ] **Step 4: Recompute starts for barber/date/service changes and exclude the edited appointment during rescheduling.** Add the optional `ignoreAppointmentId` argument to `getAvailableSlots` and make it pass the candidate ID into `validateBooking`.
-- [ ] **Step 5: Revalidate at submit and return false from the form callback when persistence is rejected.** Keep the form open and show a Spanish storage error if `onSave` returns false.
-- [ ] **Step 6: Run focused tests and type checks.** Run `npm test -- src/components/AppointmentForm.test.tsx src/services/availability.test.ts` and `npm run check`; expected result: all pass and 0 diagnostics.
-- [ ] **Step 7: Commit the form and its API contract in one child-sized slice.** Include `AppointmentForm`, its test, `getAvailableSlots` self-appointment exclusion, and optional appointment notes/type validation. Use `feat(agenda): add validated appointment form`.
+- [x] **Step 1: Write failing booking-form tests.** Cover service duration/price calculation, selected barber/date/service changing the slot list, creating a valid appointment, rejecting a stale now-conflicted slot without persistence, rejecting a duration that crosses a break or shift end, and rescheduling without conflicting with the appointment being edited.
+- [x] **Step 2: Run `npm test -- src/components/AppointmentForm.test.tsx` and confirm expected failures.**
+- [x] **Step 3: Implement the form's controlled inputs, multi-service selection, estimates, and errors.** New bookings select an existing client; selected service duration and price add together; all display text remains Spanish.
+- [x] **Step 4: Recompute starts for barber/date/service changes and exclude the edited appointment during rescheduling.** Add the optional `ignoreAppointmentId` argument to `getAvailableSlots` and make it pass the candidate ID into `validateBooking`.
+- [x] **Step 5: Revalidate at submit and return false from the form callback when persistence is rejected.** Keep the form open and show a Spanish storage error if `onSave` returns false.
+- [x] **Step 6: Run focused tests and type checks.** Run `npm test -- src/components/AppointmentForm.test.tsx src/services/availability.test.ts` and `npm run check`; expected result: all pass and 0 diagnostics.
+- [x] **Step 7: Commit the form and its API contract in one child-sized slice.** Include `AppointmentForm`, its test, `getAvailableSlots` self-appointment exclusion, and optional appointment notes/type validation. Use `feat(agenda): add validated appointment form`; commit `d770b3c`.
 
 ### Task 5b: Agenda create/reschedule integration
 
@@ -182,7 +182,7 @@
 - [x] **Step 3: Wire new and reschedule actions into the day appointment list.** Offer rescheduling only for pending and confirmed appointments.
 - [x] **Step 4: Upsert and persist through `AgendaPage`.** Preserve existing sales data; on storage failure show an error and keep the form available for retry.
 - [x] **Step 5: Verify a created appointment is visible in Agenda and survives reload for Dashboard.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/AgendaPage.test.tsx src/components/AdminPage.test.tsx`.
-- [ ] **Step 6: Commit Agenda integration.** Use `feat(agenda): add validated appointment booking`.
+- [x] **Step 6: Commit Agenda integration.** T5b integration and lifecycle regression coverage are included in `50d9cac` (`feat(agenda): complete appointment lifecycle`).
 
 ### Task 6: Appointment lifecycle, cross-view persistence, and final proof
 
@@ -201,16 +201,16 @@
 - [x] **Step 6: Run focused lifecycle, availability, dashboard, and storage tests.** Run `npm test -- src/components/AgendaPanel.test.tsx src/components/DashboardPanel.test.tsx src/services/availability.test.ts src/services/agenda-store.test.ts`; expected result is all pass.
 - [x] **Step 7: Run `npm test`, `npm run check`, and `npm run build`.** Expected result: all tests pass, zero Astro diagnostics, and all static routes build including `/agenda/`.
 - [x] **Step 8: Inspect one mobile and one desktop browser render.** Verify day/week navigation, dropdown appearance, no horizontal overflow at 390px, and schedule editor/form fit at 1440px.
-- [ ] **Step 9: Commit the lifecycle and final verified integration.** Use `feat(agenda): complete appointment lifecycle`.
+- [x] **Step 9: Commit the lifecycle and final verified integration.** Use `feat(agenda): complete appointment lifecycle`; commit `50d9cac` (254 changed lines including tests and documentation).
 
 ## Delivery and rollback
 
 - ODD task route: direct inline for seven work units (T1–T4, T5a, T5b, T6); no parallel disjoint write units are planned.
 - Delivery strategy: `ask-on-risk` (default); the user selected `feature-branch-chain`. Updated forecast is approximately 3,700 authored changed lines, excluding generated output. Keep every child slice within 400 additions plus deletions; if any single work unit exceeds that budget, make one honest, behavior-cohesive split before its commit.
-- Planned chain: current `feat/webbys-production-ui` branch is the final integration/tracker branch; T1/T2 are split into cohesive child-sized commits, followed by T3 through T6 in dependency order. Each review slice is below 400 changed lines. No remote branch or PR operation is authorized by this plan.
+- Planned chain: original implementation slices were planned around `feat/webbys-production-ui`; the user later explicitly replaced remote `main` with current project snapshot `bd8d89a`. The remaining lifecycle commit `50d9cac` is local on `webbys-replacement` and has not been pushed. No PR was created; further publishing requires explicit authorization.
 - Observed slices: T1a `d07385d` = 146 lines; T1b `596b90b` = 238; T1c `49d36dd` = 93; T2a `846618a` = 161; T2b `549c9ec` = 249; T2c `e9a264f` = 74; T3a `6cf516a` = 177; T3b `22a75bc` = 146; T3c `f6046e4` = 341; T3d `9fe8a98` = 380; T3e `d61d8a3` = 173; T4a `d038047` = 328; T4b `38f1895` = 343; T4c `fd9bfc5` = 149; T4d `c0dd68b` = 333. All observed slices are under 400 changed lines.
 - Dependency diagram: `main → tracker feat/webbys-production-ui → 📍T1a interval model → T1b booking validation → T1c slot generation → T2a seed fixtures → T2b persistence → T2c Dashboard wiring → T3a shared controls → T3b open times → T3c calendar views → T3d responsive styling → T3e protected route/nav → T4a weekly schedules → T4b date exceptions → T4c persisted Agenda settings → T4d editor accessibility/styles → T5a form → T5b create/reschedule integration → T6 lifecycle/final proof`.
-- Current PR boundary: none; local work-unit commits only. Remote review/publishing awaits separate user authorization.
+- Current PR boundary: none. The current lifecycle work-unit commit is local only; no follow-up remote operation was authorized in this continuation.
 - Runtime verification: local `npm test`, `npm run check`, `npm run build`, and Playwright browser inspection; no remote service boundary exists.
 - Rollback is by work unit: revert a task's named commit to remove only that layer, retaining earlier tested schedule capabilities.
 
