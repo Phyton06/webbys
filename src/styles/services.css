@@ -19,7 +19,8 @@
   border-bottom: 1px solid var(--color-line);
 }
 
-.services-toolbar label,
+.services-toolbar > label,
+.services-filter-control,
 .service-form > label,
 .service-form-numbers label {
   display: grid;
@@ -30,7 +31,6 @@
 }
 
 .services-toolbar input,
-.services-toolbar select,
 .service-form input,
 .service-form textarea {
   width: 100%;
@@ -49,10 +49,8 @@
 }
 
 .services-toolbar input:focus-visible,
-.services-toolbar select:focus-visible,
 .service-form input:focus-visible,
 .service-form textarea:focus-visible,
-.service-secondary-button:focus-visible,
 .service-row-open:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
@@ -203,47 +201,23 @@
   font-weight: 650;
 }
 
-.service-modal[open] {
-  position: fixed;
-  z-index: 30;
+.appointment-modal.service-modal {
   inset: 50% auto auto 50%;
-  width: min(34rem, calc(100vw - 2rem));
-  max-height: min(90dvh, 48rem);
-  overflow: auto;
+  margin: 0;
   transform: translate(-50%, -50%);
-  padding: 0;
+  width: min(34rem, calc(100% - 2rem));
+  max-width: 34rem;
+  height: auto;
+  max-height: min(90dvh, 48rem);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  color: var(--color-ink);
-}
-
-.service-modal[open]::backdrop {
-  background: rgb(0 0 0 / 68%);
+  padding-bottom: 0;
 }
 
 .service-form {
   display: grid;
   gap: var(--space-4);
   padding: clamp(1rem, 4vw, 1.5rem);
-}
-
-.service-form-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.service-form-heading h2 {
-  margin: 0;
-  color: var(--color-ink);
-}
-
-.service-form-heading p {
-  margin: var(--space-1) 0 0;
-  color: var(--color-ink-muted);
-  font-size: var(--text-sm);
 }
 
 .service-form-numbers {

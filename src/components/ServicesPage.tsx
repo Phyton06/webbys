@@ -1,14 +1,29 @@
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { AgendaState, ServiceRecord } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { Dropdown } from './Dropdown';
 import '../styles/services.css';
 
 interface ServicesPageProps {
   now?: Date;
 }
+
+const SERVICE_FILTER = {
+  ALL: 'all',
+  ACTIVE: 'active',
+  INACTIVE: 'inactive',
+} as const;
+
+type ServiceFilter = (typeof SERVICE_FILTER)[keyof typeof SERVICE_FILTER];
+
+const serviceStatusOptions = [
+  { value: SERVICE_FILTER.ALL, label: 'Todos' },
+  { value: SERVICE_FILTER.ACTIVE, label: 'Activos' },
+  { value: SERVICE_FILTER.INACTIVE, label: 'Inactivos' },
+];
 
 function loadInitialState(now: Date): AgendaState {
   try {
@@ -27,11 +42,22 @@ function ServiceForm({
   onSave: (service: ServiceRecord) => boolean;
   onCancel: () => void;
 }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [name, setName] = useState(service?.name ?? '');
   const [description, setDescription] = useState(service?.description ?? '');
   const [price, setPrice] = useState(service ? String(service.price) : '');
   const [duration, setDuration] = useState(service ? String(service.durationMinutes) : '');
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog || dialog.open) return;
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+    else dialog.setAttribute('open', '');
+    return () => {
+      if (dialog.open && typeof dialog.close === 'function') dialog.close();
+    };
+  }, []);
 
   function submit(event: SubmitEvent) {
     event.preventDefault();
@@ -58,14 +84,19 @@ function ServiceForm({
   }
 
   return (
-    <dialog class="service-modal" open aria-labelledby="service-form-title">
-      <form class="service-form" onSubmit={submit}>
-        <header class="service-form-heading">
+    <dialog
+      class="appointment-modal service-modal"
+      ref={dialogRef}
+      aria-labelledby="service-form-title"
+      onCancel={(event) => { event.preventDefault(); onCancel(); }}
+    >
+      <form class="appointment-form service-form" onSubmit={submit}>
+        <header class="appointment-form-heading">
           <div>
             <h2 id="service-form-title">{service ? 'Editar servicio' : 'Nuevo servicio'}</h2>
             <p>Define los datos que se usarán para calcular las citas.</p>
           </div>
-          <button type="button" class="service-secondary-button" onClick={onCancel}>Cerrar</button>
+          <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de servicio" onClick={onCancel}>Cerrar</button>
         </header>
         <label>
           <span>Nombre del servicio</span>
@@ -86,9 +117,9 @@ function ServiceForm({
           </label>
         </div>
         {error && <p class="availability-error" role="alert">{error}</p>}
-        <div class="service-form-actions">
+        <div class="appointment-form-actions service-form-actions">
           <button class="availability-save-button" type="submit">Guardar servicio</button>
-          <button class="service-secondary-button" type="button" onClick={onCancel}>Cancelar</button>
+          <button class="appointment-form-cancel" type="button" onClick={onCancel}>Cancelar</button>
         </div>
       </form>
     </dialog>
@@ -98,7 +129,7 @@ function ServiceForm({
 export function ServicesPage({ now = new Date() }: ServicesPageProps) {
   const [state, setState] = useState(() => loadInitialState(now));
   const [query, setQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<ServiceFilter>(SERVICE_FILTER.ALL);
   const [selectedId, setSelectedId] = useState<string>();
   const [editingService, setEditingService] = useState<ServiceRecord>();
   const [formOpen, setFormOpen] = useState(false);
@@ -108,8 +139,8 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
   const visibleServices = useMemo(() => {
     const search = query.trim().toLocaleLowerCase('es');
     return state.services
-      .filter((service) => statusFilter === 'all'
-        || (statusFilter === 'active' ? service.active !== false : service.active === false))
+      .filter((service) => statusFilter === SERVICE_FILTER.ALL
+        || (statusFilter === SERVICE_FILTER.ACTIVE ? service.active !== false : service.active === false))
       .filter(({ name, description }) => !search
         || name.toLocaleLowerCase('es').includes(search)
         || (description ?? '').toLocaleLowerCase('es').includes(search))
@@ -192,14 +223,10 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
                   <span>Buscar</span>
                   <input type="search" aria-label="Buscar servicios" placeholder="Nombre o descripción" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
                 </label>
-                <label>
+                <div class="services-filter-control">
                   <span>Estado</span>
-                  <select aria-label="Estado de servicios" value={statusFilter} onChange={(event) => setStatusFilter(event.currentTarget.value as typeof statusFilter)}>
-                    <option value="all">Todos</option>
-                    <option value="active">Activos</option>
-                    <option value="inactive">Inactivos</option>
-                  </select>
-                </label>
+                  <Dropdown label="Estado" value={statusFilter} options={serviceStatusOptions} onChange={setStatusFilter} />
+                </div>
               </div>
               <ul class="service-list" aria-label="Lista de servicios">
                 {visibleServices.map((service) => (

@@ -18,6 +18,16 @@ function renderPage() {
 }
 
 describe('ServicesPage', () => {
+  it('uses the shared dialog close button and styled status dropdown', () => {
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: 'Nuevo servicio' }));
+
+    expect(screen.getByRole('button', { name: 'Cerrar formulario de servicio' }).className).toContain('appointment-form-close');
+    fireEvent.click(screen.getByRole('button', { name: 'Estado: Todos' }));
+    expect(screen.getByRole('listbox', { name: 'Estado' })).toBeTruthy();
+    expect(screen.getByRole('option', { name: 'Activos' })).toBeTruthy();
+  });
+
   it('creates a service with description, price, duration, and active state', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo servicio' }));
