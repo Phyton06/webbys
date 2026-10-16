@@ -35,6 +35,50 @@ describe('AppointmentForm', () => {
     expect(after).not.toEqual(before);
   });
 
+  it('offers only active Barber employees when creating a new appointment', () => {
+    const state = createFormState();
+    state.employees = (state.employees ?? []).map((employee) => {
+      if (employee.id === 'barber-2') return { ...employee, active: false };
+      if (employee.id === 'barber-3') return { ...employee, role: 'assistant' };
+      return employee;
+    });
+    render(<AppointmentForm state={state} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Barbero: Diego' }));
+
+    expect(screen.getByRole('option', { name: 'Diego' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Raúl' })).toBeNull();
+    expect(screen.queryByRole('option', { name: 'Andrés' })).toBeNull();
+  });
+
+  it('keeps an assigned inactive or changed-role Barber selectable while editing', () => {
+    const state = createFormState();
+    const existing = {
+      id: 'existing-inactive-barber',
+      startsAt: new Date(2026, 9, 15, 10, 0).toISOString(),
+      clientId: 'client-1',
+      clientName: 'Lucía Torres',
+      barberId: 'barber-2',
+      barberName: 'Raúl',
+      serviceIds: ['service-1'],
+      serviceName: 'Corte',
+      status: 'confirmed' as const,
+      durationMinutes: 45,
+    };
+    state.appointments = [existing];
+    state.employees = (state.employees ?? []).map((employee) => {
+      if (employee.id === 'barber-2') return { ...employee, active: false, role: 'assistant' };
+      if (employee.id === 'barber-3') return { ...employee, role: 'assistant' };
+      return employee;
+    });
+    render(<AppointmentForm state={state} appointment={existing} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Barbero: Raúl' }));
+
+    expect(screen.getByRole('option', { name: 'Raúl' })).toBeTruthy();
+    expect(screen.queryByRole('option', { name: 'Andrés' })).toBeNull();
+  });
+
   it('uses the branded month calendar to select an appointment date', () => {
     render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn((_appointment: AppointmentRecord) => true)} onCancel={vi.fn()} />);
     expect(screen.queryByLabelText('Fecha de la cita')).toBeNull();

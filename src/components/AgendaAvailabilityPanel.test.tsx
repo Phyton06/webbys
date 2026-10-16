@@ -61,4 +61,22 @@ describe('AgendaAvailabilityPanel', () => {
     fireEvent.click(screen.getByRole('option', { name: 'Barba · 30 min' }));
     expect(within(diego).getByText('16:30')).toBeTruthy();
   });
+
+  it('shows availability only for active Barber employees', () => {
+    const staffState: AgendaState = {
+      ...state,
+      barbers: [...state.barbers, { id: 'barber-ana', name: 'Ana' }],
+      employees: [
+        { id: 'barber-diego', name: 'Diego', phone: '555-0101', role: 'barber', active: true, invitationStatus: 'completed' },
+        { id: 'barber-raul', name: 'Raúl', phone: '555-0102', role: 'barber', active: false, invitationStatus: 'completed' },
+        { id: 'barber-ana', name: 'Ana', phone: '555-0103', role: 'assistant', active: true, invitationStatus: 'completed' },
+      ],
+      schedules: [...state.schedules, schedule('barber-ana')],
+    };
+    render(<AgendaAvailabilityPanel state={staffState} date="2026-10-15" barberId="all" now={now} />);
+
+    expect(screen.getByRole('group', { name: 'Horarios de Diego' })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'Horarios de Raúl' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Horarios de Ana' })).toBeNull();
+  });
 });

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createAgendaSeed } from '../data/agenda-demo';
 import type { BarberRecord, EmployeeRecord } from '../types/agenda';
 import {
   canDeactivateEmployee,
@@ -57,6 +58,12 @@ describe('employee compatibility helpers', () => {
 
     expect(getBookableBarbers(employees, barbers)).toEqual([barbers[0]]);
     expect(getBookableBarbers(employees, barbers, 'barber-raul')).toEqual(barbers);
+  });
+
+  it('keeps every existing barber eligible when all seeded employees are active Barbers', () => {
+    const state = createAgendaSeed(new Date(2026, 9, 15, 8, 0));
+
+    expect(getBookableBarbers(state.employees, state.barbers)).toEqual(state.barbers);
   });
 
   it('prevents deactivation of the last active Administrator', () => {

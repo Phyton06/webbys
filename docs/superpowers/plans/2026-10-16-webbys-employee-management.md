@@ -157,12 +157,12 @@ interface EmployeesPageProps {
 - `AgendaAvailabilityPanel` offers open starts only for `getBookableBarbers(state.employees, state.barbers)`.
 - `AgendaState.barbers` retains prior IDs, so `agenda-store` appointment/schedule/exception foreign-key validation remains satisfied.
 
-- [ ] **Step 1: Add failing booking tests.** Assert inactive Barbers and active Assistants/Administrators are absent from new appointment options; an existing appointment edit retains its assigned inactive or changed-role barber; all current active Barber options and valid available slots remain unchanged.
-- [ ] **Step 2: Run `npm test -- src/components/AppointmentForm.test.tsx src/components/AgendaAvailabilityPanel.test.tsx`;** expected result: the new eligibility assertions fail.
-- [ ] **Step 3: Apply the pure `getBookableBarbers` helper at the new-booking selector boundaries.** Do not remove IDs from `AgendaState.barbers`, schedules, exceptions, or appointments.
-- [ ] **Step 4: Verify role changes and deactivation preserve stored appointment history and schedule/exception records.** Assert the barber ID still resolves and no new booking slots are offered until an active Barber schedule is available.
-- [ ] **Step 5: Run focused booking/availability/persistence tests and `npm run check`;** expected result: all focused tests pass and Astro reports 0 diagnostics.
-- [ ] **Step 6: Commit Task 3** with booking and history regression tests. After Task 3's own checks, obtain independent verification of booking eligibility and history preservation.
+- [x] **Step 1: Add failing booking tests.** Assert inactive Barbers and active Assistants/Administrators are absent from new appointment options; an existing appointment edit retains its assigned inactive or changed-role barber; all current active Barber options and valid available slots remain unchanged.
+- [x] **Step 2: Run `npm test -- src/components/AppointmentForm.test.tsx src/components/AgendaAvailabilityPanel.test.tsx`;** observed 3 expected eligibility failures before the integration change.
+- [x] **Step 3: Apply the pure `getBookableBarbers` helper at the new-booking selector boundaries.** No IDs were removed from `AgendaState.barbers`, schedules, exceptions, or appointments.
+- [x] **Step 4: Verify role changes and deactivation preserve stored appointment history and schedule/exception records.** An independent scratch probe confirmed the barber references and availability/history fingerprints remain unchanged.
+- [x] **Step 5: Run focused booking/availability/persistence tests and `npm run check`;** `npm test -- src/services/employees.test.ts src/components/AppointmentForm.test.tsx src/components/AgendaAvailabilityPanel.test.tsx` passed 19/19 and Astro reported 0 diagnostics.
+- [x] **Step 6: Commit Task 3** with booking and history regression tests. Independent verification of booking eligibility and history preservation passed in a fresh scratch copy; commit identity: pending.
 
 ### Task 4: Employees route, navigation, final checks, and proof
 

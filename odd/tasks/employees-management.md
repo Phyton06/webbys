@@ -37,7 +37,7 @@ Acceptance: add `/empleados/` under the existing protected shell, with the Clien
 
 - [x] T1 (S1) inline — employee domain records, legacy store normalization, barber compatibility projection, seed data, and persistence tests; status: complete; commit: `f122661`; independent verification: pass; Risk: item 1 (additive persisted employee records and legacy normalization).
 - [x] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: complete; commit: `40d1e34`; Risk: none.
-- [ ] T3 (S3) inline — barber eligibility filtering and employee/agenda synchronization with history preservation; status: pending; Risk: item 3 (shared booking-selector contract).
+- [x] T3 (S3) inline — barber eligibility filtering and employee/agenda synchronization with history preservation; status: complete; commit: pending; independent verification: pass; Risk: item 3 (shared booking-selector contract).
 - [ ] T4 (S5) inline — protected route/navigation, docs, and full checks; status: pending; Risk: none.
 
 ## Log
@@ -71,3 +71,7 @@ RED: the employee helper tests failed because `src/services/employees.ts` did no
 ### L5 — T2 Employees directory and profile
 
 RED: `EmployeeForm` and `EmployeesPage` tests failed before their components existed; a later assertion caught duplicated save announcements, and a last-admin role-edit test confirmed the role control must be locked as well as deactivation. GREEN: EmployeeForm/EmployeesPage focused tests passed 14/14; `npm run check` reported 0 errors, warnings, or hints. Coverage includes name/phone search, role/active filters, sorting, linked appointments, weekly schedule/date exceptions, create/edit, generic link display, manual invitation status, last-admin protection, reversible deactivation, and save-failure preservation. Commit: `40d1e34` (`feat(employees): add employee directory and profile`), 1,328 changed lines. The over-400-line slice is kept as one integrated directory/profile CRUD workflow with its form, responsive presentation, and regression tests. `Risk: none` — this UI consumes the existing local storage boundary without changing its format or shared public booking contract.
+
+### L6 — T3 Barber booking eligibility
+
+RED: the new appointment and availability-panel tests failed because all retained barber records were still selectable, including inactive and non-Barber staff. GREEN: `npm test -- src/services/employees.test.ts src/components/AppointmentForm.test.tsx src/components/AgendaAvailabilityPanel.test.tsx` passed 19/19; `npm run check` reported 0 errors, warnings, or hints. New bookings and open-slot displays filter to active Barbers; editing retains the assigned inactive/changed-role barber. An independent verifier in a fresh scratch copy passed its focused tests and check, confirmed all-active seeded candidate/slot output matches baseline `1498415`, and confirmed appointment/schedule/exception fingerprints remain identical. `Risk: item 3` — shared booking selector contract changes are tested through AppointmentForm and AgendaAvailabilityPanel; historical barber references remain preserved.

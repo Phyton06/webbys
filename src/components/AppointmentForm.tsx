@@ -3,6 +3,7 @@ import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
 import type { AgendaState, BookingFailure, BookingValidation, ClientRecord } from '../types/agenda';
 import { BOOKING_FAILURE } from '../types/agenda';
 import { getAvailableSlots, validateBooking } from '../services/availability';
+import { getBookableBarbers } from '../services/employees';
 import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { ClientCombobox } from './ClientCombobox';
@@ -54,8 +55,9 @@ function resolveValidationError(result: BookingValidation): string | undefined {
 
 export function AppointmentForm({ state, appointment, now, onSave, onClientSave, onCancel }: AppointmentFormProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const bookableBarbers = getBookableBarbers(state.employees, state.barbers, appointment?.barberId);
   const [clientId, setClientId] = useState(appointment?.clientId ?? state.clients[0]?.id ?? '');
-  const [barberId, setBarberId] = useState(appointment?.barberId ?? state.barbers[0]?.id ?? '');
+  const [barberId, setBarberId] = useState(appointment?.barberId ?? getBookableBarbers(state.employees, state.barbers)[0]?.id ?? '');
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(appointment?.serviceIds ?? (state.services[0] ? [state.services[0].id] : []));
   const [date, setDate] = useState(() => localDateKey(appointment ? new Date(appointment.startsAt) : now));
   const [calendarDate, setCalendarDate] = useState(() => appointment ? localDateKey(new Date(appointment.startsAt)) : localDateKey(now));
@@ -86,7 +88,7 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
   const slots = barberId && durationMinutes > 0
     ? getAvailableSlots(date, barberId, durationMinutes, state.schedules, state.exceptions, state.appointments, now, appointment?.id)
     : [];
-  const barberOptions = state.barbers.map(({ id, name }) => ({ value: id, label: name }));
+  const barberOptions = bookableBarbers.map(({ id, name }) => ({ value: id, label: name }));
   function toggleService(serviceId: string) {
     setSelectedServiceIds((current) => current.includes(serviceId)
       ? current.filter((id) => id !== serviceId)
@@ -238,7 +240,11 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
 
             <label class="appointment-form-control">
               <span>Barbero</span>
-              <Dropdown label="Barbero" value={barberId} options={barberOptions} onChange={(value) => { setBarberId(value); setSelectedStart(''); setError(''); }} />
+              {barberOptions.length > 0 ? (
+                <Dropdown label="Barbero" value={barberId} options={barberOptions} onChange={(value) => { setBarberId(value); setSelectedStart(''); setError(''); }} />
+              ) : (
+                <p class="appointment-empty-barbers" role="status">No hay barberos activos disponibles para nuevas citas.</p>
+              )}
             </label>
 
             <div class="appointment-form-control appointment-date-picker-control">
