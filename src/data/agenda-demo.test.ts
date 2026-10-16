@@ -44,4 +44,22 @@ describe('createAgendaSeed', () => {
       reason: 'appointment-conflict',
     });
   });
+
+  it('seeds each existing barber as an active completed Barber with the same ID', () => {
+    const state = createAgendaSeed(now);
+
+    expect(state.employees?.map(({ id, name, role, active, invitationStatus }) => ({
+      id,
+      name,
+      role,
+      active,
+      invitationStatus,
+    }))).toEqual(state.barbers.map(({ id, name }) => ({
+      id,
+      name,
+      role: 'barber',
+      active: true,
+      invitationStatus: 'completed',
+    })));
+  });
 });

@@ -1,5 +1,5 @@
 import { createDemoData } from './demo';
-import type { AgendaState, BarberRecord, BarberSchedule, ClientRecord, ServiceRecord } from '../types/agenda';
+import { EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaState, type BarberRecord, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ServiceRecord } from '../types/agenda';
 
 const barberNames = ['Diego', 'Raúl', 'Andrés'];
 const clientNames = [
@@ -15,6 +15,14 @@ const clientNames = [
 ];
 
 const barbers: BarberRecord[] = barberNames.map((name, index) => ({ id: `barber-${index + 1}`, name }));
+const employees: EmployeeRecord[] = barbers.map(({ id, name }) => ({
+  id,
+  name,
+  phone: '',
+  role: EMPLOYEE_ROLE.BARBER,
+  active: true,
+  invitationStatus: EMPLOYEE_INVITATION_STATUS.COMPLETED,
+}));
 const clients: ClientRecord[] = clientNames.map((name, index) => ({
   id: `client-${index + 1}`,
   name,
@@ -54,6 +62,7 @@ export function createAgendaSeed(now: Date): AgendaState {
 
   return {
     barbers,
+    employees,
     clients,
     services,
     schedules: createSchedules(),

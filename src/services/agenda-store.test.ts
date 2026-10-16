@@ -41,6 +41,74 @@ describe('loadAgendaState and saveAgendaState', () => {
     expect(loadAgendaState(storage, new Date(2027, 0, 1)).state).toEqual(savedState);
   });
 
+  it('normalizes legacy barbers without rewriting stored bytes during load', () => {
+    const { employees: _employees, ...legacyState } = createAgendaSeed(now);
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: legacyState });
+    const storage = createMemoryStorage(original);
+
+    const result = loadAgendaState(storage, now);
+
+    expect(result.status).toBe('loaded');
+    expect(result.state.employees?.map(({ id, role, active, invitationStatus }) => ({
+      id,
+      role,
+      active,
+      invitationStatus,
+    }))).toEqual(legacyState.barbers.map(({ id }) => ({
+      id,
+      role: 'barber',
+      active: true,
+      invitationStatus: 'completed',
+    })));
+    expect(result.state.appointments).toEqual(legacyState.appointments);
+    expect(result.state.schedules).toEqual(legacyState.schedules);
+    expect(result.state.exceptions).toEqual(legacyState.exceptions);
+    expect(storage.storedValue()).toBe(original);
+  });
+
+  it('writes normalized employee records on the next deliberate save', () => {
+    const { employees: _employees, ...legacyState } = createAgendaSeed(now);
+    const storage = createMemoryStorage();
+
+    saveAgendaState(storage, legacyState);
+
+    const saved = JSON.parse(storage.storedValue() ?? '{}') as { state?: { employees?: unknown[] } };
+    expect(saved.state?.employees).toHaveLength(legacyState.barbers.length);
+  });
+
+  it.each([
+    { role: 'owner', active: true, invitationStatus: 'pending' },
+    { role: 'barber', active: 'yes', invitationStatus: 'pending' },
+    { role: 'barber', active: true, invitationStatus: 'sent' },
+    { role: 'barber', active: true, invitationStatus: 'pending', phone: 123 },
+    { role: 'barber', active: true, invitationStatus: 'pending', id: '' },
+    { role: 'barber', active: true, invitationStatus: 'pending', name: '  ' },
+  ])('rejects invalid persisted employee metadata without overwriting bytes', (employee) => {
+    const state = createAgendaSeed(now);
+    const malformedState = {
+      ...state,
+      employees: [{ id: 'employee-1', name: 'Ana', phone: '555-0100', ...employee }],
+    };
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: malformedState });
+    const storage = createMemoryStorage(original);
+
+    expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
+  it('rejects duplicate employee IDs without overwriting stored bytes', () => {
+    const state = createAgendaSeed(now);
+    const employees = state.employees ?? [];
+    const duplicate = employees[0];
+    if (!duplicate) throw new Error('Expected a seeded employee');
+    const malformedState = { ...state, employees: [...employees, { ...duplicate }] };
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: malformedState });
+    const storage = createMemoryStorage(original);
+
+    expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
   it.each([
     ['email', 42],
     ['active', 'false'],

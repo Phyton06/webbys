@@ -5,6 +5,30 @@ export interface BarberRecord {
   name: string;
 }
 
+export const EMPLOYEE_ROLE = {
+  ADMINISTRATOR: 'administrator',
+  BARBER: 'barber',
+  ASSISTANT: 'assistant',
+} as const;
+
+export type EmployeeRole = (typeof EMPLOYEE_ROLE)[keyof typeof EMPLOYEE_ROLE];
+
+export const EMPLOYEE_INVITATION_STATUS = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+} as const;
+
+export type EmployeeInvitationStatus = (typeof EMPLOYEE_INVITATION_STATUS)[keyof typeof EMPLOYEE_INVITATION_STATUS];
+
+export interface EmployeeRecord {
+  id: string;
+  name: string;
+  phone: string;
+  role: EmployeeRole;
+  active: boolean;
+  invitationStatus: EmployeeInvitationStatus;
+}
+
 export interface ClientRecord {
   id: string;
   name: string;
@@ -22,6 +46,7 @@ export interface ServiceRecord {
 
 export interface AgendaState {
   barbers: BarberRecord[];
+  employees?: EmployeeRecord[];
   clients: ClientRecord[];
   services: ServiceRecord[];
   schedules: BarberSchedule[];

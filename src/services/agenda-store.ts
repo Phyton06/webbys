@@ -1,7 +1,8 @@
 import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
-import { AGENDA_LOAD_STATUS, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
+import { AGENDA_LOAD_STATUS, EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { validateScheduleIntervals } from './availability';
+import { normalizeEmployees, syncBarberProjection } from './employees';
 
 export const AGENDA_STORAGE_KEY = 'webbys:agenda:v1';
 export const AGENDA_STORAGE_VERSION = 1;
@@ -54,6 +55,29 @@ function isBarber(value: unknown): value is AgendaState['barbers'][number] {
   return isRecord(value) && isString(value.id) && isString(value.name);
 }
 
+function isEmployeeRole(value: unknown): value is EmployeeRecord['role'] {
+  return value === EMPLOYEE_ROLE.ADMINISTRATOR
+    || value === EMPLOYEE_ROLE.BARBER
+    || value === EMPLOYEE_ROLE.ASSISTANT;
+}
+
+function isEmployeeInvitationStatus(value: unknown): value is EmployeeRecord['invitationStatus'] {
+  return value === EMPLOYEE_INVITATION_STATUS.PENDING
+    || value === EMPLOYEE_INVITATION_STATUS.COMPLETED;
+}
+
+function isEmployee(value: unknown): value is EmployeeRecord {
+  return isRecord(value)
+    && isString(value.id)
+    && value.id.length > 0
+    && isString(value.name)
+    && value.name.trim().length > 0
+    && isString(value.phone)
+    && isEmployeeRole(value.role)
+    && typeof value.active === 'boolean'
+    && isEmployeeInvitationStatus(value.invitationStatus);
+}
+
 function isClient(value: unknown): value is ClientRecord {
   return isRecord(value)
     && isString(value.id)
@@ -104,6 +128,7 @@ function hasUniqueIds(records: Array<{ id: string }>): boolean {
 function isAgendaState(value: unknown): value is AgendaState {
   if (!isRecord(value)
     || !Array.isArray(value.barbers)
+    || (value.employees !== undefined && !Array.isArray(value.employees))
     || !Array.isArray(value.clients)
     || !Array.isArray(value.services)
     || !Array.isArray(value.schedules)
@@ -111,6 +136,7 @@ function isAgendaState(value: unknown): value is AgendaState {
     || !Array.isArray(value.appointments)) return false;
 
   if (!value.barbers.every(isBarber)
+    || (value.employees !== undefined && !value.employees.every(isEmployee))
     || !value.clients.every(isClient)
     || !value.services.every(isService)
     || !value.schedules.every(isBarberSchedule)
@@ -118,9 +144,12 @@ function isAgendaState(value: unknown): value is AgendaState {
     || !value.appointments.every(isAppointment)) return false;
 
   const barberIds = new Set(value.barbers.map(({ id }) => id));
+  const employees = (value.employees ?? []) as EmployeeRecord[];
   const clientIds = new Set(value.clients.map(({ id }) => id));
   const serviceIds = new Set(value.services.map(({ id }) => id));
   return hasUniqueIds(value.barbers)
+    && hasUniqueIds(employees)
+    && employees.every((employee) => employee.role !== EMPLOYEE_ROLE.BARBER || barberIds.has(employee.id))
     && hasUniqueIds(value.clients)
     && hasUniqueIds(value.services)
     && hasUniqueIds(value.appointments)
@@ -132,7 +161,13 @@ function isAgendaState(value: unknown): value is AgendaState {
 }
 
 export function saveAgendaState(storage: Pick<Storage, 'setItem'>, state: AgendaState): void {
-  const envelope: AgendaStorageEnvelope = { version: AGENDA_STORAGE_VERSION, state };
+  const employees = normalizeEmployees(state.employees, state.barbers);
+  const normalizedState: AgendaState = {
+    ...state,
+    employees,
+    barbers: syncBarberProjection(employees, state.barbers),
+  };
+  const envelope: AgendaStorageEnvelope = { version: AGENDA_STORAGE_VERSION, state: normalizedState };
   storage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(envelope));
 }
 
@@ -160,7 +195,13 @@ export function loadAgendaState(
   try {
     const parsed: unknown = JSON.parse(serialized);
     if (isRecord(parsed) && parsed.version === AGENDA_STORAGE_VERSION && isAgendaState(parsed.state)) {
-      return { state: parsed.state, status: AGENDA_LOAD_STATUS.LOADED };
+      return {
+        state: {
+          ...parsed.state,
+          employees: normalizeEmployees(parsed.state.employees, parsed.state.barbers),
+        },
+        status: AGENDA_LOAD_STATUS.LOADED,
+      };
     }
   } catch {
     // Keep unreadable stored data intact until a deliberate save succeeds.

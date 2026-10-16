@@ -60,8 +60,18 @@
 **Interfaces:**
 
 ```ts
-export type EmployeeRole = 'administrator' | 'barber' | 'assistant';
-export type EmployeeInvitationStatus = 'pending' | 'completed';
+export const EMPLOYEE_ROLE = {
+  ADMINISTRATOR: 'administrator',
+  BARBER: 'barber',
+  ASSISTANT: 'assistant',
+} as const;
+export type EmployeeRole = (typeof EMPLOYEE_ROLE)[keyof typeof EMPLOYEE_ROLE];
+
+export const EMPLOYEE_INVITATION_STATUS = {
+  PENDING: 'pending',
+  COMPLETED: 'completed',
+} as const;
+export type EmployeeInvitationStatus = (typeof EMPLOYEE_INVITATION_STATUS)[keyof typeof EMPLOYEE_INVITATION_STATUS];
 
 export interface EmployeeRecord {
   id: string;
@@ -96,14 +106,14 @@ export function getBookableBarbers(
 export function canDeactivateEmployee(employeeId: string, employees: EmployeeRecord[]): boolean;
 ```
 
-- [ ] **Step 1: Add failing domain tests.** Assert legacy barbers normalize to active Barber employees with the same IDs and completed invitation state; existing employee records win over normalization; a Barber role adds a barber projection; changing role retains the old barber ID/name projection; bookable results contain only active Barber employees plus an optional currently assigned barber; the last active Administrator cannot be deactivated, but an Administrator can be deactivated when another active Administrator remains.
-- [ ] **Step 2: Run `npm test -- src/services/employees.test.ts`;** expected result: fail because employee types/helpers do not exist.
-- [ ] **Step 3: Add the employee unions/interface and pure helper implementations.** Generate no identifiers in the helpers. Preserve old barber records by ID and update their display names from matching employees.
-- [ ] **Step 4: Add failing storage tests.** Use a raw version-1 envelope without `employees`; assert loading returns normalized employees but leaves the exact original serialized string unchanged. Add cases for invalid role/status/duplicate employee IDs, employee round trip on save, and unchanged appointments/schedules/exceptions.
-- [ ] **Step 5: Validate `employees` only when present and normalize valid legacy Agenda state in memory.** Keep `AGENDA_STORAGE_VERSION` at 1, add employees when a successful save serializes a legacy state, and reject invalid employee arrays without overwriting stored bytes.
-- [ ] **Step 6: Seed employees from the existing barber records.** Keep the exact IDs (`barber-1`, `barber-2`, `barber-3`), mark demo records active with Barber role and completed registration, and use an empty phone string where demo barber phone data does not exist.
-- [ ] **Step 7: Run focused persistence and seed tests.** Run `npm test -- src/services/employees.test.ts src/services/agenda-store.test.ts src/data/agenda-demo.test.ts`; expected result: all pass.
-- [ ] **Step 8: Run `npm run check`;** expected result: 0 errors, warnings, and hints.
+- [x] **Step 1: Add failing domain tests.** Assert legacy barbers normalize to active Barber employees with the same IDs and completed invitation state; existing employee records win over normalization; a Barber role adds a barber projection; changing role retains the old barber ID/name projection; bookable results contain only active Barber employees plus an optional currently assigned barber; the last active Administrator cannot be deactivated, but an Administrator can be deactivated when another active Administrator remains.
+- [x] **Step 2: Run `npm test -- src/services/employees.test.ts`;** observed the expected failure because `src/services/employees.ts` did not exist.
+- [x] **Step 3: Add the employee unions/interface and pure helper implementations.** Generate no identifiers in the helpers. Preserve old barber records by ID and update their display names from matching employees.
+- [x] **Step 4: Add failing storage tests.** A raw version-1 envelope without `employees` demonstrated the missing in-memory normalization; tests also cover invalid role/status/duplicate IDs, employee round trip on save, and unchanged appointments/schedules/exceptions.
+- [x] **Step 5: Validate `employees` only when present and normalize valid legacy Agenda state in memory.** Kept `AGENDA_STORAGE_VERSION` at 1, added employees on a deliberate save, and rejected invalid employee arrays without overwriting stored bytes.
+- [x] **Step 6: Seed employees from the existing barber records.** Kept the exact IDs (`barber-1`, `barber-2`, `barber-3`), marked demo records active with Barber role and completed registration, and used an empty phone string where demo barber phone data does not exist.
+- [x] **Step 7: Run focused persistence and seed tests.** `npm test -- src/services/employees.test.ts src/services/agenda-store.test.ts src/data/agenda-demo.test.ts` passed 25/25.
+- [x] **Step 8: Run `npm run check`;** observed 0 errors, warnings, and hints.
 - [ ] **Step 9: Record the persisted-format risk and commit Task 1** with domain helpers, normalization, seeds, and tests together. Verify the active global author is `Luis Angel Cardona Becerra <luis.lncb51@gmail.com>` before commit. After Task 1's own checks, obtain independent verification of legacy normalization/history preservation before treating this task as proven.
 
 ### Task 2: Employees directory, profile, CRUD, and invitation
