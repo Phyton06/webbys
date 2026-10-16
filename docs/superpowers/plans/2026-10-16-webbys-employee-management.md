@@ -162,7 +162,7 @@ interface EmployeesPageProps {
 - [x] **Step 3: Apply the pure `getBookableBarbers` helper at the new-booking selector boundaries.** No IDs were removed from `AgendaState.barbers`, schedules, exceptions, or appointments.
 - [x] **Step 4: Verify role changes and deactivation preserve stored appointment history and schedule/exception records.** An independent scratch probe confirmed the barber references and availability/history fingerprints remain unchanged.
 - [x] **Step 5: Run focused booking/availability/persistence tests and `npm run check`;** `npm test -- src/services/employees.test.ts src/components/AppointmentForm.test.tsx src/components/AgendaAvailabilityPanel.test.tsx` passed 19/19 and Astro reported 0 diagnostics.
-- [x] **Step 6: Commit Task 3** with booking and history regression tests. Independent verification of booking eligibility and history preservation passed in a fresh scratch copy; commit identity: pending.
+- [x] **Step 6: Commit Task 3** with booking and history regression tests. Independent verification of booking eligibility and history preservation passed in a fresh scratch copy. Commit: `0e18f00`.
 
 ### Task 4: Employees route, navigation, final checks, and proof
 
