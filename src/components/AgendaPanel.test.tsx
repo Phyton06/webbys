@@ -51,14 +51,24 @@ describe('AgendaPanel', () => {
     expect(screen.queryByText('Cliente ayer')).toBeNull();
   });
 
+  it('shows the mobile month calendar and changes the selected-day appointment list', () => {
+    render(<AgendaPanel state={state} now={now} />);
+    const calendar = screen.getByRole('region', { name: 'Calendario mensual' });
+
+    fireEvent.click(within(calendar).getByRole('button', { name: 'Viernes, 16 de octubre, 1 cita' }));
+
+    expect(screen.getByText('Cliente manana')).toBeTruthy();
+    expect(screen.queryByText('Cliente hoy-diego')).toBeNull();
+  });
+
   it('switches to a week view showing seven dated days and their appointments', () => {
     render(<AgendaPanel state={state} now={now} />);
     fireEvent.click(screen.getByRole('button', { name: 'Semana' }));
 
     expect(screen.getByRole('heading', { name: 'Semana del 12 al 18 de octubre' })).toBeTruthy();
-    expect(screen.getByRole('region', { name: 'Agenda semanal' })).toBeTruthy();
-    expect(screen.getByText('Cliente manana')).toBeTruthy();
-    expect(screen.getAllByRole('group', { name: /de octubre/i })).toHaveLength(7);
+    const week = screen.getByRole('region', { name: 'Agenda semanal', hidden: true });
+    expect(within(week).getByText('Cliente manana')).toBeTruthy();
+    expect(within(week).getAllByRole('group', { name: /de octubre/i })).toHaveLength(7);
   });
 
   it('updates the selected date and provides navigation for the chosen day', () => {
@@ -214,7 +224,8 @@ describe('AgendaPanel', () => {
     const onAppointmentSave = vi.fn((_appointment: AppointmentRecord) => true);
     render(<AgendaPanel state={{ ...state, appointments: [pending] }} now={now} onAppointmentSave={onAppointmentSave} />);
     fireEvent.click(screen.getByRole('button', { name: 'Semana' }));
-    const details = screen.getByText(pending.clientName).closest('details');
+    const week = screen.getByRole('region', { name: 'Agenda semanal', hidden: true });
+    const details = within(week).getByText(pending.clientName).closest('details');
     if (!details) throw new Error('Expected appointment disclosure');
     fireEvent.click(within(details).getByText(pending.clientName));
 

@@ -5,6 +5,7 @@ import type { AgendaState } from '../types/agenda';
 import { ALL_BARBERS, AgendaAvailabilityPanel } from './AgendaAvailabilityPanel';
 import { AppointmentForm } from './AppointmentForm';
 import { Dropdown } from './Dropdown';
+import { MobileMonthCalendar } from './MobileMonthCalendar';
 import '../styles/agenda.css';
 
 const AGENDA_VIEW = {
@@ -255,14 +256,8 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
 
         <div class="agenda-barber-control">
           <span>Barbero</span>
-          <Dropdown
-            label="Barbero"
-            value={selectedBarber}
-            options={barberOptions}
-            onChange={setSelectedBarber}
-          />
+          <Dropdown label="Barbero" value={selectedBarber} options={barberOptions} onChange={setSelectedBarber} />
         </div>
-
       </div>
 
       <div class="agenda-date-navigation">
@@ -285,42 +280,29 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
         </button>
       </div>
 
-      {view === AGENDA_VIEW.DAY ? (
-        <div class="agenda-day-content">
-          <section class="agenda-day-view" aria-label="Agenda diaria">
-            {onAppointmentSave && (
-              <button class="agenda-new-appointment" type="button" onClick={openCreateForm}>Nueva cita</button>
-            )}
-            {dayAppointments.length > 0 ? (
-              <ol class="agenda-appointment-list">
-                {dayAppointments.map((appointment) => (
-                  <AppointmentDisclosure
-                    appointment={appointment}
-                    onReschedule={onAppointmentSave ? () => {
-                      openEditForm(appointment);
-                    } : undefined}
-                    onStatusChange={onAppointmentSave ? (status) => updateAppointmentStatus(appointment, status) : undefined}
-                    key={appointment.id}
-                  />
-                ))}
-              </ol>
-            ) : (
-              <p class="agenda-empty">No hay citas para esta fecha.</p>
-            )}
-            {appointmentFormState !== APPOINTMENT_FORM_STATE.CLOSED && onAppointmentSave && (
-              <AppointmentForm
-                state={state}
-                appointment={editingAppointment}
-                now={now}
-                onSave={saveAppointment}
-                onCancel={closeAppointmentForm}
+      <MobileMonthCalendar selectedDate={selectedDate} appointments={state.appointments} onSelectDate={setSelectedDate} />
+      <section class={`agenda-day-view${view === AGENDA_VIEW.WEEK ? ' is-hidden-on-desktop' : ''}`} aria-label="Agenda diaria">
+        <h2 class="agenda-mobile-day-title">{formatDayTitle(selectedDateValue)}</h2>
+        {onAppointmentSave && (
+          <button class="agenda-new-appointment" type="button" onClick={openCreateForm}>Nueva cita</button>
+        )}
+        {dayAppointments.length > 0 ? (
+          <ol class="agenda-appointment-list">
+            {dayAppointments.map((appointment) => (
+              <AppointmentDisclosure
+                appointment={appointment}
+                onReschedule={onAppointmentSave ? () => openEditForm(appointment) : undefined}
+                onStatusChange={onAppointmentSave ? (status) => updateAppointmentStatus(appointment, status) : undefined}
+                key={appointment.id}
               />
-            )}
-          </section>
+            ))}
+          </ol>
+        ) : (
+          <p class="agenda-empty">No hay citas para esta fecha.</p>
+        )}
+      </section>
 
-          <AgendaAvailabilityPanel state={state} date={selectedDate} barberId={selectedBarber} now={now} />
-        </div>
-      ) : (
+      {view === AGENDA_VIEW.WEEK && (
         <section class="agenda-week-grid" role="region" aria-label="Agenda semanal">
           {weekDates.map((day) => {
             const dayKey = localDateKey(day);
@@ -356,6 +338,17 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave }: Agen
             );
           })}
         </section>
+      )}
+
+      <AgendaAvailabilityPanel state={state} date={selectedDate} barberId={selectedBarber} now={now} />
+      {appointmentFormState !== APPOINTMENT_FORM_STATE.CLOSED && onAppointmentSave && (
+        <AppointmentForm
+          state={state}
+          appointment={editingAppointment}
+          now={now}
+          onSave={saveAppointment}
+          onCancel={closeAppointmentForm}
+        />
       )}
       {formAnnouncement && (
         <p class="availability-announcement" role={announcementIsError ? 'alert' : 'status'} aria-live={announcementIsError ? 'assertive' : 'polite'}>
