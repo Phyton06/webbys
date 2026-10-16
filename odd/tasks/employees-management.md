@@ -36,7 +36,7 @@ Acceptance: add `/empleados/` under the existing protected shell, with the Clien
 ## Tasks
 
 - [x] T1 (S1) inline — employee domain records, legacy store normalization, barber compatibility projection, seed data, and persistence tests; status: complete; commit: `f122661`; independent verification: pass; Risk: item 1 (additive persisted employee records and legacy normalization).
-- [x] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: complete; commits: `40d1e34`, pending mobile-action fit follow-up; Risk: none.
+- [x] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: complete; commits: `40d1e34`, `0511a24`; Risk: none.
 - [x] T3 (S3) inline — barber eligibility filtering and employee/agenda synchronization with history preservation; status: complete; commit: `0e18f00`; independent verification: pass; Risk: item 3 (shared booking-selector contract).
 - [x] T4 (S5) inline — protected route/navigation, docs, responsive review, and full checks; status: complete; commit: `2984b44`; independent verification: pass; Risk: none.
 
@@ -82,8 +82,8 @@ RED: `AdminShell` tests failed because Employees was still an unavailable module
 
 ### L8 — Local feature-branch review slices
 
-User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Ordered local review slices if/when remote publication is separately authorized: T1 `f122661` + documentation record `d4bbaa3`; T2 `40d1e34` + `5e61f08`; T3 `0e18f00` + `8f7eb6e`; T4 `2984b44` + its pending documentation record. T2 is one integrated 1,328-line CRUD/profile work unit; it was not split by file type.
+User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Ordered local review slices if/when remote publication is separately authorized: T1 `f122661` + documentation record `d4bbaa3`; T2 `40d1e34`, `0511a24` + `5e61f08` and its pending follow-up record; T3 `0e18f00` + `8f7eb6e`; T4 `2984b44` + its pending documentation record. T2 is one integrated 1,328-line CRUD/profile work unit; it was not split by file type. No remote PRs or push were created.
 
 ### L9 — T2 mobile form action fit
 
-The visual capture at 390px showed the primary “Guardar empleado” label wrapping inside the two-column Save/Cancel row. A scoped style keeps both employee-form actions on one line; the refreshed 390px capture shows adjacent equal-height buttons and no horizontal overflow. Focused EmployeeForm tests and `npm run check` are rerun before this follow-up commit. `Risk: none` — presentation-only adjustment.
+The visual capture at 390px showed the primary “Guardar empleado” label wrapping inside the two-column Save/Cancel row. A scoped style keeps both employee-form actions on one line; the refreshed 390px capture shows adjacent equal-height buttons and no horizontal overflow. Focused EmployeeForm tests passed 5/5, `npm run check` reported 0 diagnostics, and `npm run build` generated seven routes. Commit: `0511a24` (`fix(employees): keep mobile form actions on one line`), 19 changed lines. `Risk: none` — presentation-only adjustment.
