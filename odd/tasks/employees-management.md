@@ -36,9 +36,9 @@ Acceptance: add `/empleados/` under the existing protected shell, with the Clien
 ## Tasks
 
 - [x] T1 (S1) inline — employee domain records, legacy store normalization, barber compatibility projection, seed data, and persistence tests; status: complete; commit: `f122661`; independent verification: pass; Risk: item 1 (additive persisted employee records and legacy normalization).
-- [x] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: complete; commit: `40d1e34`; Risk: none.
+- [x] T2 (S2, S4) inline — responsive employee directory/profile CRUD, invitations, generic link feedback, role/status editing, and last-admin guard; status: complete; commits: `40d1e34`, pending mobile-action fit follow-up; Risk: none.
 - [x] T3 (S3) inline — barber eligibility filtering and employee/agenda synchronization with history preservation; status: complete; commit: `0e18f00`; independent verification: pass; Risk: item 3 (shared booking-selector contract).
-- [x] T4 (S5) inline — protected route/navigation, docs, responsive review, and full checks; status: complete; commit: pending; Risk: none.
+- [x] T4 (S5) inline — protected route/navigation, docs, responsive review, and full checks; status: complete; commit: `2984b44`; independent verification: pass; Risk: none.
 
 ## Log
 
@@ -58,7 +58,7 @@ The user approved a unified employee/barber identity that preserves existing bar
 
 ### L2 — Starting baseline
 
-The local feature branch starts from the published `main` snapshot `1498415`, which contains Agenda and Clients. Prior recovery work remains preserved on `feat/webbys-production-ui`; no remote branch or push is authorized for this feature. RDD mode is globally off. The approved design is `docs/superpowers/specs/2026-10-16-webbys-employee-management-design.md`; implementation plan: `docs/superpowers/plans/2026-10-16-webbys-employee-management.md`. Before implementation, reconcile this task file with the approved design and inspect the actual persisted-store and booking-selector code.
+The local feature branch starts from the published `main` snapshot `1498415`, which contains Agenda and Clients. Prior recovery work remains preserved on `feat/webbys-production-ui`; no remote branch or push is authorized for this feature. RDD mode is globally off. The approved design is `docs/superpowers/specs/2026-10-16-webbys-employee-management-design.md`; implementation plan: `docs/superpowers/plans/2026-10-16-webbys-employee-management.md`. Before source edits, the task and design were reconciled with the persisted Agenda store and booking-selector call sites.
 
 ### L3 — Delivery strategy
 
@@ -78,8 +78,12 @@ RED: the new appointment and availability-panel tests failed because all retaine
 
 ### L7 — T4 Employees route and final verification
 
-RED: `AdminShell` tests failed because Employees was still an unavailable module and had no route link. GREEN: AdminShell tests passed 9/9; the full suite passed 169/169; `npm run check` reported 0 errors, warnings, and hints; `npm run build` emitted seven routes including `/empleados/`. Visual review at 390px and 1440px showed no horizontal overflow; the create dialog keeps Save/Cancel adjacent, the generic-link confirmation is readable, and the profile returns to the top of the scrollable workspace. The final `impeccable detect --json` returned `[]`. An independent verifier in a fresh scratch copy returned S1-S5 met with all required suite/check/build commands passing and no blockers. It noted browser keyboard behavior was not independently exercised; component tests cover accessible controls, and Playwright was limited to visual/design review. The specialized Impeccable finish-reviewer agent could not be launched because it is not installed; screenshots were reviewed inline and by the independent verifier. `Risk: none` — the route/navigation addition is covered by component tests and uses the existing protected AdminGate.
+RED: `AdminShell` tests failed because Employees was still an unavailable module and had no route link. GREEN: AdminShell tests passed 9/9; the full suite passed 169/169; `npm run check` reported 0 errors, warnings, and hints; `npm run build` emitted seven routes including `/empleados/`. Visual review at 390px and 1440px showed no horizontal overflow; the create dialog keeps Save/Cancel adjacent, the generic-link confirmation is readable, and the profile returns to the top of the scrollable workspace. The final `impeccable detect --json` returned `[]`. An independent verifier in a fresh scratch copy returned S1-S5 met with all required suite/check/build commands passing and no blockers. It noted browser keyboard behavior was not independently exercised; component tests cover accessible controls, and Playwright was limited to visual/design review. The specialized Impeccable finish-reviewer agent could not be launched because it is not installed; screenshots were reviewed inline and by the independent verifier. Commit: `2984b44` (`feat(employees): add protected employees route`), 69 changed lines. `Risk: none` — the route/navigation addition is covered by component tests and uses the existing protected AdminGate.
 
 ### L8 — Local feature-branch review slices
 
-User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Planned ordered slices if/when remote publication is separately authorized: T1 `f122661` plus documentation record `d4bbaa3`; T2 `40d1e34` plus documentation record `5e61f08`; T3 `0e18f00` plus documentation record `8f7eb6e`; T4 route/navigation and final-proof commit pending. T2 is one integrated 1,328-line CRUD/profile work unit; it was not split by file type.
+User-selected `feature-branch-chain` is recorded without creating remote PRs or pushing. Ordered local review slices if/when remote publication is separately authorized: T1 `f122661` + documentation record `d4bbaa3`; T2 `40d1e34` + `5e61f08`; T3 `0e18f00` + `8f7eb6e`; T4 `2984b44` + its pending documentation record. T2 is one integrated 1,328-line CRUD/profile work unit; it was not split by file type.
+
+### L9 — T2 mobile form action fit
+
+The visual capture at 390px showed the primary “Guardar empleado” label wrapping inside the two-column Save/Cancel row. A scoped style keeps both employee-form actions on one line; the refreshed 390px capture shows adjacent equal-height buttons and no horizontal overflow. Focused EmployeeForm tests and `npm run check` are rerun before this follow-up commit. `Risk: none` — presentation-only adjustment.

@@ -142,7 +142,7 @@ interface EmployeesPageProps {
 - [x] **Step 4: Add failing `EmployeesPage` tests.** Tests cover employee list search by name/phone, role/active filters, sort, profile fields, only that employee's appointments, barber schedule/date exceptions, save failure preserving state, reversible deactivation, reactivation, role edits, manual pending/completed toggle, and last-admin action/role changes disabled with explanatory text.
 - [x] **Step 5: Implement `EmployeesPage` around `loadAgendaState`/`saveAgendaState`.** Every successful mutation builds one next AgendaState, synchronizes the barber projection, writes once, and updates React state only after the write succeeds. Never hard-delete an employee.
 - [x] **Step 6: Build profile relations from stable IDs.** Match appointments by `barberId === employee.id`; show schedules and exceptions only when employee role is Barber, while preserving historical records for inactive/changed-role employees.
-- [x] **Step 7: Add mobile-first responsive styles and accessibility.** Used existing design tokens, semantic headings, visible focus, labels, modal focus management, and status text; action controls are responsive.
+- [x] **Step 7: Add mobile-first responsive styles and accessibility.** Used existing design tokens, semantic headings, visible focus, labels, modal focus management, and status text; the Save/Cancel labels stay on one line at 390px.
 - [x] **Step 8: Run `npm test -- src/components/EmployeeForm.test.tsx src/components/EmployeesPage.test.tsx`;** passed 14/14.
 - [x] **Step 9: Update `DESIGN.md` with the Employees navigation, profile, role/status, and generic invitation behavior.** The user-facing behavior now follows the approved design.
 - [x] **Step 10: Commit Task 2** with tests, styles, and documentation in the same work unit. Commit: `40d1e34` (`feat(employees): add employee directory and profile`), 1,328 changed lines; kept as one integrated directory/profile workflow rather than splitting by file type.
@@ -179,7 +179,7 @@ interface EmployeesPageProps {
 - [x] **Step 4: Run focused navigation, employee, booking, availability, store, and seed suites;** affected suites passed in the full 25-file run.
 - [x] **Step 5: Run `npm test`, `npm run check`, and `npm run build`;** observed 169/169 tests, 0 diagnostics, and seven generated static routes including `/empleados/`.
 - [x] **Step 6: Inspect responsive layouts at 390px and 1440px** using Playwright only for visual/design review; observed no horizontal overflow, adjacent modal actions, and readable profile/invitation states.
-- [ ] **Step 7: Record each task's commit, test results, risk line, and verification result in the feature document and mirror.** Treat unavailable proof as blocked, not PASS. No push or PR operation is authorized.
+- [x] **Step 7: Record each task's commit, test results, risk line, and verification result in the feature document and mirror.** T1-T4 statuses and ordered feature-branch-chain slice boundaries are recorded. T1-T3 independent verification passed; T4 full verification and visual review passed. No push or PR operation is authorized.
 
 ## Plan self-review
 

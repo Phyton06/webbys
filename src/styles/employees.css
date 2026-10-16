@@ -364,6 +364,14 @@
   padding-block: var(--space-2);
 }
 
+.employee-form .appointment-form-actions > button {
+  flex: 1;
+  min-width: 0;
+  padding-inline: var(--space-2);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
 @media (min-width: 42rem) {
   .employees-toolbar {
     grid-template-columns: minmax(0, 1fr) minmax(10rem, 12rem) minmax(10rem, 12rem);
