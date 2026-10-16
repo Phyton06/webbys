@@ -114,7 +114,7 @@ export function canDeactivateEmployee(employeeId: string, employees: EmployeeRec
 - [x] **Step 6: Seed employees from the existing barber records.** Kept the exact IDs (`barber-1`, `barber-2`, `barber-3`), marked demo records active with Barber role and completed registration, and used an empty phone string where demo barber phone data does not exist.
 - [x] **Step 7: Run focused persistence and seed tests.** `npm test -- src/services/employees.test.ts src/services/agenda-store.test.ts src/data/agenda-demo.test.ts` passed 25/25.
 - [x] **Step 8: Run `npm run check`;** observed 0 errors, warnings, and hints.
-- [ ] **Step 9: Record the persisted-format risk and commit Task 1** with domain helpers, normalization, seeds, and tests together. Verify the active global author is `Luis Angel Cardona Becerra <luis.lncb51@gmail.com>` before commit. After Task 1's own checks, obtain independent verification of legacy normalization/history preservation before treating this task as proven.
+- [x] **Step 9: Record the persisted-format risk and commit Task 1** with domain helpers, normalization, seeds, and tests together. Verified the active global author as `Luis Angel Cardona Becerra <luis.lncb51@gmail.com>`. After Task 1's own checks, independent verification of legacy normalization/history preservation passed. Commit: `f122661`.
 
 ### Task 2: Employees directory, profile, CRUD, and invitation
 
