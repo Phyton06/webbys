@@ -1,7 +1,6 @@
 import type { AppointmentRecord, DemoData, SaleItem, SaleRecord } from '../types/domain';
 
-const servicePrices = [300, 350, 400, 280, 450, 320, 380, 500, 340, 420];
-const productPrices = [120, 160, 140, 180];
+const servicePrices = [300, 250, 500];
 const clientNames = [
   'Lucía Torres',
   'Mateo Cruz',
@@ -15,6 +14,11 @@ const clientNames = [
 ];
 const barberNames = ['Diego', 'Raúl', 'Andrés'];
 const serviceNames = ['Corte', 'Barba', 'Corte y barba'];
+const saleProductSnapshots = [
+  { id: 'product-wax', name: 'Cera para peinar', price: 175 },
+  { id: 'product-oil', name: 'Aceite para barba', price: 190 },
+];
+const salePaymentMethods = ['cash', 'card', 'transfer'] as const;
 const appointmentSlots = [
   { hour: 9, minute: 30 },
   { hour: 10, minute: 30 },
@@ -32,31 +36,41 @@ function atRelativeDate(now: Date, daysFromToday: number, hour: number, minute: 
 }
 
 function makeSale(index: number, now: Date): SaleRecord {
-  const servicePrice = servicePrices[index % servicePrices.length] ?? 300;
+  const serviceIndex = index % serviceNames.length;
   const items: SaleItem[] = [{
-    name: serviceNames[index % serviceNames.length] ?? 'Corte',
+    kind: 'service',
+    catalogItemId: `service-${serviceIndex + 1}`,
+    name: serviceNames[serviceIndex] ?? 'Corte',
     quantity: 1,
-    unitPrice: servicePrice,
+    unitPrice: servicePrices[serviceIndex] ?? 300,
   }];
 
   if (index % 3 === 0) {
-    const productPrice = productPrices[index % productPrices.length] ?? 120;
+    const product = saleProductSnapshots[index % 2] ?? saleProductSnapshots[0]!;
     items.push({
-      name: index % 2 === 0 ? 'Cera para cabello' : 'Aceite para barba',
+      kind: 'product',
+      catalogItemId: product.id,
+      name: product.name,
       quantity: 1,
-      unitPrice: productPrice,
+      unitPrice: product.price,
     });
   }
 
   const grossTotal = items.reduce((total, item) => total + item.quantity * item.unitPrice, 0);
-  const discountTotal = index % 7 === 0 ? 50 : 0;
+  const attributedToPromotion = index % 7 === 0;
+  const discountTotal = attributedToPromotion ? 50 : 0;
   const daysFromToday = index - 34;
-  const hour = 9 + (index % 10);
+  const hour = 8 + (index % 4);
 
   return {
     id: `demo-sale-${String(index + 1).padStart(2, '0')}`,
     occurredAt: atRelativeDate(now, daysFromToday, hour, index % 2 === 0 ? 0 : 30),
     items,
+    employeeId: `barber-${(index % barberNames.length) + 1}`,
+    employeeName: barberNames[index % barberNames.length] ?? 'Diego',
+    paymentMethod: salePaymentMethods[index % salePaymentMethods.length] ?? 'cash',
+    status: 'completed',
+    ...(attributedToPromotion ? { promotionId: 'demo-promotion-seasonal', promotionName: 'Oferta de temporada' } : {}),
     grossTotal,
     discountTotal,
     netTotal: grossTotal - discountTotal,

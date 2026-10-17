@@ -175,4 +175,24 @@ describe('createDemoData', () => {
     }
     expect(demo.appointments.length).toBeGreaterThanOrEqual(5);
   });
+
+  it('provides sale snapshots for read-only sales search and reporting', () => {
+    const demo = createDemoData(now);
+
+    expect(demo.sales).toHaveLength(35);
+    for (const sale of demo.sales) {
+      expect(sale.employeeId).toMatch(/^barber-\d+$/);
+      expect(sale.employeeName.trim()).not.toBe('');
+      expect(['cash', 'card', 'transfer']).toContain(sale.paymentMethod);
+      expect(sale.status).toBe('completed');
+      for (const item of sale.items) {
+        expect(['product', 'service']).toContain(item.kind);
+        expect(item.catalogItemId).toMatch(/^(product|service)-/);
+        expect(Number.isInteger(item.quantity)).toBe(true);
+        expect(item.quantity).toBeGreaterThan(0);
+      }
+      if (sale.promotionId) expect(sale.promotionName?.trim()).not.toBe('');
+    }
+    expect(demo.sales.some(({ promotionId }) => promotionId)).toBe(true);
+  });
 });
