@@ -1,45 +1,45 @@
-# Webbys Analytics Design
+# Webbys Analíticas — Diseño
 
-## Goal
+## Objetivo
 
-Add the missing read-only Analíticas module: a protected `/analiticas/` page that turns the existing generated sales records into business analytics — sales evolution, period-over-period comparison, product/service/employee rankings, and a deep promotion analytics section that separates sales attributed to a promotion from sales that merely occurred during its date range.
+Agregar el módulo de Analíticas, de solo lectura: una página protegida `/analiticas/` que convierte los registros de ventas generados existentes en analíticas de negocio — evolución de ventas, comparación entre periodos, rankings de productos, servicios y empleados, y una sección profunda de analíticas de promociones que separa las ventas atribuidas a una promoción de las que solo ocurrieron durante su rango de fechas.
 
-## User decisions
+## Decisiones del usuario
 
-- The user's next-phase instruction: “bien haz commit y pushea a main por cli, despues continuemos con la siguiente fase”.
-- Requirements source: `task.md` §13, “Analíticas generales” and “Analíticas de promociones”; the `/ventas/` register already covers the sales listing, filters, and detail views this module builds on.
-- The desktop sidebar and the mobile “Más” menu already list “Analíticas” as a placeholder (“Próx.”, “aún no está disponible”); this phase turns it into the real route.
+- Instrucción de siguiente fase: “bien haz commit y pushea a main por cli, despues continuemos con la siguiente fase”.
+- Fuente de requisitos: `task.md` §13, “Analíticas generales” y “Analíticas de promociones”; el registro de `/ventas/` ya cubre el listado de ventas, los filtros y el detalle sobre los que se construye este módulo.
+- La barra lateral de escritorio y el menú móvil “Más” ya listan “Analíticas” como marcador de posición (“Próx.”, “aún no está disponible”); esta fase lo convierte en la ruta real.
 
-## Scope
+## Alcance
 
-- Add a protected `/analiticas/` route (AdminGate + AdminShell, `activeSection` “Analíticas”) linked from the existing desktop sidebar and mobile “Más” menu with the current active state; remove the placeholder behavior for this section in `AdminShell.tsx`.
-- Period control reuses the Sales pattern: two date triggers opening the collapsible month-calendar popover, and the selected inclusive range applies to every section. Assumption: the default range is the last 30 local days — unlike Sales, which defaults to the current day — because a single-day analytics view would be empty; both boundaries remain editable.
-- Comparison window: the immediately preceding range of equal inclusive length (the day before the start boundary, going back the same number of days). Shown deltas are signed absolute and percentage changes.
-- Sections, mobile-first and in this order:
-  1. Comparative summary — net revenue, sale count, and average ticket for the selected range, each with the previous-window value and delta. Gross, discounts, and net stay distinct.
-  2. Sales evolution — daily net-sales chart for the selected range, reusing the Sales SVG trend pattern and its accessible value list.
-  3. Rankings — most-sold products and most-sold services (units and net revenue) and employee performance (sale count, net revenue, average ticket), each ranked with deterministic tie-breaks by name.
-  4. Promotion analytics (the priority section) — per promotion: attributed sales count, net revenue, discounts granted, and attributed units; occurred-during-window count/net/units kept clearly labeled as contextual (“la coincidencia de fechas no demuestra atribución”); comparison of the promotion window against the equal-length window immediately before it under the same attribution rule; a benchmark against sales without promotion attribution for the selected range; best/worst ranking with the ranking key stated in the UI; and a daily attributed net series for the promotion.
-- Honest metrics only: no lift, conversion, ROI, or causality claims; any comparison states its formula in the UI copy; a promotion without a stored date window shows its figures with an explicit “sin ventana de fechas comparable” note instead of an invented comparison. Demonstration data stays labeled as demonstration.
+- Agregar una ruta protegida `/analiticas/` (AdminGate + AdminShell, `activeSection` “Analíticas”) enlazada desde la barra lateral de escritorio y el menú móvil “Más” con el estado activo; eliminar el comportamiento de marcador de posición para esta sección en `AdminShell.tsx`.
+- El control de periodo reutiliza el patrón de Ventas: dos disparadores de fecha que abren el popover colapsable del calendario mensual, y el rango inclusivo seleccionado se aplica a todas las secciones. Supuesto: el rango predeterminado son los últimos 30 días locales — a diferencia de Ventas, que usa el día actual — porque una vista de analíticas de un solo día quedaría vacía; ambos límites siguen siendo editables.
+- Periodo de comparación: el rango inmediatamente anterior de igual longitud inclusiva (el día anterior al límite de inicio, retrocediendo la misma cantidad de días). Los deltas mostrados son cambios absolutos y porcentuales con signo.
+- Secciones, mobile-first y en este orden:
+  1. Resumen comparativo — ingresos netos, número de ventas y ticket promedio del rango seleccionado, cada uno con el valor del periodo anterior y su delta. Brutos, descuentos y netos se mantienen distintos.
+  2. Evolución de ventas — gráfica diaria de ventas netas del rango seleccionado, reutilizando el patrón SVG de tendencia de Ventas y su lista accesible de valores.
+  3. Rankings — productos más vendidos y servicios más vendidos (unidades e ingresos netos) y rendimiento por empleado (ventas, ingresos netos, ticket promedio), cada uno rankeado con desempate determinista por nombre.
+  4. Analíticas de promociones (la sección prioritaria) — por promoción: ventas atribuidas (cantidad, ingresos netos, descuentos concedidos y unidades atribuidas); cifras de ocurridas-durante-la-ventana (cantidad, neto, unidades) claramente etiquetadas como contextuales (“la coincidencia de fechas no demuestra atribución”); comparación de la ventana de la promoción contra la ventana de igual longitud inmediatamente anterior bajo la misma regla de atribución; una referencia contra ventas sin atribución de promoción para el rango seleccionado; ranking de mejores y peores con la clave de orden indicada en la interfaz; y una serie diaria de neto atribuido por promoción.
+- Solo métricas honestas: nada de lift, conversión, ROI ni afirmaciones de causalidad; toda comparación indica su fórmula en el texto de la interfaz; una promoción sin ventana de fechas almacenada muestra sus cifras con una nota explícita “sin ventana de fechas comparable” en lugar de una comparación inventada. Los datos de demostración siguen etiquetados como demostración.
 
-## Non-goals and constraints
+## Fuera de alcance y restricciones
 
-- Read-only: no sale creation, editing, cancellation, refunds, or any mutation; never touch product stock.
-- No new dependencies or chart libraries, no backend, no analytics-specific storage; calculations come only from existing demonstration records and local stores.
-- Reuse the design system and conventions: AdminGate, AdminShell, existing controls, the calendar popover, currency formatting from business settings, and the Sales/dashboard list and card styles. New CSS follows `src/styles/sales.css` conventions.
-- Reuse the existing pure sales functions where they fit (`filterSales`, `summarizeSales`, `getSalesBreakdown`, `getSalesTrend`, `getPromotionSalesInsights`); add new pure analytics functions in `src/services/analytics.ts` with focused tests.
+- Solo lectura: sin creación, edición, cancelación ni reembolsos de ventas, ni ninguna mutación; nunca tocar el stock de productos.
+- Sin dependencias nuevas ni librerías de gráficas, sin backend, sin almacenamiento propio de analíticas; los cálculos salen únicamente de los registros de demostración y los almacenes locales existentes.
+- Reutilizar el sistema de diseño y las convenciones: AdminGate, AdminShell, los controles existentes, el popover del calendario, el formato de moneda de la configuración del negocio y los estilos de listas y tarjetas de Ventas/dashboard. El CSS nuevo sigue las convenciones de `src/styles/sales.css`.
+- Reutilizar las funciones puras de ventas donde encajen (`filterSales`, `summarizeSales`, `getSalesBreakdown`, `getSalesTrend`, `getPromotionSalesInsights`); agregar nuevas funciones puras de analíticas en `src/services/analytics.ts` con pruebas enfocadas.
 
-## Data and behavior
+## Datos y comportamiento
 
-- Sales stay the deterministic demonstration records. Extend only the generator in `src/data/demo.ts` so the default 30-day window and its preceding comparison window both carry plausible daily volume (multiple days with several sales across roughly the last 90–120 days), keeping records deterministic, IDs and existing fields intact, and promotion attribution snapshots unchanged. Update only the existing test expectations that encode previous demo values; never weaken other assertions.
-- Promotions come from the existing local promotion records (the same source the Sales page reads); no analytics-only promotion data is created.
-- New `AnalyticsPage.tsx` (+ tests) rendered by `src/pages/analiticas.astro`; navigation wiring in `AdminShell.tsx` (add the `href` and the `'Analíticas'` member to the active-section prop union). The mobile “Más” menu inherits the entry from the desktop section list.
-- Empty ranges and promotions without activity get explicit empty states.
+- Las ventas siguen siendo los registros de demostración deterministas. Extender solo el generador de `src/data/demo.ts` para que la ventana predeterminada de 30 días y su ventana de comparación previa tengan volumen diario plausible (varios días con varias ventas en aproximadamente los últimos 90–120 días), manteniendo los registros deterministas, los IDs y campos existentes intactos, y las instantáneas de atribución de promociones sin cambios. Actualizar solo las expectativas de pruebas existentes que codifican valores demo anteriores; nunca debilitar otras aserciones.
+- Las promociones provienen de los registros locales de promociones existentes (la misma fuente que lee la página de Ventas); no se crean datos de promociones exclusivos de analíticas.
+- Nueva `AnalyticsPage.tsx` (+ pruebas) renderizada por `src/pages/analiticas.astro`; cableado de navegación en `AdminShell.tsx` (agregar el `href` y el miembro `'Analíticas'` a la unión del prop de sección activa). El menú móvil “Más” hereda la entrada de la lista de secciones de escritorio.
+- Los rangos vacíos y las promociones sin actividad tienen estados vacíos explícitos.
 
-## Verification
+## Verificación
 
-- Unit-test the pure analytics functions: current-vs-previous window math (equal inclusive lengths, boundaries, empty windows), ranking order and tie-breaks, employee performance values, and promotion comparisons — including that date overlap never counts as attribution and that a missing promotion date window produces no invented comparison.
-- Page tests: AdminGate protection, period popover behavior, every section with data and with empty states, and the absence of sale or inventory mutation controls.
-- Run focused tests, the full Vitest suite, `npm run check`, and `npm run build`; visually inspect the new route at 390px and 1440px with Playwright (design only) and run the Impeccable detector on it.
+- Probar unitariamente las funciones puras de analíticas: aritmética de ventanas actual-vs-anterior (longitudes inclusivas iguales, límites, ventanas vacías), orden de rankings y desempates, valores de rendimiento por empleado y comparaciones de promociones — incluyendo que la coincidencia de fechas nunca cuenta como atribución y que una promoción sin ventana de fechas no produce una comparación inventada.
+- Pruebas de página: protección de AdminGate, comportamiento del popover de periodo, cada sección con datos y con estados vacíos, y la ausencia de controles de mutación de ventas o inventario.
+- Correr pruebas enfocadas, la suite completa de Vitest, `npm run check` y `npm run build`; inspeccionar visualmente la ruta nueva a 390px y 1440px con Playwright (solo diseño) y correr el detector de Impeccable sobre ella.
 
-Risk: none for the module itself (read-only aggregation over demonstration records; no persisted format, storage key, or shared contract changes; the navigation change is additive). The demo-data extension changes values visible on shared surfaces (dashboard, Sales); their existing suites must stay green and cover the new volume.
+Riesgo: ninguno para el módulo en sí (agregación de solo lectura sobre registros de demostración; sin cambios de formato persistido, claves de almacenamiento ni contratos compartidos; el cambio de navegación es aditivo). La extensión de datos demo cambia valores visibles en superficies compartidas (dashboard, Ventas); sus suites existentes deben permanecer en verde y cubrir el nuevo volumen.
