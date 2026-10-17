@@ -43,10 +43,10 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 
 ## Tasks
 
-- [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete for S5 section-level persistence; baseline commit: `d1306ae`; follow-up commit: pending.
+- [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; baseline commit: `d1306ae`; follow-up commits: `d3e1f4a`, `34d1059`.
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
-- [ ] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: reopened for S5; baseline commit: `fed1102`; follow-up commit: pending.
-- [ ] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: reopened for S5; baseline verification: `a7e9a02`; follow-up commit: pending.
+- [x] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: complete; baseline commit: `fed1102`; follow-up commit: `10cb798`.
+- [x] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: complete; baseline verification: `a7e9a02`; verification commit: pending.
 
 ## Log
 
@@ -66,5 +66,8 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 - L14: User selected “opcion 1” (desktop category sidebar, mobile category Dropdown) and “Guardar por categoría”.
 - L15: User approved updating the design and plan: “si hazlo”.
 - L16: S5 reopens T1, T3, and T4 only; the implemented settings data, currency consumers, and their completed tests remain valid.
-- L17: Added the T1 S5 helper to persist one settings section while merging with current saved state; invalid envelopes fail without replacing bytes. Store tests: 19 passed; Astro check: zero diagnostics. RDD remains off. Follow-up commit pending.
-- Risk: none for the completed S1–S4 implementation; its monetary consumers/settings behavior are covered and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain unchanged. Reassess after the S5 follow-up closes.
+- L17: Added the T1 S5 helper to persist one settings section while merging with current saved state. Store tests: 19 passed; Astro check: zero diagnostics. Commit `d3e1f4a`.
+- L18: Implemented the S5 UI: desktop category sidebar, mobile category Dropdown, one visible category at a time, section-scoped saves with in-memory drafts, and the Agenda editors kept in their own hidden categories. Focused suite 32 passed; full suite 295 passed; Astro check zero diagnostics; build 12 routes. Commit `10cb798`.
+- L19: Reviewing the T1 helper exposed a dead end: refusing to overwrite unreadable stored bytes removed the only recovery path the old full save provided. `saveBusinessSettingsSection` now merges over default settings when the envelope is unreadable, so an explicit save replaces corrupt bytes; the panel warning clears after that save. Tests updated; commit `34d1059`.
+- L20: Final S5 verification: `npm test` (296 tests, 39 files); `npm run check` (zero diagnostics); `npm run build` (12 static routes); `git diff --check` passed; Impeccable detector on `SettingsPage.tsx`, `BusinessSettingsPanel.tsx`, `business-settings.css`, and the built `/configuracion/` page returned no findings. RDD remains off by global choice; Engram mirror remains pending because the service cannot resolve an authoritative runtime session.
+- Risk: none for S1–S5. S5 changes configuration UI structure and the section-merge write path; both have focused coverage, the stored envelope schema is unchanged, and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain untouched.

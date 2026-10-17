@@ -246,7 +246,7 @@ In `BusinessSettingsPanel`, `updateCurrency(value: CurrencyCode)` changes only `
 
 **Files:** `src/types/business-settings.ts`, `src/services/business-settings-store.ts`, `src/services/business-settings-store.test.ts`.
 
-**S5 follow-up:** `T1` is reopened only to add/test `saveBusinessSettingsSection`, preserving other persisted settings groups and refusing to overwrite an invalid envelope.
+**S5 follow-up:** `T1` is reopened only to add/test `saveBusinessSettingsSection`, preserving other persisted settings groups and replacing unreadable envelopes only on an explicit save.
 
 - [x] Write failing tests proving default business identity is `Webby's Barbershop`, default currency is MXN, optional contact/profile fields are blank, each weekday is unconfigured, and notification preferences default off.
 - [x] Write failing tests accepting valid open/closed/unconfigured weekday states and rejecting invalid currency codes, malformed hours, open times where `closesAt <= opensAt`, invalid profile field types, and missing preference categories.
@@ -254,10 +254,11 @@ In `BusinessSettingsPanel`, `updateCurrency(value: CurrencyCode)` changes only `
 - [x] Implement `createDefaultBusinessSettings`, `validateBusinessSettings`, `loadBusinessSettings`, and `saveBusinessSettings` using `webbys:business-settings:v1`. Loading does not rewrite invalid bytes; saving validates before calling `setItem`.
 - [x] Run `npm test -- src/services/business-settings-store.test.ts` (17 passed) and `npm run check` (zero diagnostics); RED → GREEN observed.
 - [x] Commit: `d1306ae feat(settings): add isolated business settings store`.
-- [x] Add a failing test that saving one category merges only that category with existing settings; other saved categories and corrupt bytes remain unchanged.
-- [x] Implement `saveBusinessSettingsSection` using `loadBusinessSettings`; reject `status === 'invalid'`, replace only `draft[section]` for valid/default data, and call `saveBusinessSettings`.
+- [x] Add a failing test that saving one category merges only that category with existing settings; other saved categories remain unchanged.
+- [x] Implement `saveBusinessSettingsSection` using `loadBusinessSettings`; merge only `draft[section]` over the stored settings and call `saveBusinessSettings`.
+- [x] Fall back to default settings as the merge base when stored bytes are unreadable, so an explicit save replaces corrupt bytes instead of leaving settings unrecoverable.
 - [x] Run `npm test -- src/services/business-settings-store.test.ts` (19 passed) and `npm run check` (zero diagnostics).
-- [ ] Commit the S5 store follow-up in a separate Conventional Commit.
+- [x] Commit the S5 store follow-up: `d3e1f4a feat(settings): save business sections independently`; unreadable-storage recovery: `34d1059 fix(settings): recover unreadable settings on explicit save`.
 
 ### Task 2: Shared currency formatting across monetary consumers
 
@@ -306,16 +307,16 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts` (25 passed).
 - [x] Run `npm run check` (zero diagnostics).
 - [x] Commit: `fed1102 feat(settings): complete business configuration page`.
-- [ ] Add failing tests for all seven menu categories, the default Perfil del negocio category, desktop menu selection, mobile custom Dropdown selection, and only the selected category being visible.
-- [ ] Add failing tests proving each business settings category has its own Save action, saving one category does not persist another category's unsaved draft, and switching categories preserves the in-memory draft.
-- [ ] Add failing integration tests that Horarios del equipo and Excepciones por fecha remain separate categories with their existing Agenda save behavior.
-- [ ] Implement `SettingsCategory` navigation in `SettingsPage`: desktop sidebar, mobile `Dropdown`, active category defaults to `business`, and all category panels remain mounted with inactive panels hidden so existing editor drafts survive navigation.
-- [ ] Refactor `BusinessSettingsPanel` to render only the selected business settings category and a section-scoped Save action. Keep its full draft in memory while the category changes.
-- [ ] Implement section saves with `saveBusinessSettingsSection`; merge only the active business section into the latest stored settings, preserve other persisted sections, and do not persist unsaved drafts from other sections.
-- [ ] Place `BarberAvailabilityPanel` and `AvailabilityExceptionEditor` in their own hidden/shown categories without changing their `webbys:agenda:v1` save callbacks.
-- [ ] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts`; expect all category-navigation and save-isolation tests to pass.
-- [ ] Run `npm run check`; expect zero diagnostics.
-- [ ] Commit the S5 UI follow-up in a separate Conventional Commit.
+- [x] Add failing tests for all seven menu categories, the default Perfil del negocio category, desktop menu selection, mobile custom Dropdown selection, and only the selected category being visible.
+- [x] Add failing tests proving each business settings category has its own Save action, saving one category does not persist another category's unsaved draft, and switching categories preserves the in-memory draft.
+- [x] Add failing integration tests that Horarios del equipo and Excepciones por fecha remain separate categories with their existing Agenda save behavior.
+- [x] Implement `SettingsCategory` navigation in `SettingsPage`: desktop sidebar, mobile `Dropdown`, active category defaults to `business`, and all category panels remain mounted with inactive panels hidden so existing editor drafts survive navigation.
+- [x] Refactor `BusinessSettingsPanel` to render only the selected business settings category and a section-scoped Save action. Keep its full draft in memory while the category changes.
+- [x] Implement section saves with `saveBusinessSettingsSection`; merge only the active business section into the latest stored settings, preserve other persisted sections, and do not persist unsaved drafts from other sections.
+- [x] Place `BarberAvailabilityPanel` and `AvailabilityExceptionEditor` in their own hidden/shown categories without changing their `webbys:agenda:v1` save callbacks.
+- [x] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts`; 32 focused tests passed, then the full suite at 296 tests.
+- [x] Run `npm run check`; zero diagnostics.
+- [x] Commit the S5 UI follow-up: `10cb798 feat(settings): reorganize configuration into categories`; legacy navigation coverage updated in `AgendaPage.test.tsx` and `SettingsPage.test.tsx`.
 
 ### Task 4: Full verification and close
 
@@ -325,9 +326,9 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Verify every requirement in `docs/superpowers/specs/2026-10-16-webbys-business-settings-design.md`, including preserved Agenda storage, all global currency consumers, no conversion, and no notification delivery.
 - [x] RDD was read as off (global); no review lifecycle or mode changes were performed.
 - [x] Record final result in `odd/tasks/business-settings.md`; verification work-unit commit: `a7e9a02`. No push or PR was performed.
-- [ ] Rerun full tests, Astro check, static build, and diff check after the S5 follow-up; record fresh outcomes.
-- [ ] Run the Impeccable detector once on changed Settings navigation/UI targets after the follow-up; record the observed result.
-- [ ] Record follow-up verification and commits in `odd/tasks/business-settings.md`; do not push or open a PR without separate authorization.
+- [x] Rerun full tests (296 tests/39 files), Astro check (zero diagnostics), static build (12 routes), and `git diff --check` after the S5 follow-up.
+- [x] Run the Impeccable detector on `SettingsPage.tsx`, `BusinessSettingsPanel.tsx`, the stylesheet, and the built `/configuracion/` page; no findings returned.
+- [x] Record follow-up verification and commits in `odd/tasks/business-settings.md`; no push or PR without separate authorization.
 
 ## Known Decisions and Assumptions
 
@@ -337,7 +338,8 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - Notification-category preferences start disabled until the user explicitly enables them. They are local future-integration preferences, not delivery controls.
 - The initial currency is MXN; USD and EUR are the other initial options. Changing currency is presentation-only.
 - Monetary displays currently appear in Dashboard, Products, Services, Promotions/target picker, AppointmentForm, and Sales; the shared formatter must cover every listed consumer.
-- Final UI detector run over SettingsPage, BusinessSettingsPanel, and its stylesheet returned `[]` (no findings).
+- The S5 organization uses a desktop category sidebar and a mobile category Dropdown; each business settings category has its own Save action, and unsaved drafts live only in component memory.
+- Final UI detector run over SettingsPage, BusinessSettingsPanel, its stylesheet, and the built `/configuracion/` page after S5 returned no findings.
 
 ## Verification and Delivery
 
