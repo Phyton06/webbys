@@ -35,3 +35,4 @@ Use the approved read-only register-and-analytics direction. Add only the data f
 - L1: Original request: “si la opcion 1” / “hazlo”. The user clarified that sales are view-only; no manual recording.
 - L2: User approved a read-only sales register plus analytics. Sale creation, inventory changes, and causal claims from date overlap are out of scope.
 - L3: Promotions delivery commit `e760774` was pushed to `origin/main` before starting this phase. Engram task mirror is pending because the MCP reports no authoritative runtime session; preserve this local document and resynchronize when available.
+- L4: The approved implementation plan is `docs/superpowers/plans/2026-10-17-webbys-sales.md`; implementation route is inline. Planning/documentation commit will be recorded when saved.
