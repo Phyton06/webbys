@@ -95,6 +95,20 @@ describe('BusinessSettingsPanel', () => {
     expect(localStorage.getItem(NOTIFICATIONS_STORAGE_KEY)).toBe(notificationBytes);
   });
 
+  it('replaces unreadable stored settings with a valid envelope on an explicit save', () => {
+    localStorage.setItem(BUSINESS_SETTINGS_STORAGE_KEY, '{unreadable business data');
+    render(<BusinessSettingsPanel section="business" />);
+
+    expect(screen.getByText('No se pudieron leer los datos de configuración guardados. Revisa el almacenamiento del navegador.')).toBeTruthy();
+
+    fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Barbería Recuperada' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+
+    expect(loadBusinessSettings(localStorage).status).toBe('loaded');
+    expect(loadBusinessSettings(localStorage).settings.business.name).toBe('Barbería Recuperada');
+    expect(screen.queryByText('No se pudieron leer los datos de configuración guardados. Revisa el almacenamiento del navegador.')).toBeNull();
+  });
+
   it('keeps an unsaved draft while navigating and does not save it with another category', () => {
     const view = render(<BusinessSettingsPanel section="business" />);
     fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Borrador no guardado' } });

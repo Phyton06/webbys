@@ -113,8 +113,6 @@ export function saveBusinessSettingsSection(
   section: BusinessSettingsSection,
 ): void {
   const stored = loadBusinessSettings(storage);
-  if (stored.status === 'invalid') {
-    throw new Error('No se pueden guardar los cambios hasta revisar los datos guardados.');
-  }
-  saveBusinessSettings(storage, { ...stored.settings, [section]: draft[section] });
+  const base = stored.status === 'invalid' ? createDefaultBusinessSettings() : stored.settings;
+  saveBusinessSettings(storage, { ...base, [section]: draft[section] });
 }

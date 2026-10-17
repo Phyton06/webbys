@@ -150,12 +150,6 @@ export function BusinessSettingsPanel({ section }: BusinessSettingsPanelProps) {
     } catch {
       stored = { settings: createDefaultBusinessSettings(), status: 'invalid' as const };
     }
-    if (stored.status === 'invalid') {
-      setStorageWarning(true);
-      setError('No se pueden guardar los cambios hasta revisar los datos guardados.');
-      setAnnouncement('');
-      return;
-    }
 
     const merged: BusinessSettings = { ...stored.settings, [section]: draft[section] };
     if (!validateBusinessSettings(merged)) {

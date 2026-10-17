@@ -136,11 +136,14 @@ describe('saveBusinessSettingsSection', () => {
     expect(loadBusinessSettings(localStorage).settings.notificationPreferences.promotion).toBe(true);
   });
 
-  it('preserves corrupt bytes rather than replacing another category save', () => {
-    const corrupt = '{unreadable business data';
-    localStorage.setItem(BUSINESS_SETTINGS_STORAGE_KEY, corrupt);
+  it('replaces unreadable stored bytes with a valid envelope on an explicit save', () => {
+    localStorage.setItem(BUSINESS_SETTINGS_STORAGE_KEY, '{unreadable business data');
 
-    expect(() => saveBusinessSettingsSection(localStorage, createDefaultBusinessSettings(), 'currency')).toThrow();
-    expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).toBe(corrupt);
+    const draft = createDefaultBusinessSettings();
+    draft.currency = 'USD';
+    saveBusinessSettingsSection(localStorage, draft, 'currency');
+
+    expect(loadBusinessSettings(localStorage).status).toBe('loaded');
+    expect(loadBusinessSettings(localStorage).settings.currency).toBe('USD');
   });
 });
