@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { BUSINESS_SETTINGS_STORAGE_KEY } from '../services/business-settings-store';
 import { AgendaPage } from './AgendaPage';
 import { SettingsPage } from './SettingsPage';
 
@@ -17,6 +18,22 @@ beforeEach(() => {
 });
 
 describe('SettingsPage availability', () => {
+  it('saves business settings separately while preserving existing barber availability data', async () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, createAgendaSeed(now));
+    const agendaBytes = localStorage.getItem('webbys:agenda:v1');
+    render(<SettingsPage />);
+
+    fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Barbería del Centro' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar configuración' }));
+    await waitFor(() => expect(screen.getByText('Configuración guardada localmente.')).toBeTruthy());
+
+    expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).not.toBeNull();
+    expect(localStorage.getItem('webbys:agenda:v1')).toBe(agendaBytes);
+    expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Excepciones por fecha' })).toBeTruthy();
+  });
+
   it('hosts weekly schedules and date exceptions under Configuration', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));

@@ -6,6 +6,7 @@ import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { BarberAvailabilityPanel } from './BarberAvailabilityPanel';
 import { AvailabilityExceptionEditor } from './AvailabilityExceptionEditor';
+import { BusinessSettingsPanel } from './BusinessSettingsPanel';
 
 function loadInitialAgenda(now: Date): AgendaLoadResult {
   try {
@@ -42,9 +43,10 @@ export function SettingsPage() {
           <header class="agenda-heading">
             <div>
               <h1 id="settings-title">Configuración</h1>
-              <p>Administra los horarios de trabajo y las excepciones por fecha.</p>
+              <p>Administra la información del negocio, preferencias y horarios.</p>
             </div>
           </header>
+          <BusinessSettingsPanel />
           <BarberAvailabilityPanel
             barbers={state.barbers}
             schedules={state.schedules}

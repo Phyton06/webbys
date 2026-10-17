@@ -1,0 +1,158 @@
+.business-settings-panel {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+  margin-bottom: var(--space-8);
+}
+
+.business-settings-heading h2,
+.business-settings-section h3 {
+  margin: 0;
+  color: var(--color-ink);
+}
+
+.business-settings-heading h2 {
+  font-size: var(--text-lg);
+}
+
+.business-settings-heading p,
+.business-settings-section > p {
+  margin: var(--space-2) 0 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.business-settings-form {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.business-settings-section {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
+  padding-block: var(--space-4);
+  border-top: 1px solid var(--color-line);
+}
+
+.business-settings-section h3 {
+  font-size: var(--text-md);
+}
+
+.business-profile-layout,
+.business-profile-fields {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
+}
+
+.business-profile-fields {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+
+.business-current-logo {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.business-current-logo img {
+  width: 5rem;
+  height: 5rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+}
+
+.business-currency-control,
+.business-hours-status {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.business-currency-control {
+  max-width: 24rem;
+}
+
+.business-hours-grid {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.business-hours-day {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.business-hours-day legend {
+  padding: 0;
+  color: var(--color-ink);
+  font-weight: 650;
+}
+
+.business-hours-times {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.business-hours-times label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.business-hours-times input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.business-notification-preferences {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-2) var(--space-4);
+}
+
+.business-notification-preference {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-ink);
+}
+
+.business-notification-preference input {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+}
+
+.business-theme-note {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.business-settings-actions {
+  display: flex;
+  justify-content: flex-start;
+}
