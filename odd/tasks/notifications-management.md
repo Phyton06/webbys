@@ -31,7 +31,7 @@ No backend, API, actual push, scheduled background delivery, or deployed/tunnele
 
 ## Tasks
 
-- [ ] T1 — Define notification types, audience snapshots, validation, and versioned isolated storage; route: inline; status: pending; commit: pending.
+- [x] T1 — Define notification types, audience snapshots, validation, and versioned isolated storage; route: inline; status: complete; commit: `5a85b4d` (7 store tests, RED → GREEN).
 - [ ] T2 — Add the minimal message-only service worker and user-gesture local notification test/permission state; route: inline; status: pending; commit: pending; verification: high-risk item 5 independent verifier required.
 - [ ] T3 — Build the history-first protected Notifications page, composer/preview, audience search/segments, scheduling, simulated history, navigation, and responsive styles; route: inline; status: pending; commit: pending.
 - [ ] T4 — Run full verification, inspect UI only within the authorized local scope, update the task log, and close the feature; route: inline; status: pending; commit: pending.
@@ -41,4 +41,5 @@ No backend, API, actual push, scheduled background delivery, or deployed/tunnele
 - L1: Original request: “podria hacer que las notificaciones push si funcionen pero solo localmente osea en el celular que lo pruebe para que vea como queda?”
 - L2: User approved the local device test, history-first composer layout, existing search/dropdown/calendar patterns, and local persistence. Actual push and recipient delivery remain out of scope.
 - L3: User selected `stacked-to-main` as the Notifications delivery strategy. No push/PR is authorized. Engram task mirror pending because the MCP cannot resolve an authoritative runtime session.
+- L4: T1 added the versioned independent notification envelope, audience resolution, and validation; invalid saves are rejected without rewriting stored bytes. Focused test: `npm test -- src/services/notifications-store.test.ts` (7 passed); Astro check: 0 diagnostics. Commit: `5a85b4d`.
 - L4: Implementation plan written to `docs/superpowers/plans/2026-10-17-webbys-notifications.md`; ODD route is direct inline (no writer parallelism trigger). High-risk service-worker behavior requires an independent verifier before delivery.

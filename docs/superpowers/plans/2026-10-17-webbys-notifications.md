@@ -88,11 +88,11 @@ export async function showLocalNotificationTest(title: string, body: string, run
 
 **Files:** `src/types/notifications.ts`, `src/services/notifications-store.ts`, `src/services/notifications-store.test.ts`.
 
-- [ ] Add failing tests for required title/body, valid category/status/audience combinations, selected recipient snapshots, required future schedule dates, and simulated timestamps.
-- [ ] Add failing storage tests for an empty key, a valid version-1 envelope, corrupt JSON/schema, failed writes, and exact byte preservation after invalid saves.
-- [ ] Implement `validateNotification`, `loadNotifications`, `saveNotifications`, and `resolveNotificationAudience`; store only IDs and names and never modify Agenda storage.
-- [ ] Run `npm test -- src/services/notifications-store.test.ts`; expect all new tests to pass.
-- [ ] Commit: `feat(notifications): add local notification history store`.
+- [x] Add failing tests for required title/body, valid category/status/audience combinations, selected recipient snapshots, required future schedule dates, and simulated timestamps.
+- [x] Add failing storage tests for an empty key, a valid version-1 envelope, corrupt JSON/schema, failed writes, and exact byte preservation after invalid saves.
+- [x] Implement `validateNotification`, `loadNotifications`, `saveNotifications`, and `resolveNotificationAudience`; store only IDs and names and never modify Agenda storage.
+- [x] Run `npm test -- src/services/notifications-store.test.ts` (7 passed) and `npm run check` (0 diagnostics).
+- [x] Commit: `5a85b4d feat(notifications): add local notification history store`.
 
 ### Task 2: Permission-gated local device notification test
 
