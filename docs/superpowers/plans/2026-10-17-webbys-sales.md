@@ -114,6 +114,9 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 - [x] Add failing navigation tests for the Sales route and current-page semantics on desktop and mobile More; update prior “coming soon” assertions for Sales.
 - [x] Implement `/ventas/` using `AdminGate`, `AdminShell`, `Dropdown`, `MobileMonthCalendar`, generated `DemoData.sales`, and current promotion snapshots; details have no sale/inventory mutation controls.
 - [x] Run `npm test -- src/components/SalesPage.test.tsx src/components/AdminShell.test.tsx src/services/sales.test.ts` (27 tests passed), `npm run check` (0 diagnostics), and commit: `e457c83 feat(sales): add read-only sales register`.
+- [ ] Add failing tests that Sales defaults to the current local day, displays the applied range above the summary, and applies changed inclusive boundaries to all derived views.
+- [ ] Move the two shared-calendar date controls to the top period section; initialize both boundaries to today and keep list, summary, trend, breakdown, and promotion analysis on the same range.
+- [ ] Run the focused Sales page tests and record the follow-up work-unit commit.
 
 ### Task 4: Verify and close the feature
 

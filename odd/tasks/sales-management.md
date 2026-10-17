@@ -8,8 +8,9 @@ Delivery: `feature-branch-chain` (user-selected); test runner: Vitest (`npm test
 ### S1 — Read-only sales
 
 User requirement: “no, este usuario no quiero que registre ventas, solo vea los registros”
+Additional date-range clarification: “oye solo una duda muestra las ventas e ingresos pero no sale de que fecha o rangos de fechas al inicio, ademas quisiera que ahi pudiera elejir el rango de fecha, por defecto debe ser del dia”
 
-The administrator can inspect generated sales records through a protected `/ventas/` page, a record detail view, text search, and filters by date, employee, product, service, and promotion. There is no create/edit/cancel/refund workflow, no writable sales storage, and no stock mutation. Verify page interactions and assert that the product inventory snapshot is unchanged by all available page actions.
+The administrator can inspect generated sales records through a protected `/ventas/` page, a record detail view, text search, and filters by date, employee, product, service, and promotion. Show the active date range above the summary, default both boundaries to the current local day, and apply the selected inclusive range consistently to the list, summaries, trend, breakdowns, and promotion report. There is no create/edit/cancel/refund workflow, no writable sales storage, and no stock mutation. Verify page interactions and assert that the product inventory snapshot is unchanged by all available page actions.
 
 ### S2 — Sales and promotion reporting
 
@@ -27,7 +28,7 @@ Use the approved read-only register-and-analytics direction. Add only the data f
 
 - [x] T1 — Define and test read-only sale snapshots and generated fixtures; route: inline; status: complete; commit: `481e79d` (RED → GREEN: `src/services/dashboard.test.ts`).
 - [x] T2 — Implement deterministic filters, daily trend, summaries, breakdowns, and explicit-attribution versus date-overlap reporting; route: inline; status: complete; commits: `6c3b00a` plus attribution/trend follow-up (RED → GREEN: `src/services/sales.test.ts`).
-- [x] T3 — Build the protected Sales register, search/date/catalog filters, detail view, analytics, and navigation; route: inline; status: complete; commit: `e457c83` (27 focused tests pass).
+- [ ] T3 — Build the protected Sales register, search/date/catalog filters, detail view, analytics, and navigation; route: inline; status: reopened for default-today and visible date-range controls; prior commit: `e457c83`.
 - [x] T4 — Verify the full feature and record final check results; route: inline; status: complete; evidence: 226 tests pass, Astro check 0 diagnostics, build creates 11 routes, diff check clean.
 
 ## Log
@@ -40,3 +41,4 @@ Use the approved read-only register-and-analytics direction. Add only the data f
 - L6: Query refinements are in `f703287`; the protected register, detail, filters, summary, trend, breakdowns, and navigation are in `e457c83`. User selected delivery strategy “Cadena de rama feature” (`feature-branch-chain`). No Sales push or PR was authorized.
 - L7: Final verification passed: `npm test` (226 tests), `npm run check` (0 errors/warnings/hints), `npm run build` (11 routes including `/ventas/`), and `git diff --check`. Responsive inspection at 1280px and 390px found no horizontal overflow. The Impeccable detector produced one typography advisory; it was corrected with the documented token, and not rerun because this visual pass is limited to one detector run.
 - L8: Independent `gentle-ai-verify` verdict: S1–S3 met, no reproducible blockers; service tests (15), UI/navigation tests (19), and Astro check passed in scratch. It did not independently hash storage, but the page test asserts the Agenda bytes stay unchanged after search/detail actions, and source review found no write path.
+- L9: User requirement change: “oye solo una duda muestra las ventas e ingresos pero no sale de que fecha o rangos de fechas al inicio, ademas quisiera que ahi pudiera elejir el rango de fecha, por defecto debe ser del dia”. Reopened only T3 to show the active range above the summary, default to today, and apply inclusive range boundaries to derived data.

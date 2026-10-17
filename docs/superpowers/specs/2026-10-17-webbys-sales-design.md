@@ -9,12 +9,15 @@ Add a read-only Sales module so the administrator can inspect existing sale reco
 - The user specified: “no, este usuario no quiero que registre ventas, solo vea los registros”
 - The user selected: “si la opcion 1”
 - The user approved the design direction: “hazlo”
+- The user clarified the initial Sales date range: “oye solo una duda muestra las ventas e ingresos pero no sale de que fecha o rangos de fechas al inicio, ademas quisiera que ahi pudiera elejir el rango de fecha, por defecto debe ser del dia”
 
 ## Approved scope
 
 - Add a protected `/ventas/` route linked from the existing authenticated navigation.
 - Show a searchable/filterable, mobile-first sales register and a sale detail view.
 - Filter records by date range, employee, product, service, and promotion.
+- Show the active date range above the Sales summary. On initial entry, both range boundaries are the current local date; the user can change either boundary with the existing collapsible month-calendar popover.
+- The selected inclusive date range applies consistently to the Sales list, summary, daily trend, item/employee breakdowns, and promotion reporting.
 - Show gross sales, discounts, net sales, sale count, and average ticket for the selected records; chart daily net sales and provide read-only breakdowns for products, services, employees, and promotions.
 - Keep promotion attribution explicit and distinct from sales that only occurred during a promotion's date range. Date overlap is contextual reporting, not proof of causality.
 - Extend only the generated demonstration records and their types with the snapshots/IDs required for these views. Reuse the current sales data flow rather than adding a writable sales collection.
