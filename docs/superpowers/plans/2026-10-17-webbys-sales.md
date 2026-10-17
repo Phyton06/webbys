@@ -88,19 +88,19 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 
 **Files:** `src/types/domain.ts`, `src/data/demo.ts`, `src/services/dashboard.test.ts`.
 
-- [ ] Add one failing test in `src/services/dashboard.test.ts` proving generated sales include valid IDs/kinds, positive integer quantities, employee/payment/status snapshots, and totals consistent with item snapshots.
-- [ ] Add a regression assertion that the dashboard still receives 35 records and retains gross-minus-discount equals net for every record.
-- [ ] Observe RED, extend the types and deterministic generator, then run the focused tests to GREEN.
-- [ ] Run the focused test command and commit the data contract with tests: `feat(sales): enrich read-only demo records`.
+- [x] Add one failing test in `src/services/dashboard.test.ts` proving generated sales include valid IDs/kinds, positive integer quantities, employee/payment/status snapshots, and totals consistent with item snapshots.
+- [x] Add a regression assertion that the dashboard still receives 35 records and retains gross-minus-discount equals net for every record.
+- [x] Observe RED, extend the types and deterministic generator, then run the focused tests to GREEN.
+- [x] Run `npm test -- src/services/dashboard.test.ts` (7 tests passed) and commit the data contract with tests: `481e79d feat(sales): enrich read-only demo records`.
 
 ### Task 2: Pure read-only sales queries
 
 **Files:** `src/services/sales.ts`, `src/services/sales.test.ts`, `src/types/domain.ts`.
 
-- [ ] Add failing tests for inclusive date boundaries, text search over sale/item/employee names, employee/product/service/promotion filters, totals, and item breakdowns. Invalid date inputs or reversed ranges return no results.
-- [ ] Add failing tests showing explicit `promotionId` attribution is distinct from records merely inside `startsOn`/`endsOn`; test inclusive dates and overlapping promotions without inferring attribution.
-- [ ] Implement exported pure functions matching the interfaces above. Treat optional metadata as absent for legacy sale records, and return no results for malformed date inputs or reversed ranges.
-- [ ] Run `npm test -- src/services/sales.test.ts` and commit: `feat(sales): add read-only reporting queries`.
+- [x] Add failing tests for inclusive date boundaries, text search over sale/item/employee names, employee/product/service/promotion filters, totals, and item breakdowns. Invalid date inputs or reversed ranges return no results.
+- [x] Add failing tests showing explicit `promotionId` attribution is distinct from records merely inside `startsOn`/`endsOn`; test inclusive dates and overlapping promotions without inferring attribution.
+- [x] Implement exported pure functions matching the interfaces above. Treat optional metadata as absent for legacy sale records, and return no results for malformed date inputs or reversed ranges.
+- [x] Run `npm test -- src/services/dashboard.test.ts src/services/sales.test.ts` (13 tests passed), `npm run check` (0 diagnostics), and commit: `6c3b00a feat(sales): add read-only sales queries`.
 
 ### Task 3: Protected Sales register and navigation
 

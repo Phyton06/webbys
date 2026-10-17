@@ -25,7 +25,7 @@ Use the approved read-only register-and-analytics direction. Add only the data f
 
 ## Tasks
 
-- [ ] T1 — Define and test read-only sales record snapshots and deterministic reporting; route: inline; status: pending; commit: pending.
+- [x] T1 — Define and test read-only sales record snapshots and deterministic reporting; route: inline; status: complete; commits: `481e79d`, `6c3b00a` (RED → GREEN: `src/services/dashboard.test.ts`, `src/services/sales.test.ts`).
 - [ ] T2 — Build the protected Sales register, search/filters, and record detail; route: inline; status: pending; commit: pending.
 - [ ] T3 — Add sales-period, product/service/employee, and explicitly attributed versus date-overlap promotion insights; route: inline; status: pending; commit: pending.
 - [ ] T4 — Verify the full feature, update design/implementation docs, and record the final check results; route: inline; status: pending; commit: pending.
@@ -35,4 +35,5 @@ Use the approved read-only register-and-analytics direction. Add only the data f
 - L1: Original request: “si la opcion 1” / “hazlo”. The user clarified that sales are view-only; no manual recording.
 - L2: User approved a read-only sales register plus analytics. Sale creation, inventory changes, and causal claims from date overlap are out of scope.
 - L3: Promotions delivery commit `e760774` was pushed to `origin/main` before starting this phase. Engram task mirror is pending because the MCP reports no authoritative runtime session; preserve this local document and resynchronize when available.
-- L4: The approved implementation plan is `docs/superpowers/plans/2026-10-17-webbys-sales.md`; implementation route is inline. Planning/documentation commit will be recorded when saved.
+- L4: Approved design commit: `90e4339`. Implementation plan: `docs/superpowers/plans/2026-10-17-webbys-sales.md`, committed as `87d1e4e`. Implementation route is inline.
+- L5: T1 added optional sale item/employee/payment/status/promotion snapshots and realistic date-relative fixture catalog IDs. `src/services/sales.ts` now provides deterministic filtering, totals, breakdowns, and separate explicit-attribution/date-overlap insights. Focused checks passed: 13 tests across `src/services/dashboard.test.ts` and `src/services/sales.test.ts`; Astro check has 0 diagnostics. Work-unit commits: `481e79d`, `6c3b00a`.
