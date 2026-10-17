@@ -35,10 +35,10 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('href')).toBe('/clientes/');
     fireEvent.click(within(mobileNavigation).getByRole('button', { name: 'Más secciones' }));
     const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    const promotionsButton = within(moreNavigation).getByRole('button', { name: 'Promociones, próximamente' });
-    expect(within(promotionsButton).getByText('Próximamente')).toBeTruthy();
-    fireEvent.click(promotionsButton);
-    expect(screen.getByRole('status').textContent).toContain('La sección Promociones aún no está disponible');
+    const salesButton = within(moreNavigation).getByRole('button', { name: 'Ventas, próximamente' });
+    expect(within(salesButton).getByText('Próximamente')).toBeTruthy();
+    fireEvent.click(salesButton);
+    expect(screen.getByRole('status').textContent).toContain('La sección Ventas aún no está disponible');
   });
 
   it('marks Agenda current in desktop and mobile navigation when its route is active', () => {
@@ -102,6 +102,20 @@ describe('AdminShell', () => {
     expect(productsMobileLink.getAttribute('aria-current')).toBe('page');
   });
 
+  it('links Promotions from desktop and the mobile More menu and marks the current route', () => {
+    render(<AdminShell activeSection="Promociones"><p>Contenido principal</p></AdminShell>);
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const promotionsDesktopLink = within(desktopNavigation).getByRole('link', { name: 'Promociones' });
+    expect(promotionsDesktopLink.getAttribute('href')).toBe('/promociones/');
+    expect(promotionsDesktopLink.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const promotionsMobileLink = within(moreNavigation).getByRole('link', { name: 'Promociones' });
+    expect(promotionsMobileLink.getAttribute('href')).toBe('/promociones/');
+    expect(promotionsMobileLink.getAttribute('aria-current')).toBe('page');
+  });
+
   it('links to Configuration from desktop navigation and the mobile More menu', () => {
     render(<AdminShell activeSection="Configuración"><p>Contenido principal</p></AdminShell>);
     const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
@@ -121,10 +135,10 @@ describe('AdminShell', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
 
     const moreSections = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    expect(within(moreSections).getByRole('button', { name: 'Promociones, próximamente' })).toBeTruthy();
+    expect(within(moreSections).getByRole('button', { name: 'Ventas, próximamente' })).toBeTruthy();
     const desktopSections = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
-    const promotionButton = within(desktopSections).getByRole('button', { name: 'Promociones, próximamente' });
-    expect(within(promotionButton).getByText('Próx.')).toBeTruthy();
+    const salesButton = within(desktopSections).getByRole('button', { name: 'Ventas, próximamente' });
+    expect(within(salesButton).getByText('Próx.')).toBeTruthy();
   });
 
   it('clears only the demo session on sign-out', () => {
