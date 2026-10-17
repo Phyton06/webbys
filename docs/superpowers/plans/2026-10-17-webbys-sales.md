@@ -8,6 +8,8 @@
 
 **Tech Stack:** Astro, Preact, TypeScript, Vitest, existing `AdminGate`, `AdminShell`, `Dropdown`, generated `DemoData`, and promotion records from Agenda local storage.
 
+**Delivery:** `feature-branch-chain` (user-selected); no Sales push or PR was authorized.
+
 ## Global Constraints
 
 - Sales are read-only; do not add sale creation, editing, cancellation, refunds, or writable sales storage.
@@ -102,7 +104,7 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 - [x] Add failing tests showing explicit `promotionId` attribution is distinct from records merely inside `startsOn`/`endsOn`; test inclusive dates and overlapping promotions without inferring attribution.
 - [x] Add a failing test for chronological daily net-sales buckets and implement `getSalesTrend`; malformed date inputs or reversed filter ranges return no sales.
 - [x] Implement exported pure functions matching the interfaces above. Treat optional metadata as absent for legacy sale records, and exclude explicitly attributed sales from date-overlap-only counts.
-- [x] Run `npm test -- src/services/dashboard.test.ts src/services/sales.test.ts` (15 tests passed), `npm run check` (0 diagnostics), and commit query calculations: `6c3b00a` plus the attribution/trend follow-up commit (identity pending).
+- [x] Run `npm test -- src/services/dashboard.test.ts src/services/sales.test.ts` (15 tests passed), `npm run check` (0 diagnostics), and commit query calculations: `6c3b00a`, `f703287`.
 
 ### Task 3: Protected Sales register and navigation
 
@@ -111,15 +113,15 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 - [x] Add failing page tests for read-only sales list/detail, search, every required filter, summaries, attributed-vs-overlap labels, daily net-sales chart, and no sale mutation.
 - [x] Add failing navigation tests for the Sales route and current-page semantics on desktop and mobile More; update prior “coming soon” assertions for Sales.
 - [x] Implement `/ventas/` using `AdminGate`, `AdminShell`, `Dropdown`, `MobileMonthCalendar`, generated `DemoData.sales`, and current promotion snapshots; details have no sale/inventory mutation controls.
-- [x] Run `npm test -- src/components/SalesPage.test.tsx src/components/AdminShell.test.tsx src/services/sales.test.ts` (27 tests passed), `npm run check` (0 diagnostics), and commit: pending commit identity.
+- [x] Run `npm test -- src/components/SalesPage.test.tsx src/components/AdminShell.test.tsx src/services/sales.test.ts` (27 tests passed), `npm run check` (0 diagnostics), and commit: `e457c83 feat(sales): add read-only sales register`.
 
 ### Task 4: Verify and close the feature
 
 **Files:** `odd/tasks/sales-management.md`, `docs/superpowers/plans/2026-10-17-webbys-sales.md`, relevant design spec.
 
-- [ ] Run `npm test`, `npm run check`, `npm run build`, and `git diff --check`; record exact outcomes.
-- [ ] Confirm by test that no Sales page action writes sale records or changes product stock.
-- [ ] Update the task log and check only observed outcomes; commit documentation with the closing work unit if it changed after the feature commits.
+- [x] Confirm by test that searching, filtering, and opening details leave persisted Agenda bytes unchanged.
+- [x] Run `npm test` (226 tests), `npm run check` (0 diagnostics), `npm run build` (11 routes including `/ventas/`), and `git diff --check`.
+- [x] Record the selected `feature-branch-chain` delivery strategy and leave Sales local; no push or PR was requested.
 
 ## Known decisions
 
