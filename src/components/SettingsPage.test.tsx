@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
-import { BUSINESS_SETTINGS_STORAGE_KEY } from '../services/business-settings-store';
+import { BUSINESS_SETTINGS_STORAGE_KEY, loadBusinessSettings } from '../services/business-settings-store';
 import { AgendaPage } from './AgendaPage';
 import { SettingsPage } from './SettingsPage';
 
@@ -18,6 +18,35 @@ beforeEach(() => {
 });
 
 describe('SettingsPage availability', () => {
+  it('offers all categories in a desktop menu and opens one category at a time', () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, createAgendaSeed(now));
+    render(<SettingsPage />);
+
+    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    expect(within(categoryNavigation).getAllByRole('button')).toHaveLength(7);
+    expect(within(categoryNavigation).getByRole('button', { name: 'Perfil del negocio' }).getAttribute('aria-current')).toBe('page');
+    expect(screen.getByLabelText('Nombre del negocio')).toBeTruthy();
+
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Perfil administrativo' }));
+
+    expect(screen.getByLabelText('Nombre del administrador')).toBeTruthy();
+    expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
+  });
+
+  it('selects categories with the mobile custom Dropdown while keeping team editors separate', () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, createAgendaSeed(now));
+    render(<SettingsPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sección de configuración: Perfil del negocio' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Horarios del equipo' }));
+
+    expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
+    expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
+    expect(screen.getByRole('navigation', { name: 'Categorías de configuración' })).toBeTruthy();
+  });
+
   it('saves business settings separately while preserving existing barber availability data', async () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
@@ -25,13 +54,12 @@ describe('SettingsPage availability', () => {
     render(<SettingsPage />);
 
     fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Barbería del Centro' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Guardar configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
     await waitFor(() => expect(screen.getByText('Configuración guardada localmente.')).toBeTruthy());
 
     expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).not.toBeNull();
+    expect(loadBusinessSettings(localStorage).settings.business.name).toBe('Barbería del Centro');
     expect(localStorage.getItem('webbys:agenda:v1')).toBe(agendaBytes);
-    expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
-    expect(screen.getByRole('heading', { name: 'Excepciones por fecha' })).toBeTruthy();
   });
 
   it('hosts weekly schedules and date exceptions under Configuration', () => {
@@ -40,7 +68,10 @@ describe('SettingsPage availability', () => {
     render(<SettingsPage />);
 
     expect(screen.getByRole('heading', { name: 'Configuración' })).toBeTruthy();
+    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
     expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Excepciones por fecha' }));
     expect(screen.getByRole('heading', { name: 'Excepciones por fecha' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Navegación de escritorio' }).querySelector('[href="/configuracion/"]')?.getAttribute('aria-current')).toBe('page');
     expect(screen.queryByRole('region', { name: 'Agenda' })).toBeNull();
@@ -52,10 +83,13 @@ describe('SettingsPage availability', () => {
     saveAgendaState(localStorage, originalState);
     render(<SettingsPage />);
 
+    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
     fireEvent.input(screen.getByLabelText('Fin del horario lunes 1'), { target: { value: '19:00' } });
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());
 
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Excepciones por fecha' }));
     fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
     fireEvent.click(screen.getByLabelText('Día libre'));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
@@ -75,6 +109,8 @@ describe('SettingsPage availability', () => {
     const weekday = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(saturday);
     render(<SettingsPage />);
 
+    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
     fireEvent.input(screen.getByLabelText(`Inicio del horario ${weekday} 1`), { target: { value: '15:00' } });
     fireEvent.input(screen.getByLabelText(`Fin del horario ${weekday} 1`), { target: { value: '16:00' } });
     fireEvent.click(screen.getByRole('button', { name: `Eliminar descanso ${weekday} 1` }));

@@ -5,14 +5,11 @@
   margin-bottom: var(--space-8);
 }
 
-.business-settings-heading h2,
-.business-settings-section h3 {
+.business-settings-heading h2 {
   margin: 0;
   color: var(--color-ink);
-}
-
-.business-settings-heading h2 {
   font-size: var(--text-lg);
+  font-weight: 650;
 }
 
 .business-settings-heading p,
@@ -20,6 +17,75 @@
   margin: var(--space-2) 0 0;
   color: var(--color-ink-muted);
   font-size: var(--text-sm);
+}
+
+.settings-categories {
+  display: grid;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.settings-category-mobile {
+  display: grid;
+}
+
+.settings-category-nav {
+  display: none;
+}
+
+.settings-category-content {
+  display: grid;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.settings-category-button {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink-muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.settings-category-button:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+}
+
+.settings-category-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.settings-category-button.is-active {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+  font-weight: 650;
+}
+
+@media (min-width: 58rem) {
+  .settings-categories {
+    grid-template-columns: 14rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .settings-category-nav {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .settings-category-mobile {
+    display: none;
+  }
+
+  .settings-category-content {
+    grid-column: 2;
+    grid-row: 1;
+  }
 }
 
 .business-settings-form {
@@ -34,10 +100,6 @@
   gap: var(--space-4);
   padding-block: var(--space-4);
   border-top: 1px solid var(--color-line);
-}
-
-.business-settings-section h3 {
-  font-size: var(--text-md);
 }
 
 .business-profile-layout,
@@ -154,5 +216,13 @@
 
 .business-settings-actions {
   display: flex;
+  align-items: center;
+  gap: var(--space-3);
   justify-content: flex-start;
+}
+
+.business-dirty-note {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
 }

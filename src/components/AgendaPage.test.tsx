@@ -45,6 +45,8 @@ describe('AgendaPage availability settings', () => {
     cleanup();
     const { SettingsPage } = await import('./SettingsPage');
     render(<SettingsPage />);
+    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
     fireEvent.input(screen.getByLabelText(`Inicio del horario ${weekday} 1`), { target: { value: '15:00' } });
     fireEvent.input(screen.getByLabelText(`Fin del horario ${weekday} 1`), { target: { value: '16:00' } });
     fireEvent.click(screen.getByRole('button', { name: `Eliminar descanso ${weekday} 1` }));

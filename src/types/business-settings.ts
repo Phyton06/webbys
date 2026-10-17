@@ -57,6 +57,8 @@ export interface BusinessSettings {
 
 export type BusinessSettingsSection = keyof BusinessSettings;
 
+export type SettingsCategory = BusinessSettingsSection | 'barber-schedules' | 'date-exceptions';
+
 export interface BusinessSettingsEnvelope {
   schemaVersion: 1;
   settings: BusinessSettings;
