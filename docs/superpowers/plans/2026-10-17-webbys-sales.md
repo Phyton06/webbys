@@ -121,6 +121,7 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 
 - [x] Confirm by test that searching, filtering, and opening details leave persisted Agenda bytes unchanged.
 - [x] Run `npm test` (226 tests), `npm run check` (0 diagnostics), `npm run build` (11 routes including `/ventas/`), and `git diff --check`.
+- [x] Independent `gentle-ai-verify` assessed S1–S3 as met with no reproduced blockers; its service (15 tests), UI/navigation (19 tests), and Astro check probes passed in scratch.
 - [x] Record the selected `feature-branch-chain` delivery strategy and leave Sales local; no push or PR was requested.
 
 ## Known decisions
