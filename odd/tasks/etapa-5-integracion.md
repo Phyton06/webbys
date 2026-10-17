@@ -32,7 +32,7 @@ Chequeos: documento revisado contra el código real; utilizable por un módulo n
 Alcance: navegación completa, formularios/acciones, conflictos de agenda, diseños 390/1440, suite + check + build + diff check; evidencia y Risk line en el log. Los criterios §19 se usan como checklist.
 
 ## Tasks
-- [ ] T1 — BackLink compartido + reemplazo en las 9 ubicaciones (S1) — inline — pendiente
+- [x] T1 — BackLink compartido + reemplazo en las 9 ubicaciones (S1) — inline — commit: `1ae7ec4`
 - [ ] T2 — Auditoría de estilos y correcciones, incluido el calendario de Ventas (S2) — inline — pendiente
 - [ ] T3 — Análisis de navegación + propuesta + implementación de lo aprobado (S3) — pendiente
 - [ ] T4 — Registro de estilos (`DESIGN.md`) (S4) — pendiente
@@ -41,3 +41,4 @@ Alcance: navegación completa, formularios/acciones, conflictos de agenda, dise�
 ## Log
 - L1 (usuario, verbatim): «perfecto, en esta fase acomoda los botones de regreso [Image 1] como esto de regresar a configuracion pero de todas las pantallas, quiero algo mas minimalista algo como solo el boton de flechita y al lado el texto de configuracion osea el titulo, ademas tambien quiero que revises todas las pesta;as y veamos si algunas se pudieran juntar de alguna manera para mejorar la navegacion y sobre todo revisa que todo tenga estilo correcto tanto de desplegables como calendarios y demas, al finalizar dejas un registro de todo el estilo de la app para que en el futuro que se agregue mas modulos tenga los estilos a seguir». La captura mostraba el botón con caja «← Configuración» bajo el encabezado de Configuración.
 - L2: Recon: 9 botones de regreso con 4 estilos distintos (caja con borde en Configuración; `client-text-action`; `employee-text-action`; `appointment-form-cancel`; `service-secondary-button`). Decisión de patrón: componente compartido `BackLink` (`‹` + nombre del destino, fantasma sin caja, misma posición y comportamiento). «Volver a la cita» (paso interno del formulario de cita) queda fuera por ser fila de acciones de formulario. Mirror en Engram pendiente (el servicio sigue sin resolver sesión de runtime).
+- L3: T1 completo y verificado. `BackLink` aplicado en Configuración, Clientes, Empleados, Servicios, Productos, Promociones, Ventas, Notificaciones y AdminGate; CSS viejo depurado (`.settings-back-button`, `.client-profile-back`, `.employee-profile-back`). Evidencia: suite 323/323 en verde, `astro check` 0/0/0, clic de regreso verificado en las 9 pantallas, capturas 1440/390 en `.impeccable/review/backlink-*.png` sin desbordes.
