@@ -41,3 +41,4 @@ No backend, API, actual push, scheduled background delivery, or deployed/tunnele
 - L1: Original request: “podria hacer que las notificaciones push si funcionen pero solo localmente osea en el celular que lo pruebe para que vea como queda?”
 - L2: User approved the local device test, history-first composer layout, existing search/dropdown/calendar patterns, and local persistence. Actual push and recipient delivery remain out of scope.
 - L3: User selected `stacked-to-main` as the Notifications delivery strategy. No push/PR is authorized. Engram task mirror pending because the MCP cannot resolve an authoritative runtime session.
+- L4: Implementation plan written to `docs/superpowers/plans/2026-10-17-webbys-notifications.md`; ODD route is direct inline (no writer parallelism trigger). High-risk service-worker behavior requires an independent verifier before delivery.
