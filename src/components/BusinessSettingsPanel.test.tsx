@@ -11,6 +11,11 @@ afterEach(() => {
 });
 
 describe('BusinessSettingsPanel', () => {
+  function pickTime(triggerLabel: RegExp, time: string) {
+    fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
+    fireEvent.click(screen.getByRole('option', { name: time }));
+  }
+
   it('shows only the selected business profile and its read-only logo', () => {
     render(<BusinessSettingsPanel section="business" />);
 
@@ -67,15 +72,16 @@ describe('BusinessSettingsPanel', () => {
     render(<BusinessSettingsPanel section="hours" />);
     fireEvent.click(screen.getByRole('button', { name: 'Horario general lunes: Sin configurar' }));
     fireEvent.click(screen.getByRole('option', { name: 'Abierto' }));
-    fireEvent.input(screen.getByLabelText('Apertura del lunes'), { target: { value: '19:00' } });
-    fireEvent.input(screen.getByLabelText('Cierre del lunes'), { target: { value: '09:00' } });
+    expect(screen.getByRole('button', { name: 'Apertura del lunes: 09:00' })).toBeTruthy();
+    pickTime(/^Apertura del lunes:/, '19:00');
+    pickTime(/^Cierre del lunes:/, '09:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
 
     expect(screen.getByRole('alert').textContent).toContain('Revisa las horas de apertura y cierre');
     expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).toBeNull();
 
-    fireEvent.input(screen.getByLabelText('Apertura del lunes'), { target: { value: '09:00' } });
-    fireEvent.input(screen.getByLabelText('Cierre del lunes'), { target: { value: '18:00' } });
+    pickTime(/^Apertura del lunes:/, '09:00');
+    pickTime(/^Cierre del lunes:/, '18:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
     expect(loadBusinessSettings(localStorage).settings.hours.monday).toEqual({ status: 'open', opensAt: '09:00', closesAt: '18:00' });
     expect(screen.getByText(/No cambia la disponibilidad de citas/)).toBeTruthy();

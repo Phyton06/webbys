@@ -16,6 +16,11 @@ const schedules: BarberSchedule[] = [{
 }];
 
 describe('BarberAvailabilityPanel', () => {
+  function pickTime(triggerLabel: RegExp, time: string) {
+    fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
+    fireEvent.click(screen.getByRole('option', { name: time }));
+  }
+
   it('enables and disables recurring workdays in a draft until saved', () => {
     const onSave = vi.fn((_next: BarberSchedule[]) => true);
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
@@ -37,7 +42,7 @@ describe('BarberAvailabilityPanel', () => {
     const onSave = vi.fn((_next: BarberSchedule[]) => true);
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
 
-    fireEvent.input(screen.getByLabelText('Fin del horario lunes 1'), { target: { value: '18:00' } });
+    pickTime(/^Fin del horario lunes 1:/, '18:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
 
     expect(onSave.mock.calls[0]?.[0][0]?.days[0]?.working).toEqual([{ start: '09:00', end: '18:00' }]);
@@ -48,8 +53,9 @@ describe('BarberAvailabilityPanel', () => {
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Agregar horario lunes' }));
-    fireEvent.input(screen.getByLabelText('Inicio del horario lunes 2'), { target: { value: '17:00' } });
-    fireEvent.input(screen.getByLabelText('Fin del horario lunes 2'), { target: { value: '18:00' } });
+    expect(screen.getByRole('button', { name: 'Inicio del horario lunes 2: 09:00' })).toBeTruthy();
+    pickTime(/^Inicio del horario lunes 2:/, '17:00');
+    pickTime(/^Fin del horario lunes 2:/, '18:00');
     fireEvent.click(screen.getByRole('button', { name: 'Eliminar horario lunes 2' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
 
@@ -60,7 +66,7 @@ describe('BarberAvailabilityPanel', () => {
     const onSave = vi.fn((_next: BarberSchedule[]) => true);
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
 
-    fireEvent.input(screen.getByLabelText('Inicio del descanso lunes 1'), { target: { value: '12:30' } });
+    pickTime(/^Inicio del descanso lunes 1:/, '12:30');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
 
     expect(onSave.mock.calls[0]?.[0][0]?.days[0]?.breaks).toEqual([{ start: '12:30', end: '14:00' }]);
@@ -70,12 +76,13 @@ describe('BarberAvailabilityPanel', () => {
     const onSave = vi.fn((_next: BarberSchedule[]) => true);
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
 
-    fireEvent.input(screen.getByLabelText('Fin del horario lunes 1'), { target: { value: '12:00' } });
+    pickTime(/^Fin del horario lunes 1:/, '12:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
 
     expect(screen.getByRole('alert').textContent).toContain('El descanso debe quedar dentro de un horario laboral.');
-    expect(screen.getByLabelText('Fin del descanso lunes 1').getAttribute('aria-invalid')).toBe('true');
-    expect(screen.getByLabelText('Fin del descanso lunes 1').getAttribute('aria-describedby')).toBe('weekly-schedule-error');
+    const breakEnd = screen.getByRole('button', { name: /^Fin del descanso lunes 1:/ });
+    expect(breakEnd.getAttribute('aria-invalid')).toBe('true');
+    expect(breakEnd.getAttribute('aria-describedby')).toBe('weekly-schedule-error');
     expect(onSave).not.toHaveBeenCalled();
   });
 });

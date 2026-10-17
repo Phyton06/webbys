@@ -19,7 +19,8 @@ export function Dropdown<Value extends string>({ label, value, options, onChange
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(() => Math.max(0, options.findIndex((option) => option.value === value)));
   const rootRef = useRef<HTMLDivElement>(null);
-  const selected = options.find((option) => option.value === value) ?? options[0];
+  const selected = options.find((option) => option.value === value);
+  const displayLabel = selected?.label ?? value;
   const listboxId = `dropdown-${label.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export function Dropdown<Value extends string>({ label, value, options, onChange
       <button
         class="dropdown-trigger"
         type="button"
-        aria-label={`${label}: ${selected?.label ?? ''}`}
+        aria-label={`${label}: ${displayLabel}`}
         aria-invalid={ariaInvalid ? 'true' : undefined}
         aria-describedby={ariaDescribedBy}
         aria-haspopup="listbox"
@@ -79,7 +80,7 @@ export function Dropdown<Value extends string>({ label, value, options, onChange
         }}
         onKeyDown={handleKeyDown}
       >
-        <span>{selected?.label}</span>
+        <span>{displayLabel}</span>
         <ChevronDown size={16} aria-hidden="true" />
       </button>
       {open && (

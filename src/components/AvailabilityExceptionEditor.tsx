@@ -7,6 +7,7 @@ import {
   type TimeInterval,
 } from '../types/agenda';
 import { validateScheduleIntervals } from '../services/availability';
+import { TIME_OPTIONS } from '../services/time-options';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 
@@ -16,11 +17,6 @@ const scheduleFailureCopy: Record<ScheduleFailure, string> = {
   [SCHEDULE_FAILURE.BREAK_OUTSIDE_WORKING_HOURS]: 'El descanso debe quedar dentro de un horario laboral.',
   [SCHEDULE_FAILURE.OVERLAPPING_BREAKS]: 'Los descansos no pueden superponerse.',
 };
-
-const TIME_OPTIONS = Array.from({ length: 96 }, (_, index) => {
-  const value = `${String(Math.floor(index / 4)).padStart(2, '0')}:${String((index % 4) * 15).padStart(2, '0')}`;
-  return { value, label: value };
-});
 
 function formatExceptionDate(value: string): string {
   return new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${value}T12:00:00`));
@@ -99,8 +95,8 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
     setAnnouncement('');
   }
 
-  function addInterval(setter: (update: (previous: TimeInterval[]) => TimeInterval[]) => void) {
-    setter((previous) => [...previous, { start: '', end: '' }]);
+  function addInterval(setter: (update: (previous: TimeInterval[]) => TimeInterval[]) => void, seed: TimeInterval) {
+    setter((previous) => [...previous, { ...seed }]);
     setPendingRemoval(false);
     setError('');
     setInvalidDraft(false);
@@ -282,7 +278,7 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                     </div>
                   ))}
                 </div>
-                <button class="availability-add-button" type="button" onClick={() => addInterval(setWorking)}>Agregar horario especial</button>
+                <button class="availability-add-button" type="button" onClick={() => addInterval(setWorking, { start: '09:00', end: '18:00' })}>Agregar horario especial</button>
 
                 <h3>Descansos</h3>
                 <div class="availability-interval-list">
@@ -314,7 +310,7 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                     </div>
                   ))}
                 </div>
-                <button class="availability-add-button" type="button" onClick={() => addInterval(setBreaks)}>Agregar descanso especial</button>
+                <button class="availability-add-button" type="button" onClick={() => addInterval(setBreaks, { start: '13:00', end: '14:00' })}>Agregar descanso especial</button>
               </div>
             )}
 

@@ -18,6 +18,11 @@ beforeEach(() => {
 });
 
 describe('SettingsPage availability', () => {
+  function pickTime(triggerLabel: RegExp | string, time: string) {
+    fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
+    fireEvent.click(screen.getByRole('option', { name: time }));
+  }
+
   it('shows only the category menu first and opens one category at a time', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
@@ -104,7 +109,7 @@ describe('SettingsPage availability', () => {
 
     const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
     fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
-    fireEvent.input(screen.getByLabelText('Fin del horario lunes 1'), { target: { value: '19:00' } });
+    pickTime(/^Fin del horario lunes 1:/, '19:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());
 
@@ -132,8 +137,8 @@ describe('SettingsPage availability', () => {
 
     const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
     fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
-    fireEvent.input(screen.getByLabelText(`Inicio del horario ${weekday} 1`), { target: { value: '15:00' } });
-    fireEvent.input(screen.getByLabelText(`Fin del horario ${weekday} 1`), { target: { value: '16:00' } });
+    pickTime(new RegExp(`^Inicio del horario ${weekday} 1:`), '15:00');
+    pickTime(new RegExp(`^Fin del horario ${weekday} 1:`), '16:00');
     fireEvent.click(screen.getByRole('button', { name: `Eliminar descanso ${weekday} 1` }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());

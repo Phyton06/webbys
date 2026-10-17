@@ -17,6 +17,11 @@ beforeEach(() => {
 });
 
 describe('AgendaPage availability settings', () => {
+  function pickTime(triggerLabel: RegExp | string, time: string) {
+    fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
+    fireEvent.click(screen.getByRole('option', { name: time }));
+  }
+
   it('keeps availability management out of Agenda', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
@@ -47,8 +52,8 @@ describe('AgendaPage availability settings', () => {
     render(<SettingsPage />);
     const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
     fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
-    fireEvent.input(screen.getByLabelText(`Inicio del horario ${weekday} 1`), { target: { value: '15:00' } });
-    fireEvent.input(screen.getByLabelText(`Fin del horario ${weekday} 1`), { target: { value: '16:00' } });
+    pickTime(new RegExp(`^Inicio del horario ${weekday} 1:`), '15:00');
+    pickTime(new RegExp(`^Fin del horario ${weekday} 1:`), '16:00');
     fireEvent.click(screen.getByRole('button', { name: `Eliminar descanso ${weekday} 1` }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());

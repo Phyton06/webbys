@@ -8,6 +8,7 @@ import {
   type TimeInterval,
 } from '../types/agenda';
 import { validateScheduleIntervals } from '../services/availability';
+import { TIME_OPTIONS } from '../services/time-options';
 import { Dropdown } from './Dropdown';
 
 const WEEKDAY = {
@@ -43,6 +44,11 @@ const scheduleFailureCopy: Record<ScheduleFailure, string> = {
 };
 
 type IntervalKind = (typeof INTERVAL_KIND)[keyof typeof INTERVAL_KIND];
+
+const INTERVAL_SEED: Record<IntervalKind, TimeInterval> = {
+  [INTERVAL_KIND.WORKING]: { start: '09:00', end: '18:00' },
+  [INTERVAL_KIND.BREAKS]: { start: '13:00', end: '14:00' },
+};
 
 interface BarberAvailabilityPanelProps {
   barbers: BarberRecord[];
@@ -113,7 +119,7 @@ export function BarberAvailabilityPanel({ barbers, schedules, onSave }: BarberAv
   }
 
   function addInterval(weekday: number, kind: IntervalKind) {
-    updateDay(weekday, (day) => day ? { ...day, [kind]: [...day[kind], { start: '', end: '' }] } : day);
+    updateDay(weekday, (day) => day ? { ...day, [kind]: [...day[kind], { ...INTERVAL_SEED[kind] }] } : day);
   }
 
   function removeInterval(weekday: number, kind: IntervalKind, index: number) {
@@ -177,30 +183,28 @@ export function BarberAvailabilityPanel({ barbers, schedules, onSave }: BarberAv
                         <div class="availability-interval-list">
                           {day.working.map((interval, index) => (
                             <div class="availability-interval" key={`work-${weekday}-${index}`}>
-                              <label>
+                              <div class="availability-control">
                                 <span>Inicio</span>
-                                <input
-                                  type="time"
-                                  step={900}
-                                  aria-label={`Inicio del horario ${label} ${index + 1}`}
-                                  aria-invalid={invalidDraft || undefined}
-                                  aria-describedby={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                <Dropdown
+                                  label={`Inicio del horario ${label} ${index + 1}`}
                                   value={interval.start}
-                                  onInput={(event) => editInterval(weekday, INTERVAL_KIND.WORKING, index, { start: (event.currentTarget as HTMLInputElement).value })}
+                                  options={TIME_OPTIONS}
+                                  ariaInvalid={invalidDraft}
+                                  ariaDescribedBy={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                  onChange={(value) => editInterval(weekday, INTERVAL_KIND.WORKING, index, { start: value })}
                                 />
-                              </label>
-                              <label>
+                              </div>
+                              <div class="availability-control">
                                 <span>Fin</span>
-                                <input
-                                  type="time"
-                                  step={900}
-                                  aria-label={`Fin del horario ${label} ${index + 1}`}
-                                  aria-invalid={invalidDraft || undefined}
-                                  aria-describedby={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                <Dropdown
+                                  label={`Fin del horario ${label} ${index + 1}`}
                                   value={interval.end}
-                                  onInput={(event) => editInterval(weekday, INTERVAL_KIND.WORKING, index, { end: (event.currentTarget as HTMLInputElement).value })}
+                                  options={TIME_OPTIONS}
+                                  ariaInvalid={invalidDraft}
+                                  ariaDescribedBy={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                  onChange={(value) => editInterval(weekday, INTERVAL_KIND.WORKING, index, { end: value })}
                                 />
-                              </label>
+                              </div>
                               <button type="button" aria-label={`Eliminar horario ${label} ${index + 1}`} onClick={() => removeInterval(weekday, INTERVAL_KIND.WORKING, index)}>Eliminar</button>
                             </div>
                           ))}
@@ -212,30 +216,28 @@ export function BarberAvailabilityPanel({ barbers, schedules, onSave }: BarberAv
                         <div class="availability-interval-list">
                           {day.breaks.map((interval, index) => (
                             <div class="availability-interval" key={`break-${weekday}-${index}`}>
-                              <label>
+                              <div class="availability-control">
                                 <span>Inicio</span>
-                                <input
-                                  type="time"
-                                  step={900}
-                                  aria-label={`Inicio del descanso ${label} ${index + 1}`}
-                                  aria-invalid={invalidDraft || undefined}
-                                  aria-describedby={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                <Dropdown
+                                  label={`Inicio del descanso ${label} ${index + 1}`}
                                   value={interval.start}
-                                  onInput={(event) => editInterval(weekday, INTERVAL_KIND.BREAKS, index, { start: (event.currentTarget as HTMLInputElement).value })}
+                                  options={TIME_OPTIONS}
+                                  ariaInvalid={invalidDraft}
+                                  ariaDescribedBy={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                  onChange={(value) => editInterval(weekday, INTERVAL_KIND.BREAKS, index, { start: value })}
                                 />
-                              </label>
-                              <label>
+                              </div>
+                              <div class="availability-control">
                                 <span>Fin</span>
-                                <input
-                                  type="time"
-                                  step={900}
-                                  aria-label={`Fin del descanso ${label} ${index + 1}`}
-                                  aria-invalid={invalidDraft || undefined}
-                                  aria-describedby={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                <Dropdown
+                                  label={`Fin del descanso ${label} ${index + 1}`}
                                   value={interval.end}
-                                  onInput={(event) => editInterval(weekday, INTERVAL_KIND.BREAKS, index, { end: (event.currentTarget as HTMLInputElement).value })}
+                                  options={TIME_OPTIONS}
+                                  ariaInvalid={invalidDraft}
+                                  ariaDescribedBy={invalidDraft ? 'weekly-schedule-error' : undefined}
+                                  onChange={(value) => editInterval(weekday, INTERVAL_KIND.BREAKS, index, { end: value })}
                                 />
-                              </label>
+                              </div>
                               <button type="button" aria-label={`Eliminar descanso ${label} ${index + 1}`} onClick={() => removeInterval(weekday, INTERVAL_KIND.BREAKS, index)}>Eliminar</button>
                             </div>
                           ))}

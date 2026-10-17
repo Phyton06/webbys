@@ -15,6 +15,7 @@ import {
   saveBusinessSettingsSection,
   validateBusinessSettings,
 } from '../services/business-settings-store';
+import { TIME_OPTIONS } from '../services/time-options';
 import { Dropdown, type DropdownOption } from './Dropdown';
 import '../styles/business-settings.css';
 
@@ -109,7 +110,7 @@ export function BusinessSettingsPanel({ section }: BusinessSettingsPanelProps) {
     updateDraft((current) => {
       const previous = current.hours[weekday];
       const next: BusinessDayHours = status === 'open'
-        ? previous.status === 'open' ? previous : { status: 'open', opensAt: '', closesAt: '' }
+        ? previous.status === 'open' ? previous : { status: 'open', opensAt: '09:00', closesAt: '18:00' }
         : { status };
       return { ...current, hours: { ...current.hours, [weekday]: next } };
     });
@@ -256,14 +257,14 @@ export function BusinessSettingsPanel({ section }: BusinessSettingsPanelProps) {
                       </div>
                       {day.status === 'open' && (
                         <div class="business-hours-times">
-                          <label>
+                          <div class="business-hours-time">
                             <span>Apertura</span>
-                            <input type="time" required aria-label={`Apertura del ${label}`} value={day.opensAt} onInput={(event) => updateOpenTime(weekday, 'opensAt', event.currentTarget.value)} />
-                          </label>
-                          <label>
+                            <Dropdown label={`Apertura del ${label}`} value={day.opensAt} options={TIME_OPTIONS} onChange={(value) => updateOpenTime(weekday, 'opensAt', value)} />
+                          </div>
+                          <div class="business-hours-time">
                             <span>Cierre</span>
-                            <input type="time" required aria-label={`Cierre del ${label}`} value={day.closesAt} onInput={(event) => updateOpenTime(weekday, 'closesAt', event.currentTarget.value)} />
-                          </label>
+                            <Dropdown label={`Cierre del ${label}`} value={day.closesAt} options={TIME_OPTIONS} onChange={(value) => updateOpenTime(weekday, 'closesAt', value)} />
+                          </div>
                         </div>
                       )}
                     </fieldset>

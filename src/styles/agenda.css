@@ -814,7 +814,6 @@
 
 .agenda-page-switch button:focus-visible,
 .availability-day-toggle input:focus-visible,
-.availability-interval input:focus-visible,
 .availability-add-button:focus-visible,
 .availability-remove-button:focus-visible,
 .availability-save-button:focus-visible,
@@ -920,27 +919,6 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   align-items: end;
   gap: var(--space-2);
-}
-
-.availability-interval label {
-  display: grid;
-  min-width: 0;
-  gap: var(--space-1);
-  color: var(--color-ink-subtle);
-  font-size: var(--text-xs);
-}
-
-.availability-interval input {
-  width: 100%;
-  min-width: 0;
-  min-height: 2.75rem;
-  padding: 0 var(--space-2);
-  border: 1px solid var(--color-control-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  color: var(--color-ink);
-  color-scheme: dark;
-  font: inherit;
 }
 
 .availability-interval button,
