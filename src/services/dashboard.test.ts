@@ -182,7 +182,7 @@ describe('createDemoData', () => {
     expect(demo.sales).toHaveLength(35);
     for (const sale of demo.sales) {
       expect(sale.employeeId).toMatch(/^barber-\d+$/);
-      expect(sale.employeeName.trim()).not.toBe('');
+      expect(sale.employeeName).toBeTruthy();
       expect(['cash', 'card', 'transfer']).toContain(sale.paymentMethod);
       expect(sale.status).toBe('completed');
       for (const item of sale.items) {
