@@ -1,0 +1,229 @@
+.analytics-page {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.analytics-heading {
+  margin-bottom: 0;
+}
+
+.analytics-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.analytics-summary article,
+.analytics-trend-section,
+.analytics-ranking-section,
+.analytics-promotion-section {
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.analytics-summary article {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.analytics-summary article > span,
+.analytics-summary article > small,
+.analytics-summary article > em {
+  color: var(--color-ink-muted);
+}
+
+.analytics-summary article > span {
+  font-size: var(--text-sm);
+}
+
+.analytics-summary article > strong {
+  color: var(--color-ink);
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.analytics-summary article > small,
+.analytics-summary article > em {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+}
+
+.analytics-summary article > em {
+  font-style: normal;
+}
+
+.analytics-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.analytics-section-heading h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: var(--text-lg);
+}
+
+.analytics-section-heading p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.analytics-date-period {
+  display: grid;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.analytics-date-period .analytics-section-heading {
+  margin: 0;
+}
+
+.analytics-date-filters {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.analytics-date-filters > button {
+  display: flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.analytics-date-filters > button svg {
+  flex: 0 0 auto;
+}
+
+.analytics-calendar-popover {
+  position: relative;
+  z-index: 2;
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-raised);
+}
+
+.analytics-report-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.analytics-ranking-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analytics-ranking-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: baseline;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.analytics-ranking-list li > strong {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-ranking-list li > small {
+  grid-column: 1 / -1;
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.analytics-benchmark {
+  margin: 0 0 var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.analytics-ranking-note {
+  margin: 0 0 var(--space-3);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+}
+
+.analytics-promotion-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.analytics-promotion-list > li {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+}
+
+.analytics-promotion-list h3 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: var(--text-md);
+}
+
+.analytics-promotion-list > li > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.analytics-promotion-list > li > div strong {
+  color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-promotion-window-note {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.analytics-promotion-days {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-ink-muted);
+  font-size: var(--text-xs);
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .analytics-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .analytics-report-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

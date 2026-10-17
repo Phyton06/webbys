@@ -21,7 +21,7 @@ describe('AdminShell', () => {
     expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe('#main-content');
   });
 
-  it('links to Agenda, Clients, and Sales while keeping later modules clearly unavailable', () => {
+  it('links to Agenda, Clients, Sales, and Analytics from the mobile More menu', () => {
     render(
       <AdminShell onSignOut={vi.fn()}>
         <p>Contenido principal</p>
@@ -36,10 +36,8 @@ describe('AdminShell', () => {
     fireEvent.click(within(mobileNavigation).getByRole('button', { name: 'Más secciones' }));
     const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
     expect(within(moreNavigation).getByRole('link', { name: 'Ventas' }).getAttribute('href')).toBe('/ventas/');
-    const analyticsButton = within(moreNavigation).getByRole('button', { name: 'Analíticas, próximamente' });
-    expect(within(analyticsButton).getByText('Próximamente')).toBeTruthy();
-    fireEvent.click(analyticsButton);
-    expect(screen.getByRole('status').textContent).toContain('La sección Analíticas aún no está disponible');
+    const analyticsLink = within(moreNavigation).getByRole('link', { name: 'Analíticas' });
+    expect(analyticsLink.getAttribute('href')).toBe('/analiticas/');
   });
 
   it('marks Agenda current in desktop and mobile navigation when its route is active', () => {
@@ -131,17 +129,16 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).queryByRole('link', { name: 'Configuración' })).toBeNull();
   });
 
-  it('opens the additional mobile sections and labels unavailable modules', () => {
+  it('opens the additional mobile sections with their links', () => {
     render(<AdminShell><p>Contenido principal</p></AdminShell>);
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
 
     const moreSections = screen.getByRole('navigation', { name: 'Más secciones de administración' });
     expect(within(moreSections).getByRole('link', { name: 'Ventas' }).getAttribute('href')).toBe('/ventas/');
-    expect(within(moreSections).getByRole('button', { name: 'Analíticas, próximamente' })).toBeTruthy();
+    expect(within(moreSections).getByRole('link', { name: 'Analíticas' }).getAttribute('href')).toBe('/analiticas/');
     const desktopSections = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
     expect(within(desktopSections).getByRole('link', { name: 'Ventas' }).getAttribute('href')).toBe('/ventas/');
-    const analyticsButton = within(desktopSections).getByRole('button', { name: 'Analíticas, próximamente' });
-    expect(within(analyticsButton).getByText('Próx.')).toBeTruthy();
+    expect(within(desktopSections).getByRole('link', { name: 'Analíticas' }).getAttribute('href')).toBe('/analiticas/');
   });
 
   it('links to Sales in desktop navigation and the mobile More menu', () => {
@@ -156,6 +153,20 @@ describe('AdminShell', () => {
     const salesMobile = within(more).getByRole('link', { name: 'Ventas' });
     expect(salesMobile.getAttribute('href')).toBe('/ventas/');
     expect(salesMobile.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('links to Analytics in desktop navigation and the mobile More menu and marks the current route', () => {
+    render(<AdminShell activeSection="Analíticas"><p>Contenido principal</p></AdminShell>);
+    const desktop = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const desktopLink = within(desktop).getByRole('link', { name: 'Analíticas' });
+    expect(desktopLink.getAttribute('href')).toBe('/analiticas/');
+    expect(desktopLink.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const more = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const mobileLink = within(more).getByRole('link', { name: 'Analíticas' });
+    expect(mobileLink.getAttribute('href')).toBe('/analiticas/');
+    expect(mobileLink.getAttribute('aria-current')).toBe('page');
   });
 
   it('links to Notifications in desktop navigation and the mobile More menu', () => {
