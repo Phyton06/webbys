@@ -319,6 +319,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Commit the S5 UI follow-up: `10cb798 feat(settings): reorganize configuration into categories`; legacy navigation coverage updated in `AgendaPage.test.tsx` and `SettingsPage.test.tsx`.
 - [x] User follow-up (S5): replaced the desktop sidebar and mobile `Dropdown` with one wrapping button row above the content at every size; `SettingsPage.test.tsx` updated; focused 20 passed, full suite 296 passed, check zero diagnostics, build 12 routes; commit `6b118cf`.
 - [x] User follow-up 2 (S5): rebuilt the navigation as a drill-down — menu-first view with icon buttons, opening one removes every menu button and shows only that category, back action returns to the menu, drafts survive; focused 21 passed, full suite 297 passed, check zero diagnostics, build 12 routes; commit `36c3975`.
+- [x] User follow-up 3 (S6): the date-exception editor now uses the shared system controls — date via the `MobileMonthCalendar` popover, start/end times via the custom `Dropdown` (15-minute steps, menu scrolls to the active option), and the picker popover re-enables the month calendar the agenda media query hid on desktop; tests rewritten first (RED 7 failures), focused 14 passed, full suite 297 passed, check zero diagnostics, build 12 routes; commit `f98cf66`.
 
 ### Task 4: Full verification and close
 
