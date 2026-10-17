@@ -318,6 +318,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Run `npm run check`; zero diagnostics.
 - [x] Commit the S5 UI follow-up: `10cb798 feat(settings): reorganize configuration into categories`; legacy navigation coverage updated in `AgendaPage.test.tsx` and `SettingsPage.test.tsx`.
 - [x] User follow-up (S5): replaced the desktop sidebar and mobile `Dropdown` with one wrapping button row above the content at every size; `SettingsPage.test.tsx` updated; focused 20 passed, full suite 296 passed, check zero diagnostics, build 12 routes; commit `6b118cf`.
+- [x] User follow-up 2 (S5): rebuilt the navigation as a drill-down — menu-first view with icon buttons, opening one removes every menu button and shows only that category, back action returns to the menu, drafts survive; focused 21 passed, full suite 297 passed, check zero diagnostics, build 12 routes; commit `36c3975`.
 
 ### Task 4: Full verification and close
 
@@ -339,7 +340,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - Notification-category preferences start disabled until the user explicitly enables them. They are local future-integration preferences, not delivery controls.
 - The initial currency is MXN; USD and EUR are the other initial options. Changing currency is presentation-only.
 - Monetary displays currently appear in Dashboard, Products, Services, Promotions/target picker, AppointmentForm, and Sales; the shared formatter must cover every listed consumer.
-- The S5 organization uses one wrapping row of category buttons above the content at every screen size (no sidebar or Dropdown); each business settings category has its own Save action, and unsaved drafts live only in component memory.
+- The S5 organization presents the category menu first (icon, label, and chevron buttons) and opens one category at a time with a back action to the menu; no sidebar or Dropdown. Each business settings category has its own Save action, and unsaved drafts live only in component memory.
 - Final UI detector run over SettingsPage, BusinessSettingsPanel, its stylesheet, and the built `/configuracion/` page after S5 returned no findings.
 
 ## Verification and Delivery

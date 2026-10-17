@@ -37,7 +37,7 @@ User request: “ok esta bien pero siento que esta todo mal organizado estando t
 
 User decisions: “opcion 1” / “Guardar por categoría” / “si hazlo” / “También en escritorio”.
 
-Replace the long Settings page with one wrapping row of category buttons above the content for Perfil del negocio, Perfil administrativo, Moneda, Horario general, Preferencias de notificación, Horarios del equipo, and Excepciones por fecha. Open Perfil del negocio by default. Show one category at a time; keep in-session drafts when switching; save only the selected category. Never save pending values from another category. Business preferences remain in the business settings store; team hours/exceptions remain in Agenda storage and retain their own save handlers.
+Replace the long Settings page with a category menu first: each option is a button with an icon that opens its category and removes every menu button, with a back action returning to the menu. Show one category at a time; keep in-session drafts when switching; save only the selected category. Never save pending values from another category. Business preferences remain in the business settings store; team hours/exceptions remain in Agenda storage and retain their own save handlers.
 
 Assumption: unsaved drafts remain only in component memory and are discarded on reload; the last saved values are restored.
 
@@ -45,7 +45,7 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 
 - [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; baseline commit: `d1306ae`; follow-up commits: `d3e1f4a`, `34d1059`.
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
-- [x] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: complete; baseline commit: `fed1102`; follow-up commits: `10cb798`, `6b118cf`.
+- [x] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: complete; baseline commit: `fed1102`; follow-up commits: `10cb798`, `6b118cf`, `36c3975`.
 - [x] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: complete; baseline verification: `a7e9a02`; verification commit: `2804885`.
 
 ## Log
@@ -73,4 +73,6 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 - L21: User correction: “no quiero que sea un selector asi, quiero que sean primero botones y cuando ya preciones uno aparezca toda las opciones y dezparezcan las opciones no asi como lo aplicaste”.
 - L22: User selected the button row at every screen size (“También en escritorio”): category buttons above the content; pressing one shows its option and hides the others; no sidebar and no Dropdown.
 - L23: Replaced the desktop sidebar and mobile `Dropdown` with one wrapping button row at every size; `SettingsPage.test.tsx` updated (RED observed: the selector-absent assertion failed first). Focused 20 passed; full suite 296/39; `npm run check` zero diagnostics; build 12 routes; `git diff --check` clean; Impeccable on the running `/configuracion/` page exit 0 with no findings; real-browser check confirmed the row and category switching on desktop and mobile. Commit `6b118cf`.
-- Risk: none for S1–S5. S5 changes configuration UI structure and the section-merge write path; both have focused coverage, the stored envelope schema is unchanged, and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain untouched. The button-row follow-up is UI navigation only: save paths, stored schema, and Agenda behavior are unchanged.
+- L24: User correction: “no me referia a eso, debe estar ocultas las opciones de abajo, cada boton debe enviar a la opcion y quitar todos los botones, ademas dale un estilo con icono a cada opcion para que se vea estetico, algo asi como facebook”.
+- L25: Rebuilt the navigation as a drill-down: the menu is the first view (icon, label, chevron per category via `lucide-preact`), pressing one hides every menu button and shows only that category, and a back action (`Configuración`) returns to the menu; panels stay mounted so drafts survive. Four `SettingsPage` tests rewritten including a new back/forward draft test (RED observed: 5 failures first). Focused 21 passed; full suite 297/39; `npm run check` zero diagnostics; build 12 routes; `git diff --check` clean; Impeccable on the running `/configuracion/` page exit 0 with no findings; real-browser check confirmed menu, icon rows, drill-in, and back on desktop and mobile. Commit `36c3975`.
+- Risk: none for S1–S5. S5 changes configuration UI structure and the section-merge write path; both have focused coverage, the stored envelope schema is unchanged, and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain untouched. The menu drill-down follow-ups are UI navigation only: save paths, stored schema, and Agenda behavior are unchanged.

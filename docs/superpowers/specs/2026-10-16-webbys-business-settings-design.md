@@ -13,7 +13,7 @@ Complete the existing Configuration module with locally persisted business and a
 - For general business hours, the user chose: “Solo informativo”. They do not constrain appointment availability.
 - For preferences, the user chose: “Solo preferencias funcionales”. Persist local notification preferences; retain the current visual theme and do not add a light theme.
 - The user approved the recommended design: a separate local settings store, existing barber schedules unchanged, and no real notification delivery.
-- After reviewing the visual comparison, the user chose: “opcion 1” (category menu: desktop sidebar and mobile category selector).
+- After reviewing the visual comparison, the user first chose: “opcion 1” (category menu). The later follow-up requests replaced that chrome: first a button row, then a menu-first drill-down with icon buttons, a back action to the menu, and no visible content until a category is opened.
 - The user chose: “Guardar por categoría”.
 - The user approved updating the design and plan: “si hazlo”.
 
@@ -51,8 +51,11 @@ User request: “ok esta bien pero siento que esta todo mal organizado estando t
 
 Follow-up request: “no quiero que sea un selector asi, quiero que sean primero botones y cuando ya preciones uno aparezca toda las opciones y dezparezcan las opciones no asi como lo aplicaste” — applied at every screen size (“También en escritorio”).
 
+Follow-up request 2: “no me referia a eso, debe estar ocultas las opciones de abajo, cada boton debe enviar a la opcion y quitar todos los botones, ademas dale un estilo con icono a cada opcion para que se vea estetico, algo asi como facebook”.
+
 - Replace the single long configuration form with category navigation: **Perfil del negocio**, **Perfil administrativo**, **Moneda**, **Horario general**, **Preferencias de notificación**, **Horarios del equipo**, and **Excepciones por fecha**.
-- Show the seven category buttons in one wrapping row above the content at every screen size. Pressing one shows its category and hides the others. No sidebar and no `Dropdown` selector. Open **Perfil del negocio** by default and show one category's content at a time.
+- Show only the category menu first at every screen size: seven buttons with an icon, label, and chevron. No sidebar and no `Dropdown` selector, and no category content until one is opened.
+- Pressing a category opens only its content and removes every menu button; a back action labeled **Configuración** returns to the menu. Unsaved drafts survive opening, going back, and reopening.
 - Each category has its own Save action. Business settings continue using `webbys:business-settings:v1`; barber schedules and date exceptions continue using `webbys:agenda:v1` and their existing save behavior.
 - Saving one business settings category updates only that category in the stored envelope and preserves previously saved values in other categories. Unsaved drafts remain in memory while switching categories, are not included when another category is saved, and are discarded on reload.
 - Keep the existing logo, informational general hours, currency presentation-only behavior, dark theme, and local-only notification preference constraints unchanged.
@@ -86,5 +89,5 @@ Follow-up request: “no quiero que sea un selector asi, quiero que sean primero
 - Unit-test settings schema validation, defaults, versioned persistence, invalid-write byte preservation, and business-hour validation.
 - Test currency formatting for MXN/USD/EUR and unchanged numeric values; test every changed monetary consumer.
 - Test the Settings page's separate storage boundaries, form persistence, read-only logo, informational hours, and notification preference toggles.
-- Test category button navigation at any screen size, category-specific saves, draft retention while switching, and reload of only saved values.
+- Test the menu-first flow (no category content until one is opened), opening one category removing every menu button, the back action returning to the menu, draft retention across that round trip, category-specific saves, and reload of only saved values.
 - Run `npm test`, `npm run check`, `npm run build`, and `git diff --check`.
