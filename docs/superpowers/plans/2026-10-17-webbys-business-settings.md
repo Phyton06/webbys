@@ -289,10 +289,10 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 
 **Files:** `odd/tasks/business-settings.md`, this plan, and any focused test fixtures changed by earlier tasks.
 
-- [ ] Run `npm test`, `npm run check`, `npm run build`, and `git diff --check`; record exact results and failures.
-- [ ] Verify every requirement in `docs/superpowers/specs/2026-10-16-webbys-business-settings-design.md`, including preserved Agenda storage, all global currency consumers, no conversion, and no notification delivery.
-- [ ] If the native RDD switch is enabled, follow the repository's native assessment/status contract for each work-unit commit; never toggle RDD or infer consent.
-- [ ] Record the final result and commit identity in `odd/tasks/business-settings.md`; do not push or open a PR without separate authorization.
+- [x] Run `npm test` (288 tests/39 files), `npm run check` (zero diagnostics), `npm run build` (12 static routes), and `git diff --check` (passed).
+- [x] Verify every requirement in `docs/superpowers/specs/2026-10-16-webbys-business-settings-design.md`, including preserved Agenda storage, all global currency consumers, no conversion, and no notification delivery.
+- [x] RDD was read as off (global); no review lifecycle or mode changes were performed.
+- [x] Record final result and commit identity in `odd/tasks/business-settings.md`; no push or PR was performed.
 
 ## Known Decisions and Assumptions
 
@@ -302,6 +302,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - Notification-category preferences start disabled until the user explicitly enables them. They are local future-integration preferences, not delivery controls.
 - The initial currency is MXN; USD and EUR are the other initial options. Changing currency is presentation-only.
 - Monetary displays currently appear in Dashboard, Products, Services, Promotions/target picker, AppointmentForm, and Sales; the shared formatter must cover every listed consumer.
+- Final UI detector run over SettingsPage, BusinessSettingsPanel, and its stylesheet returned `[]` (no findings).
 
 ## Verification and Delivery
 
