@@ -1,7 +1,7 @@
 # Webbys Business Settings
 
 Objective: Complete Configuration with local business/profile settings while preserving barber-specific availability.
-Branch: `feat/business-settings`; delivery strategy: `ask-on-risk`; forecast: ~500 authored changed lines; runner: Vitest (`npm test`), Astro (`npm run check`, `npm run build`).
+Branch: `feat/business-settings`; delivery strategy: `stacked-to-main` (user-selected); forecast: ~500 authored changed lines; runner: Vitest (`npm test`), Astro (`npm run check`, `npm run build`).
 
 ## Specs
 
@@ -29,6 +29,8 @@ User requirement: “Preferencias visuales y de notificaciones.”
 
 User decision: “Solo preferencias funcionales”. Persist notification-category preferences locally for future integration only; do not send, subscribe, or affect simulated or device-test flows. Retain the current dark theme without adding another theme. No backend, public API, or remote account sync. Test local preference persistence and no changes to notification history or Agenda.
 
+Assumption: initialize all category preferences as disabled until the administrator opts in; this preference does not cause any delivery in this phase.
+
 ## Tasks
 
 - [ ] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: pending; commit: pending.
@@ -41,4 +43,6 @@ User decision: “Solo preferencias funcionales”. Persist notification-categor
 - L1: User request: “si hazlo”. This approves preparing the business-settings phase specification after Notifications.
 - L2: The user selected a read-only existing logo, global currency formatting without conversion, MXN initial currency, informational general hours, and functional local notification preferences with the current theme unchanged.
 - L3: Design approved: separate local store; keep existing barber schedules and Agenda persistence untouched.
-- L4: Spec self-review found no placeholders or internal contradictions. Engram mirror save was attempted but the service could not resolve the authoritative runtime session; local task document is preserved and mirror is pending.
+- L4: Spec self-review found no placeholders or internal contradictions; spec/task commit: `f331e5a`. Engram mirror save was attempted but the service could not resolve the authoritative runtime session; local task document is preserved and mirror is pending.
+- L5: Implementation plan saved to `docs/superpowers/plans/2026-10-17-webbys-business-settings.md`; route remains direct inline because the units are sequential and no parallel writer trigger applies. Plan coverage was checked against S1–S4; notification preferences default off as an explicitly labeled opt-in implementation assumption.
+- L6: User selected `stacked-to-main` for delivery slices if the feature exceeds the review budget. This choice does not authorize push or PR creation.
