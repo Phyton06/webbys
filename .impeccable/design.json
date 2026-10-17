@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-17T23:29:40Z",
+  "title": "Design System: Webbys",
+  "extensions": {
+    "shadows": [
+      {
+        "name": "raised",
+        "value": "0 14px 32px rgb(0 0 0 / 22%)",
+        "purpose": "Transient menus and status feedback."
+      },
+      {
+        "name": "modal",
+        "value": "0 24px 80px rgb(0 0 0 / 45%)",
+        "purpose": "Native task dialogs over the dark backdrop."
+      },
+      {
+        "name": "accent-marker",
+        "value": "0 0 0 4px rgb(228 61 55 / 16%)",
+        "purpose": "State halo around the active demo agenda marker; not general elevation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "admin-desktop",
+        "value": "58rem"
+      },
+      {
+        "name": "dashboard-columns",
+        "value": "48rem"
+      }
+    ],
+    "motion": [
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Shorten transitions and disable nonessential motion."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "High-priority action in restrained action red.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Guardar cambios</button>",
+      "css": ".ds-primary { min-height: 3.25rem; padding: 0 1rem; border: 1px solid var(--color-accent-action); border-radius: var(--radius-sm); background: var(--color-accent-action); color: var(--color-accent-ink); font: inherit; font-weight: 650; cursor: pointer; } .ds-primary:hover { border-color: var(--color-accent-hover); background: var(--color-accent-hover); } .ds-primary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Neutral, bordered action for cancel, edit, and reversible operations.",
+      "html": "<button class=\"ds-secondary\" type=\"button\">Cancelar</button>",
+      "css": ".ds-secondary { min-height: 2.75rem; padding: 0 0.75rem; border: 1px solid var(--color-control-border); border-radius: var(--radius-sm); background: var(--color-surface-raised); color: var(--color-ink); font: inherit; cursor: pointer; } .ds-secondary:hover { border-color: var(--color-accent); } .ds-secondary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text field",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Labeled field on a raised dark surface.",
+      "html": "<label class=\"ds-field\"><span>Nombre</span><input class=\"ds-input\" type=\"text\" /></label>",
+      "css": ".ds-field { display: grid; gap: var(--space-1); color: var(--color-ink-muted); font-size: var(--text-xs); } .ds-input { width: 100%; min-height: 2.75rem; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-control-border); border-radius: var(--radius-sm); background: var(--color-surface-raised); color: var(--color-ink); font: inherit; } .ds-input:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Mobile navigation",
+      "kind": "nav",
+      "refersTo": "mobile-navigation",
+      "description": "Persistent four-destination bar with a visible text label and an accent-marked current page.",
+      "html": "<nav class=\"ds-navigation\" aria-label=\"Navegación móvil\"><a class=\"ds-nav-link is-active\" href=\"/admin/\" aria-current=\"page\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"M3 10 12 3l9 7v10H3z\" /></svg><span>Inicio</span></a><a class=\"ds-nav-link\" href=\"/agenda/\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"M4 5h16v15H4zM8 3v4m8-4v4M4 9h16\" /></svg><span>Agenda</span></a><a class=\"ds-nav-link\" href=\"/clientes/\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><circle cx=\"10\" cy=\"8\" r=\"5\"/><path d=\"M2 21a8 8 0 0 1 16 0\"/></svg><span>Clientes</span></a><button class=\"ds-nav-link\" type=\"button\" aria-label=\"Más secciones\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><circle cx=\"5\" cy=\"12\" r=\"1\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/><circle cx=\"19\" cy=\"12\" r=\"1\"/></svg><span>Más</span></button></nav>",
+      "css": ".ds-navigation { display: grid; min-height: calc(4.5rem + env(safe-area-inset-bottom)); grid-template-columns: repeat(4, minmax(0, 1fr)); padding: var(--space-2) max(0.5rem, env(safe-area-inset-left)) calc(var(--space-2) + env(safe-area-inset-bottom)); border-top: 1px solid var(--color-line); background: var(--color-shell); } .ds-nav-link { display: grid; min-width: 0; min-height: 3.5rem; align-content: center; justify-items: center; gap: 0.2rem; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-ink-subtle); font-size: 0.7rem; text-decoration: none; } .ds-nav-link svg { width: 1.2rem; height: 1.2rem; fill: none; stroke: currentColor; stroke-width: 2; } .ds-nav-link.is-active { color: var(--color-ink); } .ds-nav-link.is-active svg { color: var(--color-accent); }"
+    },
+    {
+      "name": "Raised sales surface",
+      "kind": "card",
+      "refersTo": "sales-overview",
+      "description": "Single working surface for the selected sales period, total, trend, and breakdown.",
+      "html": "<section class=\"ds-sales-surface\"><h2>Ventas del periodo</h2><p>Ingresos netos</p><strong>1,240</strong></section>",
+      "css": ".ds-sales-surface { padding: clamp(1rem, 3vw, 1.75rem); border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-surface); color: var(--color-ink); } .ds-sales-surface h2 { margin: 0; font-size: var(--text-lg); font-weight: 680; } .ds-sales-surface p { color: var(--color-ink-muted); font-size: var(--text-sm); }"
+    },
+    {
+      "name": "Back link",
+      "kind": "custom",
+      "refersTo": "back-link",
+      "description": "Icon-only chevron beside the page title; the accessible name identifies the destination.",
+      "html": "<div class=\"ds-title-row\"><button class=\"ds-back\" type=\"button\" aria-label=\"Volver a Configuración\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\"><path d=\"m15 18-6-6 6-6\" /></svg></button><h1>Configuración</h1></div>",
+      "css": ".ds-title-row { display: flex; align-items: flex-start; gap: var(--space-1); } .ds-back { display: inline-grid; width: 2.75rem; height: 2.75rem; place-items: center; margin-inline-start: -0.5rem; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-ink-muted); cursor: pointer; } .ds-back svg { width: 1.375rem; height: 1.375rem; fill: none; stroke: currentColor; stroke-width: 2; } .ds-back:hover { color: var(--color-ink); } .ds-back:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }"
+    },
+    {
+      "name": "Custom dropdown",
+      "kind": "custom",
+      "refersTo": "dropdown-trigger",
+      "description": "Keyboard-operable listbox with explicit selected and active states.",
+      "html": "<div class=\"ds-dropdown\"><button class=\"ds-trigger\" type=\"button\" aria-haspopup=\"listbox\" aria-expanded=\"true\">Todos</button><ul class=\"ds-menu\" role=\"listbox\"><li class=\"ds-option is-selected\" role=\"option\" aria-selected=\"true\">Todos</li></ul></div>",
+      "css": ".ds-dropdown { position: relative; } .ds-trigger { display: flex; width: 100%; min-height: 2.75rem; align-items: center; justify-content: space-between; padding: 0 var(--space-3); border: 1px solid var(--color-control-border); border-radius: var(--radius-sm); background: var(--color-surface-raised); color: var(--color-ink); font: inherit; } .ds-menu { position: absolute; z-index: 2; inset: calc(100% + 0.4rem) 0 auto; display: grid; gap: 0.2rem; margin: 0; padding: 0.3rem; border: 1px solid var(--color-line); border-radius: var(--radius-sm); background: var(--color-surface-raised); box-shadow: var(--shadow-raised); list-style: none; } .ds-option { min-height: 2.75rem; padding: 0.65rem; border-radius: var(--radius-sm); color: var(--color-ink-muted); } .ds-option.is-selected { background: var(--color-accent-action); color: var(--color-accent-ink); }"
+    },
+    {
+      "name": "Mobile month calendar",
+      "kind": "custom",
+      "refersTo": "month-calendar",
+      "description": "Monday-first Spanish calendar with a selected day and appointment markers.",
+      "html": "<section class=\"ds-calendar\" aria-label=\"Calendario mensual\"><div class=\"ds-weekdays\"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div><div class=\"ds-days\"><button class=\"ds-day is-selected\" type=\"button\" aria-pressed=\"true\">17</button></div></section>",
+      "css": ".ds-calendar { display: grid; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--color-line); border-radius: var(--radius-md); background: var(--color-surface); } .ds-weekdays, .ds-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.25rem; text-align: center; } .ds-day { min-height: 2.75rem; border: 1px solid transparent; border-radius: var(--radius-sm); background: transparent; color: var(--color-ink); font: inherit; } .ds-day.is-selected { border-color: var(--color-accent-action); background: var(--color-accent-action); color: var(--color-accent-ink); font-weight: 700; }"
+    },
+    {
+      "name": "Semantic status pill",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "Compact status text paired with semantic color; the wording carries the meaning.",
+      "html": "<span class=\"ds-status\">Activo</span>",
+      "css": ".ds-status { display: inline-flex; min-height: 1.5rem; align-items: center; padding: 0.25rem 0.6rem; border-radius: var(--radius-pill); background: color-mix(in srgb, var(--color-success) 14%, var(--color-surface)); color: var(--color-success); font-size: var(--text-xs); font-weight: 650; }"
+    },
+    {
+      "name": "Native task dialog",
+      "kind": "custom",
+      "refersTo": "appointment-modal",
+      "description": "Focused create/edit task surface with a dark backdrop and visible close/cancel actions.",
+      "html": "<dialog class=\"ds-modal\" open aria-labelledby=\"ds-modal-title\"><form><h2 id=\"ds-modal-title\">Nuevo servicio</h2><button class=\"ds-secondary\" type=\"button\">Cancelar</button></form></dialog>",
+      "css": ".ds-modal { position: fixed; inset: 0; width: min(48rem, calc(100% - 2rem)); max-width: 48rem; max-height: min(90dvh, 56rem); margin: auto; padding: 0; overflow: auto; border: 1px solid var(--color-line); border-radius: var(--radius-lg); background: var(--color-surface); color: var(--color-ink); box-shadow: 0 24px 80px rgb(0 0 0 / 45%); } .ds-modal::backdrop { background: rgb(0 0 0 / 72%); backdrop-filter: blur(2px); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Shop's Daily Rhythm",
+    "overview": "The system treats the barber shop's working day as the product's organizing rhythm. Administrators should find the next appointment, understand the selected sales period, and move between business areas without learning a new interaction language. The interface is an Operate surface: familiar navigation and controls come first, with a restrained charcoal field, deliberate red actions, compact numeric typography, and a readable appointment timeline.",
+    "keyCharacteristics": [
+      "Deep charcoal surfaces with neutral, high-contrast text.",
+      "Red is reserved for primary actions, active navigation, and meaningful emphasis.",
+      "Numeric and time values use tabular data typography.",
+      "Mobile uses a persistent four-destination bottom navigation; desktop uses a side rail.",
+      "Demonstration status and simulated behavior remain explicit."
+    ],
+    "rules": [
+      { "name": "The Red Has a Job Rule", "body": "Use red for action, selection, or meaningful emphasis; do not spread it across passive decoration.", "section": "colors" },
+      { "name": "The Demo Is Visible Rule", "body": "Any synthetic record, amount, or simulated action remains labeled as demonstration content.", "section": "colors" },
+      { "name": "The Numbers Line Up Rule", "body": "Money and time values use tabular numerals and stay attached to explicit labels and units.", "section": "typography" }
+    ],
+    "dos": [
+      "Do label every synthetic metric and simulated action.",
+      "Do keep a text label for each appointment status.",
+      "Do keep mobile navigation outside the scrollable work area.",
+      "Do keep chart labels and appointment details readable at phone widths."
+    ],
+    "donts": [
+      "Don't imply login, persistence, notifications, or sales are real server operations.",
+      "Don't represent the illustrative dollar symbol as a confirmed currency.",
+      "Don't use red as passive decoration or rely on color as the only status indicator.",
+      "Don't add decorative gradients, glass effects, icon-only navigation, or identical dashboard cards."
+    ]
+  }
+}
