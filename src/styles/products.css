@@ -12,6 +12,15 @@
   width: max-content;
 }
 
+.product-flow-button {
+  display: inline-flex;
+  width: max-content;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-4);
+}
+
 .products-toolbar {
   display: grid;
   gap: var(--space-3);

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
@@ -18,6 +18,32 @@ function renderPage() {
 }
 
 describe('ProductsPage', () => {
+  it('starts with seven demo products in the saved catalog', () => {
+    renderPage();
+
+    expect(screen.getAllByRole('article')).toHaveLength(7);
+    expect(screen.getByRole('article', { name: 'Producto Cera para peinar' })).toBeTruthy();
+    expect(screen.getByRole('article', { name: 'Producto Acondicionador' })).toBeTruthy();
+    expect(screen.getByRole('article', { name: 'Producto Bálsamo para barba' })).toBeTruthy();
+    expect(screen.getByRole('article', { name: 'Producto Peine de madera' })).toBeTruthy();
+  });
+
+  it('adds the new demo products to an existing catalog without duplicating or replacing records', () => {
+    const state = createAgendaSeed(now);
+    const originalProducts = state.products ?? [];
+    const existing = { ...originalProducts[0]!, stock: 3 };
+    state.products = [existing];
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, state);
+    render(<ProductsPage />);
+
+    const saved = loadAgendaState(localStorage, now).state;
+    expect(saved.products).toHaveLength(7);
+    expect(saved.products?.find(({ id }) => id === existing.id)).toEqual(existing);
+    expect(saved.appointments).toEqual(state.appointments);
+    expect(saved.products?.filter(({ id }) => id === 'product-wax')).toHaveLength(1);
+  });
+
   it('creates a product with price, optional cost, stock, category, and local image path', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo producto' }));
@@ -67,5 +93,16 @@ describe('ProductsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Desactivar producto Shampoo' }));
 
     expect(loadAgendaState(localStorage, now).state.products?.find(({ name }) => name === 'Shampoo')?.active).toBe(false);
+  });
+
+  it('uses matching action sizing for create and return buttons', () => {
+    renderPage();
+    const createButton = screen.getByRole('button', { name: 'Nuevo producto' });
+    const shampoo = screen.getByRole('article', { name: 'Producto Shampoo' });
+    fireEvent.click(within(shampoo).getByRole('button', { name: 'ShampooLimpieza diaria para cabello.' }));
+    const backButton = screen.getByRole('button', { name: 'Volver a productos' });
+
+    expect(createButton.classList.contains('product-flow-button')).toBe(true);
+    expect(backButton.classList.contains('product-flow-button')).toBe(true);
   });
 });

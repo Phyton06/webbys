@@ -37,6 +37,10 @@ const products: ProductRecord[] = [
   { id: 'product-shampoo', name: 'Shampoo', description: 'Limpieza diaria para cabello.', salePrice: 160, costPrice: 80, stock: 8, category: 'Cabello', active: true },
   { id: 'product-gel', name: 'Gel para cabello', description: 'Fijación flexible.', salePrice: 120, costPrice: 55, stock: 12, category: 'Cabello', active: true },
   { id: 'product-oil', name: 'Aceite para barba', description: 'Cuidado ligero para barba.', salePrice: 190, costPrice: 95, stock: 5, category: 'Barba', active: true },
+  { id: 'product-wax', name: 'Cera para peinar', description: 'Acabado natural y fijación flexible.', salePrice: 175, costPrice: 82, stock: 7, category: 'Cabello', active: true },
+  { id: 'product-conditioner', name: 'Acondicionador', description: 'Suavidad y cuidado diario.', salePrice: 145, costPrice: 68, stock: 6, category: 'Cabello', active: true },
+  { id: 'product-beard-balm', name: 'Bálsamo para barba', description: 'Hidratación y control para barba.', salePrice: 210, costPrice: 102, stock: 4, category: 'Barba', active: true },
+  { id: 'product-wood-comb', name: 'Peine de madera', description: 'Peine compacto para cabello y barba.', salePrice: 95, costPrice: 38, stock: 10, category: 'Accesorios', active: true },
 ];
 function dateAtOffset(now: Date, days: number): string {
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days);

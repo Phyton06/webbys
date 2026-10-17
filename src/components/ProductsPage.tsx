@@ -19,11 +19,26 @@ const PRODUCT_STATUS = {
 
 type ProductStatus = (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
 
-function loadInitialState(now: Date): AgendaState {
+function loadInitialState(now: Date): { state: AgendaState; error?: string } {
+  const seed = createAgendaSeed(now);
+  let state: AgendaState;
   try {
-    return loadAgendaState(window.localStorage, now).state;
+    state = loadAgendaState(window.localStorage, now).state;
   } catch {
-    return createAgendaSeed(now);
+    return { state: seed };
+  }
+
+  const products = state.products ?? [];
+  const productIds = new Set(products.map(({ id }) => id));
+  const missingDemoProducts = (seed.products ?? []).filter(({ id }) => !productIds.has(id));
+  if (missingDemoProducts.length === 0) return { state };
+
+  const migrated: AgendaState = { ...state, products: [...products, ...missingDemoProducts] };
+  try {
+    saveAgendaState(window.localStorage, migrated);
+    return { state: migrated };
+  } catch {
+    return { state, error: 'No se pudieron guardar los productos de demostración. Revisa el almacenamiento del navegador.' };
   }
 }
 
@@ -147,14 +162,15 @@ function ProductForm({
 }
 
 export function ProductsPage({ now = new Date() }: ProductsPageProps) {
-  const [state, setState] = useState(() => loadInitialState(now));
+  const [initial] = useState(() => loadInitialState(now));
+  const [state, setState] = useState(initial.state);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [status, setStatus] = useState<ProductStatus>(PRODUCT_STATUS.ALL);
   const [selectedId, setSelectedId] = useState<string>();
   const [editingProduct, setEditingProduct] = useState<ProductRecord>();
   const [formOpen, setFormOpen] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(initial.error ?? '');
   const products = state.products ?? [];
   const selectedProduct = products.find(({ id }) => id === selectedId);
   const categories = [...new Set(products.map(({ category }) => category))].sort((a, b) => a.localeCompare(b, 'es'));
@@ -225,13 +241,13 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
               <h1 id="products-title">Productos</h1>
               <p>Consulta precios y existencias del catálogo.</p>
             </div>
-            <button class="availability-save-button" type="button" onClick={() => { setEditingProduct(undefined); setFormOpen(true); }}>Nuevo producto</button>
+            <button class="availability-save-button product-flow-button" type="button" onClick={() => { setEditingProduct(undefined); setFormOpen(true); }}>Nuevo producto</button>
           </header>
           {error && <p role="alert" class="availability-error">{error}</p>}
 
           {selectedProduct ? (
             <section class="product-detail" aria-labelledby="product-detail-title">
-              <button class="appointment-form-cancel" type="button" onClick={() => setSelectedId(undefined)}>Volver a productos</button>
+              <button class="appointment-form-cancel product-flow-button" type="button" onClick={() => setSelectedId(undefined)}>Volver a productos</button>
               <header>
                 <div class="product-detail-identity">
                   {localImagePath(selectedProduct.imagePath ?? '') && (
