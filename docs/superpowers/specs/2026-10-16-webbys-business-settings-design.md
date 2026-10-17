@@ -13,6 +13,9 @@ Complete the existing Configuration module with locally persisted business and a
 - For general business hours, the user chose: “Solo informativo”. They do not constrain appointment availability.
 - For preferences, the user chose: “Solo preferencias funcionales”. Persist local notification preferences; retain the current visual theme and do not add a light theme.
 - The user approved the recommended design: a separate local settings store, existing barber schedules unchanged, and no real notification delivery.
+- After reviewing the visual comparison, the user chose: “opcion 1” (category menu: desktop sidebar and mobile category selector).
+- The user chose: “Guardar por categoría”.
+- The user approved updating the design and plan: “si hazlo”.
 
 ## Approved scope
 
@@ -42,6 +45,16 @@ Complete the existing Configuration module with locally persisted business and a
 - Preferences are saved locally as future integration settings; they do not send notifications, create subscriptions, alter simulated sends, or affect the explicitly triggered local-device test.
 - Keep the current dark visual theme. Do not introduce a light theme or claim that a theme preference can be changed.
 
+### S5 — Configuration category navigation and independent saves
+
+User request: “ok esta bien pero siento que esta todo mal organizado estando todo asi, quiero que hagamos opciones para cada cosa”
+
+- Replace the single long configuration form with category navigation: **Perfil del negocio**, **Perfil administrativo**, **Moneda**, **Horario general**, **Preferencias de notificación**, **Horarios del equipo**, and **Excepciones por fecha**.
+- Use a sidebar on desktop and the existing custom `Dropdown` as the category selector on phones. Open **Perfil del negocio** by default and show one category's content at a time.
+- Each category has its own Save action. Business settings continue using `webbys:business-settings:v1`; barber schedules and date exceptions continue using `webbys:agenda:v1` and their existing save behavior.
+- Saving one business settings category updates only that category in the stored envelope and preserves previously saved values in other categories. Unsaved drafts remain in memory while switching categories, are not included when another category is saved, and are discarded on reload.
+- Keep the existing logo, informational general hours, currency presentation-only behavior, dark theme, and local-only notification preference constraints unchanged.
+
 ## Out of scope
 
 - Backend, account synchronization, real authentication/profile updates, cloud storage, or public APIs.
@@ -62,10 +75,14 @@ Complete the existing Configuration module with locally persisted business and a
 7. Notification-category preference toggles persist locally and do not trigger delivery or change notification testing/simulated-send records.
 8. Settings controls reuse existing custom dropdown, form, search, and responsive patterns where relevant.
 9. The full existing test suite, Astro type check, and static build pass.
+10. Configuration category navigation exposes the seven areas above; only the selected area's controls are visible and findable.
+11. Each category saves independently; saving one category does not persist unsaved values from another category or mutate the other storage envelope.
+12. Category drafts survive switching categories in the current page session; reloading returns the last saved values.
 
 ## Verification
 
 - Unit-test settings schema validation, defaults, versioned persistence, invalid-write byte preservation, and business-hour validation.
 - Test currency formatting for MXN/USD/EUR and unchanged numeric values; test every changed monetary consumer.
 - Test the Settings page's separate storage boundaries, form persistence, read-only logo, informational hours, and notification preference toggles.
+- Test desktop category navigation, mobile Dropdown selection, category-specific saves, draft retention while switching, and reload of only saved values.
 - Run `npm test`, `npm run check`, `npm run build`, and `git diff --check`.

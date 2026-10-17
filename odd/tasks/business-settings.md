@@ -31,12 +31,22 @@ User decision: “Solo preferencias funcionales”. Persist notification-categor
 
 Assumption: initialize all category preferences as disabled until the administrator opts in; this preference does not cause any delivery in this phase.
 
+### S5 — Configuration categories and per-category saving
+
+User request: “ok esta bien pero siento que esta todo mal organizado estando todo asi, quiero que hagamos opciones para cada cosa”
+
+User decisions: “opcion 1” / “Guardar por categoría” / “si hazlo”.
+
+Replace the long Settings page with a desktop sidebar and mobile custom category Dropdown for Perfil del negocio, Perfil administrativo, Moneda, Horario general, Preferencias de notificación, Horarios del equipo, and Excepciones por fecha. Open Perfil del negocio by default. Show one category at a time; keep in-session drafts when switching; save only the selected category. Never save pending values from another category. Business preferences remain in the business settings store; team hours/exceptions remain in Agenda storage and retain their own save handlers.
+
+Assumption: unsaved drafts remain only in component memory and are discarded on reload; the last saved values are restored.
+
 ## Tasks
 
-- [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; commit: `d1306ae` (17 tests, RED → GREEN).
+- [ ] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: reopened for S5 section-level persistence; baseline commit: `d1306ae`; follow-up commit: pending.
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
-- [x] T3 — Extend the existing Settings page with business/profile fields, read-only logo, general hours, and local notification preferences; route: inline; status: complete; commit: `fed1102` (25 settings/store tests passed).
-- [x] T4 — Run full verification, independent risk assessment as required, update progress, and close; route: inline; status: complete; verification work-unit commit: `a7e9a02`.
+- [ ] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: reopened for S5; baseline commit: `fed1102`; follow-up commit: pending.
+- [ ] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: reopened for S5; baseline verification: `a7e9a02`; follow-up commit: pending.
 
 ## Log
 
@@ -52,4 +62,8 @@ Assumption: initialize all category preferences as disabled until the administra
 - L10: T2 build verification exposed that directly reading `window.localStorage` during Astro server prerender throws on Products. Added the SSR-safe `getCurrentBusinessCurrency()` fallback and test; focused 7-file suite now has 59 passed, Astro check has zero diagnostics, and build produced 12 routes. Risk remains `none` because the added display path is covered and does not mutate stored amounts.
 - L11: Final verification: `npm test` (288 tests, 39 files); `npm run check` (zero diagnostics); `npm run build` (12 static routes); `git diff --check` passed. Impeccable detector returned `[]`. RDD remains off by global choice. No push/PR authorized for this phase; Engram mirror remains pending because the service cannot resolve an authoritative runtime session.
 - L12: T4 verification record committed as `a7e9a02 docs(settings): record business settings verification`.
-- Risk: none (all changed monetary consumers and settings behavior have focused coverage; persisted monetary values, Agenda schedules, appointment availability, and notification delivery remain unchanged).
+- L13: User feedback: “ok esta bien pero siento que esta todo mal organizado estando todo asi, quiero que hagamos opciones para cada cosa”.
+- L14: User selected “opcion 1” (desktop category sidebar, mobile category Dropdown) and “Guardar por categoría”.
+- L15: User approved updating the design and plan: “si hazlo”.
+- L16: S5 reopens T1, T3, and T4 only; the implemented settings data, currency consumers, and their completed tests remain valid.
+- Risk: none for the completed S1–S4 implementation; its monetary consumers/settings behavior are covered and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain unchanged. Reassess after the S5 follow-up closes.

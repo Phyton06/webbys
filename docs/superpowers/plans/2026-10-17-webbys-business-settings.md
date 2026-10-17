@@ -76,6 +76,9 @@ export interface BusinessSettings {
   notificationPreferences: Record<NotificationPreferenceCategory, boolean>;
 }
 
+export type BusinessSettingsSection = keyof BusinessSettings;
+export type SettingsCategory = BusinessSettingsSection | 'barber-schedules' | 'date-exceptions';
+
 export interface BusinessSettingsEnvelope { schemaVersion: 1; settings: BusinessSettings; }
 export type BusinessSettingsLoadStatus = 'default' | 'loaded' | 'invalid';
 export interface BusinessSettingsLoadResult { settings: BusinessSettings; status: BusinessSettingsLoadStatus; }
@@ -84,6 +87,7 @@ export function createDefaultBusinessSettings(): BusinessSettings;
 export function validateBusinessSettings(value: unknown): value is BusinessSettings;
 export function loadBusinessSettings(storage: Pick<Storage, 'getItem'>): BusinessSettingsLoadResult;
 export function saveBusinessSettings(storage: Pick<Storage, 'setItem'>, settings: BusinessSettings): void;
+export function saveBusinessSettingsSection(storage: Pick<Storage, 'getItem' | 'setItem'>, settings: BusinessSettings, section: BusinessSettingsSection): void;
 export function formatCurrency(amount: number, currency: CurrencyCode): string;
 export function readBusinessCurrency(storage: Pick<Storage, 'getItem'>): CurrencyCode;
 export function getCurrentBusinessCurrency(): CurrencyCode;
@@ -160,6 +164,16 @@ export function saveBusinessSettings(storage: Pick<Storage, 'setItem'>, settings
   if (!validateBusinessSettings(settings)) throw new Error('Revisa los datos de configuración.');
   storage.setItem(BUSINESS_SETTINGS_STORAGE_KEY, JSON.stringify({ schemaVersion: 1, settings }));
 }
+
+export function saveBusinessSettingsSection(
+  storage: Pick<Storage, 'getItem' | 'setItem'>,
+  draft: BusinessSettings,
+  section: BusinessSettingsSection,
+): void {
+  const stored = loadBusinessSettings(storage);
+  if (stored.status === 'invalid') throw new Error('No se pueden guardar los cambios hasta revisar los datos guardados.');
+  saveBusinessSettings(storage, { ...stored.settings, [section]: draft[section] });
+}
 ```
 
 The store tests call the public functions and assert that rejected writes leave the exact prior bytes intact:
@@ -232,12 +246,18 @@ In `BusinessSettingsPanel`, `updateCurrency(value: CurrencyCode)` changes only `
 
 **Files:** `src/types/business-settings.ts`, `src/services/business-settings-store.ts`, `src/services/business-settings-store.test.ts`.
 
+**S5 follow-up:** `T1` is reopened only to add/test `saveBusinessSettingsSection`, preserving other persisted settings groups and refusing to overwrite an invalid envelope.
+
 - [x] Write failing tests proving default business identity is `Webby's Barbershop`, default currency is MXN, optional contact/profile fields are blank, each weekday is unconfigured, and notification preferences default off.
 - [x] Write failing tests accepting valid open/closed/unconfigured weekday states and rejecting invalid currency codes, malformed hours, open times where `closesAt <= opensAt`, invalid profile field types, and missing preference categories.
 - [x] Write failing storage tests for missing key, valid schema version 1, corrupt JSON, wrong schema version, invalid settings, storage read exceptions, and invalid saves preserving the exact pre-existing bytes.
 - [x] Implement `createDefaultBusinessSettings`, `validateBusinessSettings`, `loadBusinessSettings`, and `saveBusinessSettings` using `webbys:business-settings:v1`. Loading does not rewrite invalid bytes; saving validates before calling `setItem`.
 - [x] Run `npm test -- src/services/business-settings-store.test.ts` (17 passed) and `npm run check` (zero diagnostics); RED → GREEN observed.
 - [x] Commit: `d1306ae feat(settings): add isolated business settings store`.
+- [ ] Add a failing test that saving one category merges only that category with existing settings; other saved categories and corrupt bytes remain unchanged.
+- [ ] Implement `saveBusinessSettingsSection` using `loadBusinessSettings`; reject `status === 'invalid'`, replace only `draft[section]` for valid/default data, and call `saveBusinessSettings`.
+- [ ] Run `npm test -- src/services/business-settings-store.test.ts`; expect the new category-merge test to pass with the existing store tests.
+- [ ] Commit the S5 store follow-up in a separate Conventional Commit.
 
 ### Task 2: Shared currency formatting across monetary consumers
 
@@ -265,6 +285,8 @@ it.each(['MXN', 'USD', 'EUR'] as const)('formats %s using the Spanish-Mexico loc
 
 **Files:** `src/components/BusinessSettingsPanel.tsx`, `src/components/BusinessSettingsPanel.test.tsx`, `src/components/SettingsPage.tsx`, `src/components/SettingsPage.test.tsx`, `src/styles/business-settings.css`.
 
+**S5 follow-up:** `T3` is reopened only for the approved category navigation and category-specific saves. Keep the current data model and current feature behavior; move controls into the selected category without changing their existing semantics.
+
 - [x] Add failing component tests for editable business name/address/phone/email and administrator display name/email/phone, a visible read-only current logo, currency dropdown defaulting to MXN, and save/reload persistence.
 - [x] Add failing tests for each weekday's `Sin configurar`/`Cerrado`/opening and closing time states, rejecting invalid open intervals, and successful saves not changing generated barber appointment slots.
 - [x] Add failing tests for local category preference toggles persisting across remount and not mutating Agenda bytes, notification history bytes, or device-test state.
@@ -284,6 +306,16 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts` (25 passed).
 - [x] Run `npm run check` (zero diagnostics).
 - [x] Commit: `fed1102 feat(settings): complete business configuration page`.
+- [ ] Add failing tests for all seven menu categories, the default Perfil del negocio category, desktop menu selection, mobile custom Dropdown selection, and only the selected category being visible.
+- [ ] Add failing tests proving each business settings category has its own Save action, saving one category does not persist another category's unsaved draft, and switching categories preserves the in-memory draft.
+- [ ] Add failing integration tests that Horarios del equipo and Excepciones por fecha remain separate categories with their existing Agenda save behavior.
+- [ ] Implement `SettingsCategory` navigation in `SettingsPage`: desktop sidebar, mobile `Dropdown`, active category defaults to `business`, and all category panels remain mounted with inactive panels hidden so existing editor drafts survive navigation.
+- [ ] Refactor `BusinessSettingsPanel` to render only the selected business settings category and a section-scoped Save action. Keep its full draft in memory while the category changes.
+- [ ] Implement section saves with `saveBusinessSettingsSection`; merge only the active business section into the latest stored settings, preserve other persisted sections, and do not persist unsaved drafts from other sections.
+- [ ] Place `BarberAvailabilityPanel` and `AvailabilityExceptionEditor` in their own hidden/shown categories without changing their `webbys:agenda:v1` save callbacks.
+- [ ] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts`; expect all category-navigation and save-isolation tests to pass.
+- [ ] Run `npm run check`; expect zero diagnostics.
+- [ ] Commit the S5 UI follow-up in a separate Conventional Commit.
 
 ### Task 4: Full verification and close
 
@@ -293,6 +325,9 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Verify every requirement in `docs/superpowers/specs/2026-10-16-webbys-business-settings-design.md`, including preserved Agenda storage, all global currency consumers, no conversion, and no notification delivery.
 - [x] RDD was read as off (global); no review lifecycle or mode changes were performed.
 - [x] Record final result in `odd/tasks/business-settings.md`; verification work-unit commit: `a7e9a02`. No push or PR was performed.
+- [ ] Rerun full tests, Astro check, static build, and diff check after the S5 follow-up; record fresh outcomes.
+- [ ] Run the Impeccable detector once on changed Settings navigation/UI targets after the follow-up; record the observed result.
+- [ ] Record follow-up verification and commits in `odd/tasks/business-settings.md`; do not push or open a PR without separate authorization.
 
 ## Known Decisions and Assumptions
 
