@@ -35,7 +35,7 @@ function atRelativeDate(now: Date, daysFromToday: number, hour: number, minute: 
   return date.toISOString();
 }
 
-function makeSale(index: number, now: Date): SaleRecord {
+function makeSale(index: number, daysFromToday: number, now: Date): SaleRecord {
   const serviceIndex = index % serviceNames.length;
   const items: SaleItem[] = [{
     kind: 'service',
@@ -59,7 +59,6 @@ function makeSale(index: number, now: Date): SaleRecord {
   const grossTotal = items.reduce((total, item) => total + item.quantity * item.unitPrice, 0);
   const attributedToPromotion = index % 7 === 0;
   const discountTotal = attributedToPromotion ? 50 : 0;
-  const daysFromToday = index - 34;
   const hour = 8 + (index % 4);
 
   return {
@@ -102,8 +101,25 @@ function makeAppointment(
   };
 }
 
+const DEMO_SALES_DAYS = 90;
+
+function makeSales(now: Date): SaleRecord[] {
+  const sales: SaleRecord[] = [];
+  let index = 0;
+
+  for (let daysFromToday = -(DEMO_SALES_DAYS - 1); daysFromToday <= 0; daysFromToday += 1) {
+    const salesPerDay = 1 + ((daysFromToday + (DEMO_SALES_DAYS - 1)) % 3);
+    for (let saleOfDay = 0; saleOfDay < salesPerDay; saleOfDay += 1) {
+      sales.push(makeSale(index, daysFromToday, now));
+      index += 1;
+    }
+  }
+
+  return sales;
+}
+
 export function createDemoData(now: Date): DemoData {
-  const sales = Array.from({ length: 35 }, (_, index) => makeSale(index, now));
+  const sales = makeSales(now);
   const appointments = [
     ...appointmentSlots.map((_, index) => makeAppointment(index, 0, now)),
     ...appointmentSlots.slice(0, 4).map((_, index) => makeAppointment(index + 5, 1, now)),

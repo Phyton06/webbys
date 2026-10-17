@@ -167,7 +167,7 @@ describe('createDemoData', () => {
   it('generates date-relative sales with totals that reconcile to their items and discounts', () => {
     const demo = createDemoData(now);
 
-    expect(demo.sales.length).toBeGreaterThanOrEqual(28);
+    expect(demo.sales).toHaveLength(180);
     for (const sale of demo.sales) {
       const itemTotal = sale.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
       expect(itemTotal).toBe(sale.grossTotal);
@@ -179,7 +179,7 @@ describe('createDemoData', () => {
   it('provides sale snapshots for read-only sales search and reporting', () => {
     const demo = createDemoData(now);
 
-    expect(demo.sales).toHaveLength(35);
+    expect(demo.sales).toHaveLength(180);
     for (const sale of demo.sales) {
       expect(sale.employeeId).toMatch(/^barber-\d+$/);
       expect(sale.employeeName).toBeTruthy();
@@ -194,5 +194,33 @@ describe('createDemoData', () => {
       if (sale.promotionId) expect(sale.promotionName?.trim()).not.toBe('');
     }
     expect(demo.sales.some(({ promotionId }) => promotionId)).toBe(true);
+  });
+
+  it('spreads sales across ninety days so recent and previous windows have comparable volume', () => {
+    const demo = createDemoData(now);
+    const salesPerDay = new Map<string, number>();
+
+    for (const sale of demo.sales) {
+      const key = new Date(sale.occurredAt).toDateString();
+      salesPerDay.set(key, (salesPerDay.get(key) ?? 0) + 1);
+    }
+
+    expect(salesPerDay.size).toBe(90);
+    expect([...salesPerDay.values()].filter((count) => count > 1)).toHaveLength(60);
+
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+    const countWindow = (fromDaysAgo: number, toDaysAgo: number): number => {
+      let total = 0;
+      for (let daysAgo = fromDaysAgo; daysAgo <= toDaysAgo; daysAgo += 1) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - daysAgo);
+        total += salesPerDay.get(date.toDateString()) ?? 0;
+      }
+      return total;
+    };
+
+    expect(countWindow(0, 29)).toBe(60);
+    expect(countWindow(30, 59)).toBe(60);
   });
 });

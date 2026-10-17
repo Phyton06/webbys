@@ -48,8 +48,8 @@ describe('SalesPage', () => {
     expect(screen.getByRole('button', { name: 'Desde: 14 de octubre de 2026' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Hasta: 14 de octubre de 2026' })).toBeTruthy();
     expect(screen.getByText('Rango seleccionado · Día · 14 de octubre de 2026')).toBeTruthy();
-    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('1');
-    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(1);
+    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('3');
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(3);
     expect(screen.getByRole('img', { name: 'Ventas netas por día' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /registrar|nueva venta|guardar venta/i })).toBeNull();
   });
@@ -108,8 +108,8 @@ describe('SalesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Hasta: 14 de octubre de 2026' }));
     fireEvent.click(screen.getByRole('button', { name: 'Lunes, 5 de octubre' }));
     expect(screen.getByText('Rango seleccionado · 1 de octubre de 2026 – 5 de octubre de 2026')).toBeTruthy();
-    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('5');
-    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(5);
+    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('11');
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(11);
   });
 
   it('opens a read-only sale detail and returns to the filtered list', () => {
