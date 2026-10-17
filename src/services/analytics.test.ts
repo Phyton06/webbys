@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { PromotionRecord } from '../types/agenda';
 import type { SaleItem, SaleRecord } from '../types/domain';
-import { getEmployeePerformance, getItemRanking, getPeriodComparison } from './analytics';
+import { getEmployeePerformance, getItemRanking, getPeriodComparison, getPromotionAnalytics } from './analytics';
 
 function at(month: number, day: number, hour = 12, minute = 0): string {
   return new Date(2026, month - 1, day, hour, minute).toISOString();
@@ -167,5 +168,118 @@ describe('getEmployeePerformance', () => {
     ]);
 
     expect(performance.map(({ name }) => name)).toEqual(['Andrés', 'Raúl']);
+  });
+});
+
+function promotion(overrides: Partial<PromotionRecord> & { id: string; name: string; startsOn: string; endsOn: string }): PromotionRecord {
+  return {
+    description: '',
+    targets: [],
+    discountType: 'percentage',
+    originalPrice: 0,
+    discountValue: 10,
+    manualStatus: 'published',
+    ...overrides,
+  };
+}
+
+// Promo A definida con ventana 1–10 sep; la ventana previa de igual longitud es 22–31 ago.
+// a-1..a-2 atribuidas dentro del rango elegido (sep 1–30); a-3 fuera del rango pero dentro de la ventana previa;
+// a-4 fuera de la ventana previa. o-1..o-3 coinciden en fechas sin atribuirse a A (o-2 y o-3 pertenecen a otras promos).
+const promotionRecords: PromotionRecord[] = [
+  promotion({ id: 'promo-a', name: 'Promo barba', startsOn: '2026-09-01', endsOn: '2026-09-10' }),
+  promotion({ id: 'promo-c', name: 'Promo futura', startsOn: '2026-11-01', endsOn: '2026-11-10' }),
+];
+
+const promotionSales: SaleRecord[] = [
+  sale({ id: 'a-1', occurredAt: at(9, 3), items: [corte(300), cera(175)], discountTotal: 25, promotionId: 'promo-a', promotionName: 'Promo barba' }),
+  sale({ id: 'a-2', occurredAt: at(9, 8), items: [corte(300)], discountTotal: 50, promotionId: 'promo-a', promotionName: 'Promo barba' }),
+  sale({ id: 'a-3', occurredAt: at(8, 25), items: [corte(300)], promotionId: 'promo-a', promotionName: 'Promo barba' }),
+  sale({ id: 'a-4', occurredAt: at(8, 20), items: [corte(500)], promotionId: 'promo-a', promotionName: 'Promo barba' }),
+  sale({ id: 'o-1', occurredAt: at(9, 5), items: [corte(250)] }),
+  sale({ id: 'o-2', occurredAt: at(9, 7), items: [corte(200)], promotionId: 'promo-b', promotionName: 'Oferta express' }),
+  sale({ id: 'o-3', occurredAt: at(9, 9), items: [corte(200)], promotionId: 'promo-d', promotionName: 'Zeta promo' }),
+  sale({ id: 'x-1', occurredAt: at(8, 10), items: [corte(400)] }),
+];
+
+describe('getPromotionAnalytics', () => {
+  it('keeps explicit attribution separate from date-window coincidence', () => {
+    const { promotions: list } = getPromotionAnalytics(promotionSales, promotionRecords, '2026-09-01', '2026-09-30');
+    const promoA = list.find(({ id }) => id === 'promo-a')!;
+
+    expect(promoA.attributedSalesCount).toBe(2);
+    expect(promoA.attributedNetTotal).toBe(700);
+    expect(promoA.attributedDiscountTotal).toBe(75);
+    expect(promoA.attributedUnits).toBe(3);
+    expect(promoA.occurredDuringSalesCount).toBe(3);
+    expect(promoA.occurredDuringNetTotal).toBe(650);
+    expect(promoA.occurredDuringUnits).toBe(3);
+  });
+
+  it('compares the stored window against the immediately preceding window of equal length under the same attribution rule', () => {
+    const { promotions: list } = getPromotionAnalytics(promotionSales, promotionRecords, '2026-09-01', '2026-09-30');
+    const promoA = list.find(({ id }) => id === 'promo-a')!;
+
+    expect(promoA.hasDateWindow).toBe(true);
+    expect(promoA.windowComparison).not.toBeNull();
+    expect(promoA.windowComparison!.currentNetTotal).toBe(700);
+    expect(promoA.windowComparison!.previousNetTotal).toBe(300);
+    expect(promoA.windowComparison!.delta.absolute).toBe(400);
+    expect(promoA.windowComparison!.delta.percent).toBeCloseTo((400 / 300) * 100, 5);
+  });
+
+  it('leaves the window comparison null for promotions without a stored definition', () => {
+    const { promotions: list } = getPromotionAnalytics(promotionSales, promotionRecords, '2026-09-01', '2026-09-30');
+    const promoB = list.find(({ id }) => id === 'promo-b')!;
+
+    expect(promoB.name).toBe('Oferta express');
+    expect(promoB.hasDateWindow).toBe(false);
+    expect(promoB.windowComparison).toBeNull();
+    expect(promoB.occurredDuringSalesCount).toBe(0);
+    expect(promoB.attributedSalesCount).toBe(1);
+    expect(promoB.attributedNetTotal).toBe(200);
+  });
+
+  it('lists definitions with no sales and computes the promotion-free benchmark of the range', () => {
+    const report = getPromotionAnalytics(promotionSales, promotionRecords, '2026-09-01', '2026-09-30');
+    const promoA = report.promotions.find(({ id }) => id === 'promo-a')!;
+    const promoD = report.promotions.find(({ id }) => id === 'promo-d')!;
+    const promoC = report.promotions.find(({ id }) => id === 'promo-c')!;
+
+    expect(promoA.dailyAttributed).toEqual([
+      { date: '2026-09-03', netTotal: 450 },
+      { date: '2026-09-08', netTotal: 250 },
+    ]);
+    expect(promoD.dailyAttributed).toEqual([{ date: '2026-09-09', netTotal: 200 }]);
+    expect(promoC.attributedSalesCount).toBe(0);
+    expect(promoC.hasDateWindow).toBe(true);
+    expect(promoC.windowComparison).toEqual({ currentNetTotal: 0, previousNetTotal: 0, delta: { absolute: 0, percent: null } });
+    expect(report.withoutPromotion).toEqual({ saleCount: 1, netTotal: 250 });
+  });
+
+  it('orders promotions by attributed net total and then by name', () => {
+    const { promotions: list } = getPromotionAnalytics(promotionSales, promotionRecords, '2026-09-01', '2026-09-30');
+
+    expect(list.map(({ id }) => id)).toEqual(['promo-a', 'promo-b', 'promo-d', 'promo-c']);
+  });
+
+  it('scopes attributed figures and the daily series to the selected range', () => {
+    const { promotions: list } = getPromotionAnalytics(promotionSales, promotionRecords, '2026-09-01', '2026-09-05');
+    const promoA = list.find(({ id }) => id === 'promo-a')!;
+
+    expect(promoA.attributedSalesCount).toBe(1);
+    expect(promoA.attributedNetTotal).toBe(450);
+    expect(promoA.dailyAttributed).toEqual([{ date: '2026-09-03', netTotal: 450 }]);
+    expect(promoA.occurredDuringSalesCount).toBe(1);
+    expect(promoA.windowComparison!.currentNetTotal).toBe(700);
+  });
+
+  it('returns an empty report for malformed or reversed ranges', () => {
+    for (const [start, end] of [['2026-13-01', '2026-09-30'], ['2026-09-30', '2026-09-01']]) {
+      const report = getPromotionAnalytics(promotionSales, promotionRecords, start as string, end as string);
+
+      expect(report.promotions).toEqual([]);
+      expect(report.withoutPromotion).toEqual({ saleCount: 0, netTotal: 0 });
+    }
   });
 });

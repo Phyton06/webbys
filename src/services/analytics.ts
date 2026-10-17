@@ -1,3 +1,4 @@
+import type { PromotionRecord } from '../types/agenda';
 import type { SaleRecord } from '../types/domain';
 import { filterSales, summarizeSales } from './sales';
 
@@ -150,4 +151,128 @@ export function getEmployeePerformance(sales: SaleRecord[]): EmployeePerformance
     .map((employee) => ({ ...employee, averageTicket: employee.saleCount ? employee.netTotal / employee.saleCount : 0 }))
     .sort((first, second) => second.netTotal - first.netTotal
       || first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
+}
+
+export interface PromotionWindowComparison {
+  currentNetTotal: number;
+  previousNetTotal: number;
+  delta: PeriodDelta;
+}
+
+export interface PromotionAnalytics {
+  id: string;
+  name: string;
+  attributedSalesCount: number;
+  attributedNetTotal: number;
+  attributedDiscountTotal: number;
+  attributedUnits: number;
+  occurredDuringSalesCount: number;
+  occurredDuringNetTotal: number;
+  occurredDuringUnits: number;
+  hasDateWindow: boolean;
+  windowComparison: PromotionWindowComparison | null;
+  dailyAttributed: Array<{ date: string; netTotal: number }>;
+}
+
+export interface PromotionAnalyticsReport {
+  promotions: PromotionAnalytics[];
+  withoutPromotion: { saleCount: number; netTotal: number };
+}
+
+export function getPromotionAnalytics(
+  sales: SaleRecord[],
+  promotions: PromotionRecord[],
+  startDate: string,
+  endDate: string,
+): PromotionAnalyticsReport {
+  const start = parseDateKey(startDate);
+  const end = parseDateKey(endDate);
+  if (!start || !end || start.getTime() > end.getTime()) {
+    return { promotions: [], withoutPromotion: { saleCount: 0, netTotal: 0 } };
+  }
+
+  const startKey = toDateKey(start);
+  const endKey = toDateKey(end);
+  const saleDateKey = (sale: SaleRecord): string | undefined => {
+    const date = new Date(sale.occurredAt);
+    if (Number.isNaN(date.getTime())) return undefined;
+    return toDateKey(date);
+  };
+  const isWithin = (sale: SaleRecord, from: string, to: string): boolean => {
+    const key = saleDateKey(sale);
+    return key !== undefined && key >= from && key <= to;
+  };
+
+  const definitions = new Map(promotions.map((promotion) => [promotion.id, promotion]));
+  const snapshotNames = new Map<string, string>();
+  for (const sale of sales) {
+    if (sale.promotionId) snapshotNames.set(sale.promotionId, sale.promotionName ?? sale.promotionId);
+  }
+
+  const selected = sales.filter((sale) => isWithin(sale, startKey, endKey));
+  const withoutAttribution = selected.filter((sale) => !sale.promotionId);
+  const withoutPromotion = {
+    saleCount: withoutAttribution.length,
+    netTotal: withoutAttribution.reduce((total, sale) => total + sale.netTotal, 0),
+  };
+
+  const promotionsAnalytics = [...new Set([...definitions.keys(), ...snapshotNames.keys()])]
+    .map((id): PromotionAnalytics => {
+      const definition = definitions.get(id);
+      const name = definition?.name ?? snapshotNames.get(id) ?? id;
+      const attributed = selected.filter((sale) => sale.promotionId === id);
+
+      const windowStart = definition ? parseDateKey(definition.startsOn) : undefined;
+      const windowEnd = definition ? parseDateKey(definition.endsOn) : undefined;
+      const hasDateWindow = Boolean(windowStart && windowEnd && windowStart.getTime() <= windowEnd.getTime());
+
+      let occurredDuring: SaleRecord[] = [];
+      let windowComparison: PromotionWindowComparison | null = null;
+      if (hasDateWindow && windowStart && windowEnd) {
+        const windowStartKey = toDateKey(windowStart);
+        const windowEndKey = toDateKey(windowEnd);
+        occurredDuring = selected.filter((sale) => sale.promotionId !== id && isWithin(sale, windowStartKey, windowEndKey));
+
+        const windowLength = Math.round((windowEnd.getTime() - windowStart.getTime()) / DAY_MS) + 1;
+        const previousEnd = addDays(windowStart, -1);
+        const previousStart = addDays(previousEnd, -(windowLength - 1));
+        const attributedNetWithin = (from: string, to: string): number => sales
+          .filter((sale) => sale.promotionId === id && isWithin(sale, from, to))
+          .reduce((total, sale) => total + sale.netTotal, 0);
+        const currentNetTotal = attributedNetWithin(windowStartKey, windowEndKey);
+        const previousNetTotal = attributedNetWithin(toDateKey(previousStart), toDateKey(previousEnd));
+        windowComparison = { currentNetTotal, previousNetTotal, delta: deltaOf(currentNetTotal, previousNetTotal) };
+      }
+
+      const dailyNet = new Map<string, number>();
+      for (const sale of attributed) {
+        const key = saleDateKey(sale);
+        if (key !== undefined) dailyNet.set(key, (dailyNet.get(key) ?? 0) + sale.netTotal);
+      }
+
+      return {
+        id,
+        name,
+        attributedSalesCount: attributed.length,
+        attributedNetTotal: attributed.reduce((total, sale) => total + sale.netTotal, 0),
+        attributedDiscountTotal: attributed.reduce((total, sale) => total + sale.discountTotal, 0),
+        attributedUnits: countUnits(attributed),
+        occurredDuringSalesCount: occurredDuring.length,
+        occurredDuringNetTotal: occurredDuring.reduce((total, sale) => total + sale.netTotal, 0),
+        occurredDuringUnits: countUnits(occurredDuring),
+        hasDateWindow,
+        windowComparison,
+        dailyAttributed: [...dailyNet.entries()]
+          .map(([date, netTotal]) => ({ date, netTotal }))
+          .sort((first, second) => first.date.localeCompare(second.date)),
+      };
+    })
+    .sort((first, second) => second.attributedNetTotal - first.attributedNetTotal
+      || first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
+
+  return { promotions: promotionsAnalytics, withoutPromotion };
+}
+
+function countUnits(sales: SaleRecord[]): number {
+  return sales.reduce((total, sale) => total + sale.items.reduce((sum, item) => sum + item.quantity, 0), 0);
 }
