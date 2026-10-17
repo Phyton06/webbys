@@ -114,9 +114,10 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 - [x] Add failing navigation tests for the Sales route and current-page semantics on desktop and mobile More; update prior “coming soon” assertions for Sales.
 - [x] Implement `/ventas/` using `AdminGate`, `AdminShell`, `Dropdown`, `MobileMonthCalendar`, generated `DemoData.sales`, and current promotion snapshots; details have no sale/inventory mutation controls.
 - [x] Run `npm test -- src/components/SalesPage.test.tsx src/components/AdminShell.test.tsx src/services/sales.test.ts` (27 tests passed), `npm run check` (0 diagnostics), and commit: `e457c83 feat(sales): add read-only sales register`.
-- [ ] Add failing tests that Sales defaults to the current local day, displays the applied range above the summary, and applies changed inclusive boundaries to all derived views.
-- [ ] Move the two shared-calendar date controls to the top period section; initialize both boundaries to today and keep list, summary, trend, breakdown, and promotion analysis on the same range.
-- [ ] Run the focused Sales page tests and record the follow-up work-unit commit.
+- [x] Add failing tests that Sales defaults to the current local day, displays the applied range above the summary, and applies changed inclusive boundaries to all derived views.
+- [x] Move the two shared-calendar date controls to the top period section; initialize both boundaries to today and keep list, summary, trend, breakdown, and promotion analysis on the same range.
+- [x] Run `npm test -- src/components/SalesPage.test.tsx` (6 tests passed) and the full suite (226 tests), Astro check (0 diagnostics), build (11 routes), and `git diff --check`; commit `ad3bde0 fix(sales): default summary to current day`.
+- [x] Run the Impeccable detector once for the updated Sales surface; no findings.
 
 ### Task 4: Verify and close the feature
 
