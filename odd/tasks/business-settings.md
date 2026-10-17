@@ -46,7 +46,7 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 - [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; baseline commit: `d1306ae`; follow-up commits: `d3e1f4a`, `34d1059`.
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
 - [x] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: complete; baseline commit: `fed1102`; follow-up commit: `10cb798`.
-- [x] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: complete; baseline verification: `a7e9a02`; verification commit: pending.
+- [x] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: complete; baseline verification: `a7e9a02`; verification commit: `2804885`.
 
 ## Log
 
