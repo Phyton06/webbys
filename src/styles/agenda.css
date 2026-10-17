@@ -546,7 +546,11 @@
   box-shadow: var(--shadow-raised);
 }
 
-.appointment-date-picker-popover .mobile-month-calendar { border: 0; padding: var(--space-2); }
+.appointment-date-picker-popover .mobile-month-calendar {
+  display: grid;
+  border: 0;
+  padding: var(--space-2);
+}
 
 .appointment-date-picker-trigger:focus-visible {
   outline: 2px solid var(--color-accent);
@@ -926,8 +930,7 @@
   font-size: var(--text-xs);
 }
 
-.availability-interval input,
-.availability-exception-controls input[type="date"] {
+.availability-interval input {
   width: 100%;
   min-width: 0;
   min-height: 2.75rem;

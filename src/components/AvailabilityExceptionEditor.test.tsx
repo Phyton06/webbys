@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AvailabilityException, BarberRecord, BarberSchedule } from '../types/agenda';
 import { getAvailableSlots } from '../services/availability';
 import { AvailabilityExceptionEditor } from './AvailabilityExceptionEditor';
@@ -13,11 +13,25 @@ const schedules: BarberSchedule[] = [{
 }];
 const now = new Date(2026, 9, 15, 8, 0);
 
+beforeEach(() => {
+  vi.setSystemTime(now);
+});
+
+function pickExceptionDate() {
+  fireEvent.click(screen.getByRole('button', { name: /^Fecha de la excepción/ }));
+  fireEvent.click(screen.getByRole('button', { name: /^Viernes, 16 de octubre/ }));
+}
+
+function pickTime(triggerLabel: RegExp, time: string) {
+  fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
+  fireEvent.click(screen.getByRole('option', { name: time }));
+}
+
 describe('AvailabilityExceptionEditor', () => {
   it('saves a day-off override that closes otherwise available slots', () => {
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[]} onSave={onSave} />);
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
+    pickExceptionDate();
     fireEvent.click(screen.getByLabelText('Día libre'));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
 
@@ -29,9 +43,9 @@ describe('AvailabilityExceptionEditor', () => {
   it('saves replacement hours and the shared availability engine uses them', () => {
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[]} onSave={onSave} />);
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
-    fireEvent.input(screen.getByLabelText('Inicio de horario especial'), { target: { value: '12:00' } });
-    fireEvent.input(screen.getByLabelText('Fin de horario especial'), { target: { value: '17:00' } });
+    pickExceptionDate();
+    pickTime(/^Inicio de horario especial:/, '12:00');
+    pickTime(/^Fin de horario especial:/, '17:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
 
     const saved = onSave.mock.calls[0]?.[0] ?? [];
@@ -44,7 +58,7 @@ describe('AvailabilityExceptionEditor', () => {
     const original: AvailabilityException = { barberId: 'barber-diego', date: '2026-10-16', unavailable: true };
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[original]} onSave={onSave} />);
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
+    pickExceptionDate();
     fireEvent.click(screen.getByRole('button', { name: 'Actualizar excepción' }));
 
     const saved = onSave.mock.calls[0]?.[0] ?? [];
@@ -57,7 +71,7 @@ describe('AvailabilityExceptionEditor', () => {
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[original]} onSave={onSave} />);
 
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
+    pickExceptionDate();
     fireEvent.click(screen.getByLabelText('Día libre'));
     fireEvent.click(screen.getByRole('button', { name: 'Actualizar excepción' }));
 
@@ -77,27 +91,27 @@ describe('AvailabilityExceptionEditor', () => {
     };
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[original]} onSave={onSave} />);
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
+    pickExceptionDate();
     fireEvent.click(screen.getByLabelText('Día libre'));
     fireEvent.click(screen.getByLabelText('Día libre'));
 
-    expect((screen.getByLabelText('Inicio de horario especial') as HTMLInputElement).value).toBe('12:00');
-    expect((screen.getByLabelText('Fin de horario especial') as HTMLInputElement).value).toBe('17:00');
+    expect(screen.getByRole('button', { name: 'Inicio de horario especial: 12:00' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Fin de horario especial: 17:00' })).toBeTruthy();
   });
 
   it('rejects replacement hours with a break outside the shift', () => {
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[]} onSave={onSave} />);
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
-    fireEvent.input(screen.getByLabelText('Inicio de horario especial'), { target: { value: '09:00' } });
-    fireEvent.input(screen.getByLabelText('Fin de horario especial'), { target: { value: '12:00' } });
-    fireEvent.input(screen.getByLabelText('Inicio de descanso especial'), { target: { value: '12:00' } });
-    fireEvent.input(screen.getByLabelText('Fin de descanso especial'), { target: { value: '13:00' } });
+    pickExceptionDate();
+    pickTime(/^Fin de horario especial:/, '12:00');
+    pickTime(/^Inicio de descanso especial:/, '12:00');
+    pickTime(/^Fin de descanso especial:/, '13:00');
     fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
 
     expect(screen.getByRole('alert').textContent).toContain('El descanso debe quedar dentro de un horario laboral.');
-    expect(screen.getByLabelText('Fin de descanso especial').getAttribute('aria-invalid')).toBe('true');
-    expect(screen.getByLabelText('Fin de descanso especial').getAttribute('aria-describedby')).toBe('exception-schedule-error');
+    const breakEnd = screen.getByRole('button', { name: /^Fin de descanso especial:/ });
+    expect(breakEnd.getAttribute('aria-invalid')).toBe('true');
+    expect(breakEnd.getAttribute('aria-describedby')).toBe('exception-schedule-error');
     expect(onSave).not.toHaveBeenCalled();
   });
 

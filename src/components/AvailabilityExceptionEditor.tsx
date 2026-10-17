@@ -8,6 +8,7 @@ import {
 } from '../types/agenda';
 import { validateScheduleIntervals } from '../services/availability';
 import { Dropdown } from './Dropdown';
+import { MobileMonthCalendar } from './MobileMonthCalendar';
 
 const scheduleFailureCopy: Record<ScheduleFailure, string> = {
   [SCHEDULE_FAILURE.INVALID_INTERVAL]: 'Revisa que cada hora de inicio sea anterior a la hora final.',
@@ -15,6 +16,15 @@ const scheduleFailureCopy: Record<ScheduleFailure, string> = {
   [SCHEDULE_FAILURE.BREAK_OUTSIDE_WORKING_HOURS]: 'El descanso debe quedar dentro de un horario laboral.',
   [SCHEDULE_FAILURE.OVERLAPPING_BREAKS]: 'Los descansos no pueden superponerse.',
 };
+
+const TIME_OPTIONS = Array.from({ length: 96 }, (_, index) => {
+  const value = `${String(Math.floor(index / 4)).padStart(2, '0')}:${String((index % 4) * 15).padStart(2, '0')}`;
+  return { value, label: value };
+});
+
+function formatExceptionDate(value: string): string {
+  return new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${value}T12:00:00`));
+}
 
 interface AvailabilityExceptionEditorProps {
   barbers: BarberRecord[];
@@ -40,6 +50,8 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
   const initialBarberId = barbers[0]?.id ?? '';
   const [selectedBarberId, setSelectedBarberId] = useState(initialBarberId);
   const [selectedDate, setSelectedDate] = useState(tomorrowLocalDate);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [calendarDate, setCalendarDate] = useState(selectedDate);
   const [draftExceptions, setDraftExceptions] = useState(exceptions);
   const [unavailable, setUnavailable] = useState(false);
   const [working, setWorking] = useState<TimeInterval[]>([{ start: '09:00', end: '18:00' }]);
@@ -202,21 +214,35 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                   }}
                 />
               </label>
-              <label class="availability-control">
+              <div class="availability-control appointment-date-picker-control">
                 <span>Fecha</span>
-                <input
-                  type="date"
-                  aria-label="Fecha de la excepción"
-                  value={selectedDate}
-                  onInput={(event) => {
-                    const value = (event.currentTarget as HTMLInputElement).value;
-                    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-                      setSelectedDate(value);
-                      loadDateException(selectedBarberId, value);
-                    }
-                  }}
-                />
-              </label>
+                <button
+                  class="appointment-date-picker-trigger"
+                  type="button"
+                  aria-label={`Fecha de la excepción: ${formatExceptionDate(selectedDate)}`}
+                  aria-expanded={datePickerOpen}
+                  onClick={() => setDatePickerOpen((open) => !open)}
+                >
+                  <span>{formatExceptionDate(selectedDate)}</span>
+                  <span aria-hidden="true">Calendario</span>
+                </button>
+                {datePickerOpen && (
+                  <div class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
+                    <MobileMonthCalendar
+                      selectedDate={selectedDate}
+                      displayedMonth={calendarDate}
+                      appointments={[]}
+                      onNavigateMonth={setCalendarDate}
+                      onSelectDate={(value) => {
+                        setSelectedDate(value);
+                        setCalendarDate(value);
+                        loadDateException(selectedBarberId, value);
+                        setDatePickerOpen(false);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
             <label class="availability-day-toggle">
@@ -230,14 +256,28 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                 <div class="availability-interval-list">
                   {working.map((interval, index) => (
                     <div class="availability-interval" key={`special-work-${index}`}>
-                      <label>
+                      <div class="availability-control">
                         <span>Inicio</span>
-                        <input type="time" step={900} aria-label={working.length === 1 ? 'Inicio de horario especial' : `Inicio de horario especial ${index + 1}`} aria-invalid={invalidDraft || undefined} aria-describedby={invalidDraft ? 'exception-schedule-error' : undefined} value={interval.start} onInput={(event) => updateIntervals(setWorking, working, index, { start: (event.currentTarget as HTMLInputElement).value })} />
-                      </label>
-                      <label>
+                        <Dropdown
+                          label={working.length === 1 ? 'Inicio de horario especial' : `Inicio de horario especial ${index + 1}`}
+                          value={interval.start}
+                          options={TIME_OPTIONS}
+                          ariaInvalid={invalidDraft}
+                          ariaDescribedBy={invalidDraft ? 'exception-schedule-error' : undefined}
+                          onChange={(value) => updateIntervals(setWorking, working, index, { start: value })}
+                        />
+                      </div>
+                      <div class="availability-control">
                         <span>Fin</span>
-                        <input type="time" step={900} aria-label={working.length === 1 ? 'Fin de horario especial' : `Fin de horario especial ${index + 1}`} aria-invalid={invalidDraft || undefined} aria-describedby={invalidDraft ? 'exception-schedule-error' : undefined} value={interval.end} onInput={(event) => updateIntervals(setWorking, working, index, { end: (event.currentTarget as HTMLInputElement).value })} />
-                      </label>
+                        <Dropdown
+                          label={working.length === 1 ? 'Fin de horario especial' : `Fin de horario especial ${index + 1}`}
+                          value={interval.end}
+                          options={TIME_OPTIONS}
+                          ariaInvalid={invalidDraft}
+                          ariaDescribedBy={invalidDraft ? 'exception-schedule-error' : undefined}
+                          onChange={(value) => updateIntervals(setWorking, working, index, { end: value })}
+                        />
+                      </div>
                       <button type="button" aria-label={`Eliminar horario especial ${index + 1}`} onClick={() => removeInterval(setWorking, working, index)}>Eliminar</button>
                     </div>
                   ))}
@@ -248,14 +288,28 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                 <div class="availability-interval-list">
                   {breaks.map((interval, index) => (
                     <div class="availability-interval" key={`special-break-${index}`}>
-                      <label>
+                      <div class="availability-control">
                         <span>Inicio</span>
-                        <input type="time" step={900} aria-label={breaks.length === 1 ? 'Inicio de descanso especial' : `Inicio de descanso especial ${index + 1}`} aria-invalid={invalidDraft || undefined} aria-describedby={invalidDraft ? 'exception-schedule-error' : undefined} value={interval.start} onInput={(event) => updateIntervals(setBreaks, breaks, index, { start: (event.currentTarget as HTMLInputElement).value })} />
-                      </label>
-                      <label>
+                        <Dropdown
+                          label={breaks.length === 1 ? 'Inicio de descanso especial' : `Inicio de descanso especial ${index + 1}`}
+                          value={interval.start}
+                          options={TIME_OPTIONS}
+                          ariaInvalid={invalidDraft}
+                          ariaDescribedBy={invalidDraft ? 'exception-schedule-error' : undefined}
+                          onChange={(value) => updateIntervals(setBreaks, breaks, index, { start: value })}
+                        />
+                      </div>
+                      <div class="availability-control">
                         <span>Fin</span>
-                        <input type="time" step={900} aria-label={breaks.length === 1 ? 'Fin de descanso especial' : `Fin de descanso especial ${index + 1}`} aria-invalid={invalidDraft || undefined} aria-describedby={invalidDraft ? 'exception-schedule-error' : undefined} value={interval.end} onInput={(event) => updateIntervals(setBreaks, breaks, index, { end: (event.currentTarget as HTMLInputElement).value })} />
-                      </label>
+                        <Dropdown
+                          label={breaks.length === 1 ? 'Fin de descanso especial' : `Fin de descanso especial ${index + 1}`}
+                          value={interval.end}
+                          options={TIME_OPTIONS}
+                          ariaInvalid={invalidDraft}
+                          ariaDescribedBy={invalidDraft ? 'exception-schedule-error' : undefined}
+                          onChange={(value) => updateIntervals(setBreaks, breaks, index, { end: value })}
+                        />
+                      </div>
                       <button type="button" aria-label={`Eliminar descanso especial ${index + 1}`} onClick={() => removeInterval(setBreaks, breaks, index)}>Eliminar</button>
                     </div>
                   ))}

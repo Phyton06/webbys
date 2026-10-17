@@ -110,7 +110,8 @@ describe('SettingsPage availability', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
     fireEvent.click(screen.getByRole('button', { name: 'Excepciones por fecha' }));
-    fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Fecha de la excepción/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Viernes, 16 de octubre/ }));
     fireEvent.click(screen.getByLabelText('Día libre'));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
     await waitFor(() => expect(screen.getByText('Excepción de disponibilidad guardada.')).toBeTruthy());

@@ -11,9 +11,11 @@ interface DropdownProps<Value extends string> {
   value: Value;
   options: DropdownOption<Value>[];
   onChange: (value: Value) => void;
+  ariaInvalid?: boolean;
+  ariaDescribedBy?: string;
 }
 
-export function Dropdown<Value extends string>({ label, value, options, onChange }: DropdownProps<Value>) {
+export function Dropdown<Value extends string>({ label, value, options, onChange, ariaInvalid, ariaDescribedBy }: DropdownProps<Value>) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(() => Math.max(0, options.findIndex((option) => option.value === value)));
   const rootRef = useRef<HTMLDivElement>(null);
@@ -27,6 +29,11 @@ export function Dropdown<Value extends string>({ label, value, options, onChange
     };
     document.addEventListener('mousedown', closeOnOutsideClick);
     return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    rootRef.current?.querySelector<HTMLElement>(`#${listboxId}-option-${activeIndex}`)?.scrollIntoView?.({ block: 'nearest' });
   }, [open]);
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -60,6 +67,8 @@ export function Dropdown<Value extends string>({ label, value, options, onChange
         class="dropdown-trigger"
         type="button"
         aria-label={`${label}: ${selected?.label ?? ''}`}
+        aria-invalid={ariaInvalid ? 'true' : undefined}
+        aria-describedby={ariaDescribedBy}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listboxId}
