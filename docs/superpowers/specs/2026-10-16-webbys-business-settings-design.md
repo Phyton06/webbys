@@ -60,13 +60,17 @@ Follow-up request 2: “no me referia a eso, debe estar ocultas las opciones de 
 - Saving one business settings category updates only that category in the stored envelope and preserves previously saved values in other categories. Unsaved drafts remain in memory while switching categories, are not included when another category is saved, and are discarded on reload.
 - Keep the existing logo, informational general hours, currency presentation-only behavior, dark theme, and local-only notification preference constraints unchanged.
 
-### S6 — System-styled controls in date exceptions
+### S6 — System-styled controls in configuration screens
 
 User request: “oye en excepciones por fecha tanto el selector de hora fin e inicio y tambien el calendario no tiene estilo, quiero que le pongas estilo de el sistema”
 
+Follow-up request: “ok ahora esos estilos aplicalos al resto de pantallas en configuracion”
+
 - The **Excepciones por fecha** category selects its date with the shared trigger button and `MobileMonthCalendar` popover pattern used by the appointment form, instead of a raw browser date input.
 - Start/end times for special working hours and breaks use the custom `Dropdown` with 15-minute steps instead of raw browser time inputs; invalid drafts keep their `aria-invalid` and `aria-describedby` wiring on the trigger.
-- The dropdown menu scrolls to the active option when opened, so the 96-option time lists start at the current value.
+- The same dropdown replaces every remaining native time input in configuration: the weekly **Horarios del equipo** intervals and the **Horario general** opening/closing times, all sharing one time option list.
+- Switching a general-hours day to `Abierto` seeds 09:00–18:00, and adding an interval seeds its standard times (working 09:00–18:00, breaks 13:00–14:00) instead of an empty value.
+- The dropdown menu scrolls to the active option when opened, so the 96-option time lists start at the current value; when the value is not in the option list, the trigger shows the raw value instead of an unrelated first option.
 - The picker popover re-enables the month calendar inside it, restoring the desktop-hidden calendar in both the date exceptions editor and the appointment form picker.
 
 ## Out of scope
