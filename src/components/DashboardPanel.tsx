@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'preact/hooks';
 import { Dropdown } from './Dropdown';
+import { formatCurrency, readBusinessCurrency } from '../services/currency';
 import { Activity, ArrowUpRight, CalendarDays, Clock3 } from 'lucide-preact';
 import type { AppointmentRecord, DemoData } from '../types/domain';
 import {
@@ -26,10 +27,6 @@ const statusLabels: Record<AppointmentRecord['status'], string> = {
   completed: 'Completada',
   cancelled: 'Cancelada',
 };
-
-function formatAmount(amount: number): string {
-  return `$${Math.round(amount).toLocaleString('es')}`;
-}
 
 function formatDate(date: Date): string {
   const formatted = new Intl.DateTimeFormat('es', {
@@ -80,7 +77,7 @@ function getRecentActivity(data: DemoData, now: Date) {
     .slice(0, 4);
 }
 
-function SalesChart({ data, range }: { data: ReturnType<typeof getSalesSeries>; range: DashboardRange }) {
+function SalesChart({ data, range, currency }: { data: ReturnType<typeof getSalesSeries>; range: DashboardRange; currency: ReturnType<typeof readBusinessCurrency> }) {
   const maxValue = Math.max(1, ...data.map(({ value }) => value));
   const width = 560;
   const height = 140;
@@ -132,9 +129,9 @@ function SalesChart({ data, range }: { data: ReturnType<typeof getSalesSeries>; 
       ) : (
         <p class="empty-chart-message">Sin ventas registradas en el periodo seleccionado.</p>
       )}
-      <figcaption>Ingresos netos ($)</figcaption>
+      <figcaption>Ingresos netos en {currency}</figcaption>
       <ul class="chart-data-accessible" aria-label="Valores de la gráfica">
-        {data.map(({ label, value }) => <li key={label}>{label}: {formatAmount(value)}</li>)}
+        {data.map(({ label, value }) => <li key={label}>{label}: {formatCurrency(value, currency)}</li>)}
       </ul>
     </figure>
   );
@@ -142,6 +139,7 @@ function SalesChart({ data, range }: { data: ReturnType<typeof getSalesSeries>; 
 
 export function DashboardPanel({ data, now = new Date() }: DashboardPanelProps) {
   const [range, setRange] = useState<DashboardRange>('week');
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const summary = useMemo(
     () => getDashboardSummary(data.sales, data.appointments, range, now),
     [data, now, range],
@@ -178,7 +176,7 @@ export function DashboardPanel({ data, now = new Date() }: DashboardPanelProps) 
         <div class="sales-overview-header">
           <div>
             <h2>Ventas netas</h2>
-            <p>Ingresos después de descuentos · importes de ejemplo ($)</p>
+            <p>Ingresos después de descuentos · importes de ejemplo ({currency})</p>
           </div>
           <div class="period-control">
             <span>Periodo</span>
@@ -198,20 +196,20 @@ export function DashboardPanel({ data, now = new Date() }: DashboardPanelProps) 
         <div class="sales-overview-main">
           <div class="sales-total">
             <span>{rangeLabels[range]} · netas</span>
-            <strong>{formatAmount(summary.netSales)}</strong>
+            <strong>{formatCurrency(summary.netSales, currency)}</strong>
             <p>{summary.saleCount} {summary.saleCount === 1 ? 'venta' : 'ventas'} en el periodo</p>
           </div>
-          <SalesChart data={series} range={range} />
+          <SalesChart data={series} range={range} currency={currency} />
         </div>
 
         <dl class="sales-breakdown">
           <div>
             <dt>Ventas brutas</dt>
-            <dd>{formatAmount(summary.grossSales)}</dd>
+            <dd>{formatCurrency(summary.grossSales, currency)}</dd>
           </div>
           <div>
             <dt>Descuentos</dt>
-            <dd>{formatAmount(summary.discounts)}</dd>
+            <dd>{formatCurrency(summary.discounts, currency)}</dd>
           </div>
         </dl>
       </section>
@@ -285,7 +283,7 @@ export function DashboardPanel({ data, now = new Date() }: DashboardPanelProps) 
                     <span>{activity.detail}</span>
                   </div>
                   <span class="activity-amount">
-                    {activity.amount === null ? formatTime(activity.time, now) : formatAmount(activity.amount)}
+                    {activity.amount === null ? formatTime(activity.time, now) : formatCurrency(activity.amount, currency)}
                   </span>
                 </li>
               ))}

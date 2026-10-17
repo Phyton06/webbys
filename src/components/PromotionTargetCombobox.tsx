@@ -1,11 +1,14 @@
 import { useState } from 'preact/hooks';
 import { PROMOTION_TARGET_KIND, type PromotionTarget } from '../types/agenda';
+import type { CurrencyCode } from '../types/business-settings';
+import { formatCurrency } from '../services/currency';
 import '../styles/client-combobox.css';
 
 interface PromotionTargetComboboxProps {
   label: string;
   targets: PromotionTarget[];
   selectedKeys: string[];
+  currency: CurrencyCode;
   onSelect: (target: PromotionTarget) => void;
 }
 
@@ -14,7 +17,7 @@ function targetKindLabel(target: PromotionTarget): string {
   return `${kind}: ${target.name}`;
 }
 
-export function PromotionTargetCombobox({ label, targets, selectedKeys, onSelect }: PromotionTargetComboboxProps) {
+export function PromotionTargetCombobox({ label, targets, selectedKeys, currency, onSelect }: PromotionTargetComboboxProps) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -77,14 +80,14 @@ export function PromotionTargetCombobox({ label, targets, selectedKeys, onSelect
               id={`${listboxId}-${index}`}
               class={`client-combobox-option promotion-target-option${index === activeIndex ? ' is-active' : ''}`}
               role="option"
-              aria-label={`${targetKindLabel(target)} · $${target.price.toLocaleString('es')}`}
+              aria-label={`${targetKindLabel(target)} · ${formatCurrency(target.price, currency)}`}
               aria-selected="false"
               key={`${target.kind}:${target.id}`}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => chooseTarget(target)}
             >
               <span>{targetKindLabel(target)}</span>
-              <strong>${target.price.toLocaleString('es')}</strong>
+              <strong>{formatCurrency(target.price, currency)}</strong>
             </li>
           ))}
           {results.length === 0 && <li class="client-combobox-empty">No hay coincidencias disponibles.</li>}

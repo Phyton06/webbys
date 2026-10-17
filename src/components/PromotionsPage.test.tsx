@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import { PromotionsPage } from './PromotionsPage';
 
 const now = new Date(2026, 9, 15, 8, 0);
@@ -18,13 +19,30 @@ function renderPage() {
 }
 
 describe('PromotionsPage', () => {
+  it('formats promotion targets and previews in the selected currency without converting catalog prices', () => {
+    const settings = createDefaultBusinessSettings();
+    settings.currency = 'USD';
+    saveBusinessSettings(localStorage, settings);
+    const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
+    renderPage();
+    fireEvent.click(screen.getByRole('button', { name: 'Nueva promoción' }));
+    fireEvent.input(screen.getByLabelText('Nombre de la promoción'), { target: { value: 'Oferta en dólares' } });
+    fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
+    fireEvent.click(screen.getByRole('option', { name: /Servicio: Corte · USD/ }));
+    fireEvent.input(screen.getByLabelText('Descuento del paquete (%)'), { target: { value: '20' } });
+
+    expect(screen.getByRole('region', { name: 'Vista previa de promoción' }).textContent).toContain('USD');
+    expect(loadAgendaState(localStorage, now).state.services.find(({ id }) => id === 'service-1')?.price).toBe(300);
+    expect(localStorage.getItem('webbys:business-settings:v1')).toBe(settingsBytes);
+  });
+
   it('creates a promotion with product and service price snapshots and previews the discount', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nueva promoción' }));
     fireEvent.input(screen.getByLabelText('Nombre de la promoción'), { target: { value: 'Corte y cuidado' } });
     fireEvent.input(screen.getByLabelText('Descripción'), { target: { value: 'Precio especial.' } });
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
-    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300.00' }));
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'shampoo' } });
     fireEvent.click(screen.getByRole('option', { name: /Producto: Shampoo/ }));
     fireEvent.input(screen.getByLabelText('Descuento del paquete (%)'), { target: { value: '20' } });
@@ -36,7 +54,7 @@ describe('PromotionsPage', () => {
       { id: 'service-1', name: 'Corte', price: 300 },
       { id: 'product-shampoo', name: 'Shampoo', price: 160 },
     ]);
-    expect(screen.getAllByText('$368').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('$368.00').length).toBeGreaterThan(0);
   });
 
   it('derives the promotion status from dates and lets the administrator disable it', () => {
@@ -44,7 +62,7 @@ describe('PromotionsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nueva promoción' }));
     fireEvent.input(screen.getByLabelText('Nombre de la promoción'), { target: { value: 'Oferta futura' } });
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
-    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300.00' }));
     fireEvent.click(screen.getByRole('button', { name: 'Inicio: 15 de octubre de 2026' }));
     fireEvent.click(screen.getByRole('button', { name: 'Martes, 20 de octubre' }));
     fireEvent.click(screen.getByRole('button', { name: 'Estado de publicación: Borrador' }));
@@ -62,7 +80,7 @@ describe('PromotionsPage', () => {
     const search = screen.getByRole('combobox', { name: 'Buscar productos y servicios' });
     fireEvent.input(search, { target: { value: 'shampoo' } });
     expect(screen.getByRole('listbox', { name: 'Resultados de productos y servicios' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('option', { name: 'Producto: Shampoo · $160' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Producto: Shampoo · $160.00' }));
 
     expect(screen.getByText('Seleccionados (1)')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Quitar Shampoo' }));
@@ -76,9 +94,9 @@ describe('PromotionsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tipo de promoción: Paquete de productos o servicios' }));
     fireEvent.click(screen.getByRole('option', { name: 'Descuento individual por elemento' }));
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
-    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300.00' }));
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'shampoo' } });
-    fireEvent.click(screen.getByRole('option', { name: 'Producto: Shampoo · $160' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Producto: Shampoo · $160.00' }));
     fireEvent.input(screen.getByLabelText('Descuento individual (%)'), { target: { value: '20' } });
     fireEvent.click(screen.getByRole('button', { name: 'Guardar promoción' }));
 
@@ -86,8 +104,8 @@ describe('PromotionsPage', () => {
     expect(saved?.mode).toBe('product_discount');
     expect(saved?.targets.map(({ kind }) => kind)).toEqual(['service', 'product']);
     const preview = screen.getByRole('article', { name: 'Vista previa para cliente' });
-    expect(preview.textContent).toContain('$128');
-    expect(preview.textContent).toContain('$240');
+    expect(preview.textContent).toContain('$128.00');
+    expect(preview.textContent).toContain('$240.00');
   });
 
   it('preserves an already selected service when switching to individual discounts', () => {
@@ -95,7 +113,7 @@ describe('PromotionsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nueva promoción' }));
     fireEvent.input(screen.getByLabelText('Nombre de la promoción'), { target: { value: 'Corte individual' } });
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
-    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300.00' }));
     fireEvent.click(screen.getByRole('button', { name: 'Tipo de promoción: Paquete de productos o servicios' }));
     fireEvent.click(screen.getByRole('option', { name: 'Descuento individual por elemento' }));
 
@@ -145,7 +163,7 @@ describe('PromotionsPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Nueva promoción' }));
     fireEvent.input(screen.getByLabelText('Nombre de la promoción'), { target: { value: 'Corte especial' } });
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
-    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Servicio: Corte · $300.00' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar promoción' }));
 
     const savedState = loadAgendaState(localStorage, now).state;

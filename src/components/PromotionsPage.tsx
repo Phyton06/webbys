@@ -21,6 +21,7 @@ import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { PromotionTargetCombobox } from './PromotionTargetCombobox';
+import { formatCurrency, readBusinessCurrency } from '../services/currency';
 import '../styles/promotions.css';
 
 interface PromotionsPageProps {
@@ -127,6 +128,7 @@ function PromotionForm({
   onCancel: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const [name, setName] = useState(promotion?.name ?? '');
   const [description, setDescription] = useState(promotion?.description ?? '');
   const [mode, setMode] = useState(promotion?.mode ?? PROMOTION_MODE.BUNDLE);
@@ -287,6 +289,7 @@ function PromotionForm({
               label="Buscar productos y servicios"
               targets={searchableTargets}
               selectedKeys={targetKeys}
+              currency={currency}
               onSelect={(target) => toggleTarget(`${target.kind}:${target.id}`)}
             />
           </label>
@@ -297,7 +300,7 @@ function PromotionForm({
                 {selectedTargets.map((target) => (
                   <li key={`${target.kind}:${target.id}`}>
                     <span>{target.name}</span>
-                    <strong>${target.price.toLocaleString('es')}</strong>
+                    <strong>{formatCurrency(target.price, currency)}</strong>
                     <button type="button" class="promotion-remove-target" aria-label={`Quitar ${target.name}`} onClick={() => toggleTarget(`${target.kind}:${target.id}`)}>Quitar</button>
                   </li>
                 ))}
@@ -383,16 +386,16 @@ function PromotionForm({
             <span>{selectedTargets.map(({ name: targetName }) => targetName).join(' + ')}</span>
             {mode === PROMOTION_MODE.BUNDLE ? (
               <>
-                <p>Precio original: ${normalizedOriginalPrice.toLocaleString('es')}</p>
-                <p>Precio del paquete: ${getPromotionPrice(previewRecord).toLocaleString('es')}</p>
+                <p>Precio original: {formatCurrency(normalizedOriginalPrice, currency)}</p>
+                <p>Precio del paquete: {formatCurrency(getPromotionPrice(previewRecord), currency)}</p>
               </>
             ) : (
               <ul class="promotion-individual-prices">
                 {selectedTargets.map((target) => (
                   <li key={target.id}>
                     <span>{target.name}</span>
-                    <del>${target.price.toLocaleString('es')}</del>
-                    <strong>${getPromotionTargetPrice(previewRecord, target).toLocaleString('es')}</strong>
+                    <del>{formatCurrency(target.price, currency)}</del>
+                    <strong>{formatCurrency(getPromotionTargetPrice(previewRecord, target), currency)}</strong>
                   </li>
                 ))}
               </ul>
@@ -411,6 +414,7 @@ function PromotionForm({
 
 export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   const [state, setState] = useState(() => loadInitialState(now));
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<PromotionFilter>(PROMOTION_FILTER.ALL);
   const [selectedId, setSelectedId] = useState<string>();
@@ -510,8 +514,8 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                         {selectedPromotion.targets.map((target) => (
                           <li key={target.id}>
                             <span>{target.name}</span>
-                            <del>${target.price.toLocaleString('es')}</del>
-                            <strong>${getPromotionTargetPrice(selectedPromotion, target).toLocaleString('es')}</strong>
+                            <del>{formatCurrency(target.price, currency)}</del>
+                            <strong>{formatCurrency(getPromotionTargetPrice(selectedPromotion, target), currency)}</strong>
                           </li>
                         ))}
                       </ul>
@@ -519,8 +523,8 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                   </div>
                 ) : (
                   <>
-                    <div><dt>Precio original del paquete</dt><dd>${selectedPromotion.originalPrice.toLocaleString('es')}</dd></div>
-                    <div><dt>Precio promocional del paquete</dt><dd>${getPromotionPrice(selectedPromotion).toLocaleString('es')}</dd></div>
+                    <div><dt>Precio original del paquete</dt><dd>{formatCurrency(selectedPromotion.originalPrice, currency)}</dd></div>
+                    <div><dt>Precio promocional del paquete</dt><dd>{formatCurrency(getPromotionPrice(selectedPromotion), currency)}</dd></div>
                   </>
                 )}
                 <div><dt>Vigencia</dt><dd>{selectedPromotion.startsOn} – {selectedPromotion.endsOn}</dd></div>
@@ -536,13 +540,13 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                     {selectedPromotion.targets.map((target) => (
                       <li key={target.id}>
                         <span>{target.name}</span>
-                        <del>${target.price.toLocaleString('es')}</del>
-                        <strong>${getPromotionTargetPrice(selectedPromotion, target).toLocaleString('es')}</strong>
+                        <del>{formatCurrency(target.price, currency)}</del>
+                        <strong>{formatCurrency(getPromotionTargetPrice(selectedPromotion, target), currency)}</strong>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <div><del>${selectedPromotion.originalPrice.toLocaleString('es')}</del><strong>${getPromotionPrice(selectedPromotion).toLocaleString('es')}</strong></div>
+                  <div><del>{formatCurrency(selectedPromotion.originalPrice, currency)}</del><strong>{formatCurrency(getPromotionPrice(selectedPromotion), currency)}</strong></div>
                 )}
                 {selectedPromotion.conditions && <small>{selectedPromotion.conditions}</small>}
               </article>
@@ -572,7 +576,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                         <span>{promotion.startsOn} – {promotion.endsOn}</span>
                         <strong>{promotion.mode === PROMOTION_MODE.PRODUCT_DISCOUNT
                           ? `${promotion.discountValue}% por producto`
-                          : `$${getPromotionPrice(promotion).toLocaleString('es')}`}</strong>
+                          : formatCurrency(getPromotionPrice(promotion), currency)}</strong>
                         <div class="promotion-actions">
                           <button class="appointment-form-cancel" type="button" aria-label={`Ver promoción ${promotion.name}`} onClick={() => setSelectedId(promotion.id)}>Ver</button>
                           <button class="appointment-form-cancel" type="button" aria-label={`Editar promoción ${promotion.name}`} onClick={() => { setEditingPromotion(promotion); setFormOpen(true); }}>Editar</button>

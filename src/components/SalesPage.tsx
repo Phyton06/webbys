@@ -9,6 +9,7 @@ import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
+import { formatCurrency, readBusinessCurrency } from '../services/currency';
 import '../styles/sales.css';
 
 interface SalesPageProps {
@@ -35,10 +36,6 @@ function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value));
 }
 
-function formatAmount(value: number): string {
-  return `$${Math.round(value).toLocaleString('es')}`;
-}
-
 function readPromotions(now: Date): PromotionRecord[] {
   try {
     return loadAgendaState(window.localStorage, now).state.promotions ?? [];
@@ -47,7 +44,7 @@ function readPromotions(now: Date): PromotionRecord[] {
   }
 }
 
-function SalesTrend({ sales }: { sales: SaleRecord[] }) {
+function SalesTrend({ sales, currency }: { sales: SaleRecord[]; currency: ReturnType<typeof readBusinessCurrency> }) {
   const buckets = getSalesTrend(sales);
   if (buckets.length === 0) return <p class="sales-empty-chart">No hay ventas para graficar con estos filtros.</p>;
 
@@ -76,7 +73,7 @@ function SalesTrend({ sales }: { sales: SaleRecord[] }) {
                 rx="3"
                 class="sales-chart-bar"
               >
-                <title>{formatDate(bucket.date)}: {formatAmount(bucket.netTotal)} netos</title>
+                <title>{formatDate(bucket.date)}: {formatCurrency(bucket.netTotal, currency)} netos</title>
               </rect>
             );
           })}
@@ -85,9 +82,9 @@ function SalesTrend({ sales }: { sales: SaleRecord[] }) {
           {buckets.map(({ date }, index) => <li key={date} title={formatDate(date)}>{index % 7 === 0 || index === buckets.length - 1 ? new Intl.DateTimeFormat('es', { day: 'numeric' }).format(new Date(`${date}T12:00:00`)) : ''}</li>)}
         </ol>
       </div>
-      <figcaption>Importes netos del periodo seleccionado · ejemplos en $</figcaption>
+      <figcaption>Importes netos del periodo seleccionado · {currency}</figcaption>
       <ul class="sales-trend-accessible" aria-label="Valores diarios de ventas netas">
-        {buckets.map(({ date, saleCount, netTotal }) => <li key={date}>{formatDate(date)}: {formatAmount(netTotal)} netos, {saleCount} {saleCount === 1 ? 'venta' : 'ventas'}</li>)}
+        {buckets.map(({ date, saleCount, netTotal }) => <li key={date}>{formatDate(date)}: {formatCurrency(netTotal, currency)} netos, {saleCount} {saleCount === 1 ? 'venta' : 'ventas'}</li>)}
       </ul>
     </figure>
   );
@@ -95,6 +92,7 @@ function SalesTrend({ sales }: { sales: SaleRecord[] }) {
 
 export function SalesPage({ now = new Date() }: SalesPageProps) {
   const [sales] = useState(() => createDemoData(now).sales);
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const [promotions] = useState(() => readPromotions(now));
   const [filters, setFilters] = useState<SalesFilters>({
     query: '', startDate: dateKey(now), endDate: dateKey(now), employeeId: '', productId: '', serviceId: '', promotionId: '',
@@ -227,33 +225,33 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                         <th scope="row">{item.name}</th>
                         <td>{item.kind === 'product' ? 'Producto' : item.kind === 'service' ? 'Servicio' : 'Artículo'}</td>
                         <td>{item.quantity}</td>
-                        <td>{formatAmount(item.unitPrice)}</td>
-                        <td>{formatAmount(item.unitPrice * item.quantity)}</td>
+                        <td>{formatCurrency(item.unitPrice, currency)}</td>
+                        <td>{formatCurrency(item.unitPrice * item.quantity, currency)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               <dl class="sales-detail-totals">
-                <div><dt>Subtotal</dt><dd>{formatAmount(selectedSale.grossTotal)}</dd></div>
-                <div><dt>Descuentos</dt><dd>−{formatAmount(selectedSale.discountTotal)}</dd></div>
-                <div><dt>Total neto</dt><dd>{formatAmount(selectedSale.netTotal)}</dd></div>
+                <div><dt>Subtotal</dt><dd>{formatCurrency(selectedSale.grossTotal, currency)}</dd></div>
+                <div><dt>Descuentos</dt><dd>−{formatCurrency(selectedSale.discountTotal, currency)}</dd></div>
+                <div><dt>Total neto</dt><dd>{formatCurrency(selectedSale.netTotal, currency)}</dd></div>
               </dl>
             </section>
           ) : (
             <>
               <section class="sales-summary" aria-label="Resumen de ventas filtradas">
                 <article><span>Ventas</span><strong>{summary.saleCount}</strong><small>Registros encontrados</small></article>
-                <article><span>Ingresos brutos</span><strong>{formatAmount(summary.grossTotal)}</strong><small>Antes de descuentos · $</small></article>
-                <article><span>Descuentos</span><strong>{formatAmount(summary.discountTotal)}</strong><small>Aplicados en registros · $</small></article>
-                <article><span>Ingresos netos</span><strong>{formatAmount(summary.netTotal)}</strong><small>Ticket promedio: {formatAmount(summary.saleCount ? summary.netTotal / summary.saleCount : 0)}</small></article>
+                <article><span>Ingresos brutos</span><strong>{formatCurrency(summary.grossTotal, currency)}</strong><small>Antes de descuentos · {currency}</small></article>
+                <article><span>Descuentos</span><strong>{formatCurrency(summary.discountTotal, currency)}</strong><small>Aplicados en registros · {currency}</small></article>
+                <article><span>Ingresos netos</span><strong>{formatCurrency(summary.netTotal, currency)}</strong><small>Ticket promedio: {formatCurrency(summary.saleCount ? summary.netTotal / summary.saleCount : 0, currency)}</small></article>
               </section>
 
               <section class="sales-trend-section" aria-labelledby="sales-trend-title">
                 <div class="sales-section-heading">
                   <div><h2 id="sales-trend-title">Tendencia diaria</h2><p>Ingresos netos según los filtros seleccionados.</p></div>
                 </div>
-                <SalesTrend sales={visibleSales} />
+                <SalesTrend sales={visibleSales} currency={currency} />
               </section>
 
               <section class="sales-filter-panel" aria-label="Filtros de ventas">
@@ -273,10 +271,10 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                 <section class="sales-breakdown-section" aria-labelledby="sales-breakdown-title">
                   <div class="sales-section-heading"><div><h2 id="sales-breakdown-title">Productos y servicios</h2><p>Unidades e importes brutos por artículo.</p></div></div>
                   <div class="sales-breakdown-columns">
-                    <div><h3>Productos</h3>{breakdown.products.length ? <ul>{breakdown.products.map((item) => <li key={item.id}><span>{item.name} · {item.units} {item.units === 1 ? 'unidad' : 'unidades'}</span><strong>{formatAmount(item.grossTotal)}</strong></li>)}</ul> : <p>Sin productos para estos filtros.</p>}</div>
-                    <div><h3>Servicios</h3>{breakdown.services.length ? <ul>{breakdown.services.map((item) => <li key={item.id}><span>{item.name} · {item.units} {item.units === 1 ? 'unidad' : 'unidades'}</span><strong>{formatAmount(item.grossTotal)}</strong></li>)}</ul> : <p>Sin servicios para estos filtros.</p>}</div>
+                    <div><h3>Productos</h3>{breakdown.products.length ? <ul>{breakdown.products.map((item) => <li key={item.id}><span>{item.name} · {item.units} {item.units === 1 ? 'unidad' : 'unidades'}</span><strong>{formatCurrency(item.grossTotal, currency)}</strong></li>)}</ul> : <p>Sin productos para estos filtros.</p>}</div>
+                    <div><h3>Servicios</h3>{breakdown.services.length ? <ul>{breakdown.services.map((item) => <li key={item.id}><span>{item.name} · {item.units} {item.units === 1 ? 'unidad' : 'unidades'}</span><strong>{formatCurrency(item.grossTotal, currency)}</strong></li>)}</ul> : <p>Sin servicios para estos filtros.</p>}</div>
                   </div>
-                  <div class="sales-employee-breakdown"><h3>Por empleado</h3>{breakdown.employees.length ? <ul>{breakdown.employees.map((employee) => <li key={employee.id}><span>{employee.name} · {employee.saleCount} {employee.saleCount === 1 ? 'venta' : 'ventas'}</span><strong>{formatAmount(employee.netTotal)}</strong></li>)}</ul> : <p>Sin empleados asociados a estos filtros.</p>}</div>
+                  <div class="sales-employee-breakdown"><h3>Por empleado</h3>{breakdown.employees.length ? <ul>{breakdown.employees.map((employee) => <li key={employee.id}><span>{employee.name} · {employee.saleCount} {employee.saleCount === 1 ? 'venta' : 'ventas'}</span><strong>{formatCurrency(employee.netTotal, currency)}</strong></li>)}</ul> : <p>Sin empleados asociados a estos filtros.</p>}</div>
                 </section>
 
                 <section class="sales-promotion-section" aria-labelledby="sales-promotion-title">
@@ -286,9 +284,9 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                       {promotionInsights.map((insight) => (
                         <li key={insight.id}>
                           <h3>{insight.name}</h3>
-                          <div><span>Ventas atribuidas explícitamente</span><strong>{insight.attributedSalesCount} · {formatAmount(insight.attributedNetTotal)}</strong></div>
+                          <div><span>Ventas atribuidas explícitamente</span><strong>{insight.attributedSalesCount} · {formatCurrency(insight.attributedNetTotal, currency)}</strong></div>
                           {insight.hasDateWindow
-                            ? <div><span>Ventas dentro de vigencia, sin atribución</span><strong>{insight.occurredDuringSalesCount} · {formatAmount(insight.occurredDuringNetTotal)}</strong></div>
+                            ? <div><span>Ventas dentro de vigencia, sin atribución</span><strong>{insight.occurredDuringSalesCount} · {formatCurrency(insight.occurredDuringNetTotal, currency)}</strong></div>
                             : <p>Sin fechas de vigencia disponibles para comparar.</p>}
                         </li>
                       ))}
@@ -310,7 +308,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                           </button>
                           <time dateTime={sale.occurredAt}>{formatDateTime(sale.occurredAt)}</time>
                           <span>{sale.employeeName ?? 'Empleado no registrado'}</span>
-                          <strong>{formatAmount(sale.netTotal)}</strong>
+                          <strong>{formatCurrency(sale.netTotal, currency)}</strong>
                           <span class="sales-record-promotion">{sale.promotionName ? `Promoción atribuida: ${sale.promotionName}` : 'Sin promoción atribuida'}</span>
                           <span class="sales-status">{sale.status === 'completed' ? 'Completada' : 'Registrada'}</span>
                         </article>

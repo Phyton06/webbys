@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import { ServicesPage } from './ServicesPage';
 
 const now = new Date(2026, 9, 15, 8, 0);
@@ -18,6 +19,18 @@ function renderPage() {
 }
 
 describe('ServicesPage', () => {
+  it('formats service prices in the saved currency without changing stored prices', () => {
+    const settings = createDefaultBusinessSettings();
+    settings.currency = 'USD';
+    saveBusinessSettings(localStorage, settings);
+    const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
+    renderPage();
+
+    expect(screen.getByRole('article', { name: 'Servicio Corte' }).textContent).toContain('USD');
+    expect(loadAgendaState(localStorage, now).state.services.find(({ id }) => id === 'service-1')?.price).toBe(300);
+    expect(localStorage.getItem('webbys:business-settings:v1')).toBe(settingsBytes);
+  });
+
   it('uses the shared dialog close button and styled status dropdown', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo servicio' }));

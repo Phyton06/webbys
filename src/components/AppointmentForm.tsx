@@ -6,6 +6,7 @@ import { getAvailableSlots, validateBooking } from '../services/availability';
 import { getBookableBarbers } from '../services/employees';
 import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
+import { formatCurrency, readBusinessCurrency } from '../services/currency';
 import { ClientCombobox } from './ClientCombobox';
 import { Dropdown } from './Dropdown';
 
@@ -54,6 +55,7 @@ function resolveValidationError(result: BookingValidation): string | undefined {
 }
 
 export function AppointmentForm({ state, appointment, now, onSave, onClientSave, onCancel }: AppointmentFormProps) {
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bookableBarbers = getBookableBarbers(state.employees, state.barbers, appointment?.barberId);
   const selectableServices = state.services.filter((service) => service.active !== false
@@ -280,14 +282,14 @@ export function AppointmentForm({ state, appointment, now, onSave, onClientSave,
               <label class="appointment-service-option" key={service.id}>
                 <input aria-label={`Servicio ${service.name} · ${service.durationMinutes} min`} type="checkbox" checked={selectedServiceIds.includes(service.id)} onChange={() => toggleService(service.id)} />
                 <span>{service.name} · {service.durationMinutes} min</span>
-                <strong>${service.price.toLocaleString('es')}</strong>
+                <strong>{formatCurrency(service.price, currency)}</strong>
               </label>
             ))}
           </fieldset>
 
           <section class="appointment-estimate" aria-label="Resumen de la cita">
             <p>Duración total: {durationMinutes} min</p>
-            <p>Precio estimado: ${estimatedPrice.toLocaleString('es')}</p>
+            <p>Precio estimado: {formatCurrency(estimatedPrice, currency)}</p>
           </section>
 
           <fieldset class="appointment-slot-fieldset">

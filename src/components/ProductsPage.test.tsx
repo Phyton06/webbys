@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/pre
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import { ProductsPage } from './ProductsPage';
 
 const now = new Date(2026, 9, 15, 8, 0);
@@ -18,6 +19,19 @@ function renderPage() {
 }
 
 describe('ProductsPage', () => {
+  it('formats product prices in the saved currency without changing stored prices', () => {
+    const settings = createDefaultBusinessSettings();
+    settings.currency = 'USD';
+    saveBusinessSettings(localStorage, settings);
+    const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
+    renderPage();
+    const product = loadAgendaState(localStorage, now).state.products?.find(({ name }) => name === 'Shampoo');
+
+    expect(screen.getByRole('article', { name: 'Producto Shampoo' }).textContent).toContain('USD');
+    expect(product?.salePrice).toBe(160);
+    expect(localStorage.getItem('webbys:business-settings:v1')).toBe(settingsBytes);
+  });
+
   it('starts with seven demo products in the saved catalog', () => {
     renderPage();
 

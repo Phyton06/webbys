@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
+import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import type { AppointmentRecord, DemoData, SaleRecord } from '../types/domain';
 import { DashboardPanel } from './DashboardPanel';
 
@@ -76,14 +77,26 @@ describe('DashboardPanel', () => {
     render(<DashboardPanel data={data} now={now} />);
     const summary = screen.getByRole('region', { name: 'Ventas del periodo' });
 
-    expect(within(summary).getByText('$580')).toBeTruthy();
+    expect(within(summary).getByText('$580.00')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Periodo de ventas: Semana' }));
     fireEvent.click(screen.getByRole('option', { name: 'Mes' }));
 
-    expect(within(summary).getByText('$980')).toBeTruthy();
+    expect(within(summary).getByText('$980.00')).toBeTruthy();
     expect(screen.getByRole('img', { name: /ventas netas/i })).toBeTruthy();
     const today = screen.getByRole('region', { name: 'Agenda de hoy' });
     expect(within(today).getByText('Confirmadas').parentElement?.textContent).toContain('1');
+  });
+
+  it('formats dashboard amounts in the saved currency without changing source totals', () => {
+    const settings = createDefaultBusinessSettings();
+    settings.currency = 'USD';
+    saveBusinessSettings(localStorage, settings);
+    const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
+    render(<DashboardPanel data={data} now={now} />);
+
+    expect(screen.getByRole('region', { name: 'Ventas del periodo' }).textContent).toContain('USD');
+    expect(data.sales.reduce((total, saleRecord) => total + saleRecord.netTotal, 0)).toBe(980);
+    expect(localStorage.getItem('webbys:business-settings:v1')).toBe(settingsBytes);
   });
 
   it('supports changing the period with keyboard navigation', () => {

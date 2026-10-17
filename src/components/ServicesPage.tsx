@@ -5,6 +5,7 @@ import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
+import { formatCurrency, readBusinessCurrency } from '../services/currency';
 import '../styles/services.css';
 
 interface ServicesPageProps {
@@ -128,6 +129,7 @@ function ServiceForm({
 
 export function ServicesPage({ now = new Date() }: ServicesPageProps) {
   const [state, setState] = useState(() => loadInitialState(now));
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ServiceFilter>(SERVICE_FILTER.ALL);
   const [selectedId, setSelectedId] = useState<string>();
@@ -212,7 +214,7 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
               </header>
               <p>{selectedService.description || 'Sin descripción.'}</p>
               <dl>
-                <div><dt>Precio</dt><dd>${selectedService.price.toLocaleString('es')}</dd></div>
+                <div><dt>Precio</dt><dd>{formatCurrency(selectedService.price, currency)}</dd></div>
                 <div><dt>Duración estimada</dt><dd>{selectedService.durationMinutes} min</dd></div>
               </dl>
             </section>
@@ -236,7 +238,7 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
                         <strong>{service.name}</strong>
                         <span>{service.description || 'Sin descripción.'}</span>
                       </button>
-                      <span class="service-row-price">${service.price.toLocaleString('es')}</span>
+                      <span class="service-row-price">{formatCurrency(service.price, currency)}</span>
                       <span>{service.durationMinutes} min</span>
                       <span class={`service-status${service.active === false ? ' is-inactive' : ''}`}>{service.active === false ? 'Inactivo' : 'Activo'}</span>
                       <div class="service-actions">

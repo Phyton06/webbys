@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { saveAgendaState } from '../services/agenda-store';
+import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import { SalesPage } from './SalesPage';
 
 const now = new Date(2026, 9, 14, 12, 0);
@@ -27,6 +28,19 @@ function showAllDates() {
 }
 
 describe('SalesPage', () => {
+  it('formats sales amounts in the saved currency without rewriting settings', () => {
+    const settings = createDefaultBusinessSettings();
+    settings.currency = 'USD';
+    saveBusinessSettings(localStorage, settings);
+    const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
+    renderPage();
+    const amount = screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent ?? '';
+
+    expect(amount).toContain('USD');
+    expect(localStorage.getItem('webbys:business-settings:v1')).toBe(settingsBytes);
+    expect(localStorage.getItem('webbys:agenda:v1')).not.toBeNull();
+  });
+
   it('shows generated read-only sales, period totals, and daily trend', () => {
     renderPage();
 

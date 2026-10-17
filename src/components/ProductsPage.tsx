@@ -5,6 +5,7 @@ import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
+import { formatCurrency, readBusinessCurrency } from '../services/currency';
 import '../styles/products.css';
 
 interface ProductsPageProps {
@@ -163,6 +164,7 @@ function ProductForm({
 
 export function ProductsPage({ now = new Date() }: ProductsPageProps) {
   const [initial] = useState(() => loadInitialState(now));
+  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
   const [state, setState] = useState(initial.state);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
@@ -267,8 +269,8 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
               </header>
               <p>{selectedProduct.description || 'Sin descripción.'}</p>
               <dl>
-                <div><dt>Precio de venta</dt><dd>${selectedProduct.salePrice.toLocaleString('es')}</dd></div>
-                <div><dt>Costo de adquisición</dt><dd>{selectedProduct.costPrice === undefined ? 'No registrado' : `$${selectedProduct.costPrice.toLocaleString('es')}`}</dd></div>
+                <div><dt>Precio de venta</dt><dd>{formatCurrency(selectedProduct.salePrice, currency)}</dd></div>
+                <div><dt>Costo de adquisición</dt><dd>{selectedProduct.costPrice === undefined ? 'No registrado' : formatCurrency(selectedProduct.costPrice, currency)}</dd></div>
                 <div><dt>Existencias</dt><dd>{selectedProduct.stock}</dd></div>
                 <div><dt>Categoría</dt><dd>{selectedProduct.category}</dd></div>
               </dl>
@@ -298,7 +300,7 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
                           <strong>{product.name}</strong>
                           <span>{product.description || 'Sin descripción.'}</span>
                         </button>
-                        <span class="product-price">${product.salePrice.toLocaleString('es')}</span>
+                        <span class="product-price">{formatCurrency(product.salePrice, currency)}</span>
                         <span class="product-stock">Existencias: {product.stock}</span>
                         <span class={`product-status${product.active ? '' : ' is-inactive'}`}>{product.active ? 'Activo' : 'Inactivo'}</span>
                         <div class="product-actions">

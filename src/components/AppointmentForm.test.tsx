@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
+import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import type { AgendaState } from '../types/agenda';
 import type { AppointmentRecord } from '../types/domain';
 import { AppointmentForm } from './AppointmentForm';
@@ -21,7 +22,19 @@ describe('AppointmentForm', () => {
     fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
 
     expect(screen.getByText('Duración total: 75 min')).toBeTruthy();
-    expect(screen.getByText('Precio estimado: $550')).toBeTruthy();
+    expect(screen.getByText('Precio estimado: $550.00')).toBeTruthy();
+  });
+
+  it('formats the appointment price estimate in the saved currency without changing service prices', () => {
+    const state = createFormState();
+    const settings = createDefaultBusinessSettings();
+    settings.currency = 'USD';
+    saveBusinessSettings(localStorage, settings);
+    render(<AppointmentForm state={state} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));
+
+    expect(screen.getByText(/Precio estimado: USD/)).toBeTruthy();
+    expect(state.services.find(({ id }) => id === 'service-1')?.price).toBe(300);
   });
 
   it('updates available starts when the selected barber changes', () => {
