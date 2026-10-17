@@ -34,17 +34,18 @@ describe('SettingsPage availability', () => {
     expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
   });
 
-  it('selects categories with the mobile custom Dropdown while keeping team editors separate', () => {
+  it('selects categories with buttons instead of a selector and keeps team editors separate', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
     render(<SettingsPage />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sección de configuración: Perfil del negocio' }));
-    fireEvent.click(screen.getByRole('option', { name: 'Horarios del equipo' }));
+    expect(screen.queryByRole('button', { name: /^Sección de configuración:/ })).toBeNull();
+    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
 
     expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
     expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
-    expect(screen.getByRole('navigation', { name: 'Categorías de configuración' })).toBeTruthy();
+    expect(within(categoryNavigation).getByRole('button', { name: 'Perfil del negocio' }).getAttribute('aria-current')).toBeNull();
   });
 
   it('saves business settings separately while preserving existing barber availability data', async () => {

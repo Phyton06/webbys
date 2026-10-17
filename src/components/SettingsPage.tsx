@@ -8,7 +8,7 @@ import { AdminShell } from './AdminShell';
 import { BarberAvailabilityPanel } from './BarberAvailabilityPanel';
 import { AvailabilityExceptionEditor } from './AvailabilityExceptionEditor';
 import { BusinessSettingsPanel } from './BusinessSettingsPanel';
-import { Dropdown, type DropdownOption } from './Dropdown';
+import '../styles/business-settings.css';
 
 const CATEGORY_ORDER: SettingsCategory[] = [
   'business',
@@ -29,11 +29,6 @@ const categoryLabels: Record<SettingsCategory, string> = {
   'barber-schedules': 'Horarios del equipo',
   'date-exceptions': 'Excepciones por fecha',
 };
-
-const categoryOptions: DropdownOption<SettingsCategory>[] = CATEGORY_ORDER.map((value) => ({
-  value,
-  label: categoryLabels[value],
-}));
 
 function isBusinessSection(category: SettingsCategory): category is BusinessSettingsSection {
   return category !== 'barber-schedules' && category !== 'date-exceptions';
@@ -92,9 +87,6 @@ export function SettingsPage() {
                 </button>
               ))}
             </nav>
-            <div class="settings-category-mobile">
-              <Dropdown label="Sección de configuración" value={category} options={categoryOptions} onChange={setCategory} />
-            </div>
             <div class="settings-category-content">
               <div hidden={category !== 'barber-schedules'}>
                 <BarberAvailabilityPanel
