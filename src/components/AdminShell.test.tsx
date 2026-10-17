@@ -21,7 +21,7 @@ describe('AdminShell', () => {
     expect(screen.getByRole('link', { name: 'Saltar al contenido' }).getAttribute('href')).toBe('#main-content');
   });
 
-  it('links to Agenda and Clients while keeping remaining unimplemented modules clearly unavailable', () => {
+  it('links to Agenda, Clients, and Sales while keeping later modules clearly unavailable', () => {
     render(
       <AdminShell onSignOut={vi.fn()}>
         <p>Contenido principal</p>
@@ -35,10 +35,11 @@ describe('AdminShell', () => {
     expect(within(mobileNavigation).getByRole('link', { name: 'Clientes' }).getAttribute('href')).toBe('/clientes/');
     fireEvent.click(within(mobileNavigation).getByRole('button', { name: 'Más secciones' }));
     const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    const salesButton = within(moreNavigation).getByRole('button', { name: 'Ventas, próximamente' });
-    expect(within(salesButton).getByText('Próximamente')).toBeTruthy();
-    fireEvent.click(salesButton);
-    expect(screen.getByRole('status').textContent).toContain('La sección Ventas aún no está disponible');
+    expect(within(moreNavigation).getByRole('link', { name: 'Ventas' }).getAttribute('href')).toBe('/ventas/');
+    const analyticsButton = within(moreNavigation).getByRole('button', { name: 'Analíticas, próximamente' });
+    expect(within(analyticsButton).getByText('Próximamente')).toBeTruthy();
+    fireEvent.click(analyticsButton);
+    expect(screen.getByRole('status').textContent).toContain('La sección Analíticas aún no está disponible');
   });
 
   it('marks Agenda current in desktop and mobile navigation when its route is active', () => {
@@ -135,10 +136,26 @@ describe('AdminShell', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
 
     const moreSections = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    expect(within(moreSections).getByRole('button', { name: 'Ventas, próximamente' })).toBeTruthy();
+    expect(within(moreSections).getByRole('link', { name: 'Ventas' }).getAttribute('href')).toBe('/ventas/');
+    expect(within(moreSections).getByRole('button', { name: 'Analíticas, próximamente' })).toBeTruthy();
     const desktopSections = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
-    const salesButton = within(desktopSections).getByRole('button', { name: 'Ventas, próximamente' });
-    expect(within(salesButton).getByText('Próx.')).toBeTruthy();
+    expect(within(desktopSections).getByRole('link', { name: 'Ventas' }).getAttribute('href')).toBe('/ventas/');
+    const analyticsButton = within(desktopSections).getByRole('button', { name: 'Analíticas, próximamente' });
+    expect(within(analyticsButton).getByText('Próx.')).toBeTruthy();
+  });
+
+  it('links to Sales in desktop navigation and the mobile More menu', () => {
+    render(<AdminShell activeSection="Ventas"><p>Contenido principal</p></AdminShell>);
+    const desktop = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const salesDesktop = within(desktop).getByRole('link', { name: 'Ventas' });
+    expect(salesDesktop.getAttribute('href')).toBe('/ventas/');
+    expect(salesDesktop.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const more = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const salesMobile = within(more).getByRole('link', { name: 'Ventas' });
+    expect(salesMobile.getAttribute('href')).toBe('/ventas/');
+    expect(salesMobile.getAttribute('aria-current')).toBe('page');
   });
 
   it('clears only the demo session on sign-out', () => {
