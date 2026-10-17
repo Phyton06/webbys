@@ -34,7 +34,7 @@ Alcance: navegación completa, formularios/acciones, conflictos de agenda, dise�
 
 ## Tasks
 - [x] T1 — BackLink compartido junto al título en las 9 ubicaciones (S1; reabierta y re-verificada tras la corrección «junto al título») — inline — commits: `1ae7ec4`, `156be41`
-- [ ] T2 — Auditoría de estilos y correcciones, incluido el calendario de Ventas (S2) — inline — parcial; commit de trabajo: pendiente de decisión por timeout aislado en suite
+- [ ] T2 — Auditoría de estilos y correcciones, incluido el calendario de Ventas (S2) — inline — parcial; commit: `68f1940`; falta decidir cómo resolver la suite completa tras timeout aislado
 - [ ] T3 — Análisis de navegación + propuesta + implementación de lo aprobado (S3) — pendiente
 - [ ] T4 — Registro de estilos (`DESIGN.md`) (S4) — pendiente
 - [ ] T5 — Cierre/validación con evidencia (S5) — pendiente
