@@ -34,7 +34,7 @@ No backend, API, actual push, scheduled background delivery, or deployed/tunnele
 - [x] T1 — Define notification types, audience snapshots, validation, and versioned isolated storage; route: inline; status: complete; commit: `5a85b4d` (7 store tests, RED → GREEN).
 - [x] T2 — Add the minimal message-only service worker and user-gesture local notification test/permission state; route: inline; status: complete; commit: `ed2242d`; independent verification: no blockers found; advisory: malformed-input and missing-port branches lack dedicated tests.
 - [x] T3 — Build the history-first protected Notifications page, composer/preview, audience search/segments, scheduling, simulated history, navigation, and responsive styles; route: inline; status: complete; commit: `30c42ca`.
-- [x] T4 — Run full verification, inspect UI only within the authorized local scope, update the task log, and close the feature; route: inline; status: complete; commit: pending.
+- [x] T4 — Run full verification, inspect UI only within the authorized local scope, update the task log, and close the feature; route: inline; status: complete; commit: `08ecb2c`.
 
 ## Log
 
