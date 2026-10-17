@@ -57,6 +57,13 @@ describe('validateNotification', () => {
     expect(validateNotification(notification({ status: NOTIFICATION_STATUS.SCHEDULED }), now)).toBe(false);
     expect(validateNotification(notification({ status: NOTIFICATION_STATUS.SIMULATED }), now)).toBe(false);
   });
+
+  it('allows an already scheduled record to load after its scheduled time passes', () => {
+    expect(validateNotification(notification({
+      status: NOTIFICATION_STATUS.SCHEDULED,
+      scheduledFor: '2026-10-17T13:00:00.000Z',
+    }), now)).toBe(true);
+  });
 });
 
 describe('resolveNotificationAudience', () => {
@@ -92,6 +99,13 @@ describe('notifications localStorage envelope', () => {
 
     expect(loadNotifications(localStorage)).toEqual([record]);
     expect(localStorage.getItem('webbys:notifications:v1')).toBe(bytes);
+  });
+
+  it('keeps a due scheduled notification valid in the persisted history', () => {
+    const due = notification({ status: NOTIFICATION_STATUS.SCHEDULED, scheduledFor: '2026-10-17T11:00:00.000Z' });
+    localStorage.setItem('webbys:notifications:v1', JSON.stringify({ schemaVersion: 1, notifications: [due] }));
+
+    expect(loadNotifications(localStorage)).toEqual([due]);
   });
 
   it('does not rewrite corrupt bytes or overwrite them after a rejected save', () => {

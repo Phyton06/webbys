@@ -1,0 +1,10 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/admin.css';
+import '../styles/agenda.css';
+import { NotificationsPage } from '../components/NotificationsPage';
+---
+
+<AppLayout title="Notificaciones | Webbys">
+  <NotificationsPage client:load />
+</AppLayout>

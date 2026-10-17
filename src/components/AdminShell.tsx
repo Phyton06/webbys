@@ -18,7 +18,7 @@ import { endDemoSession } from '../lib/demo-auth';
 
 interface AdminShellProps {
   children: ComponentChildren;
-  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION] | 'Clientes' | 'Empleados' | 'Servicios' | 'Productos' | 'Promociones' | 'Ventas' | 'Configuración';
+  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION] | 'Clientes' | 'Empleados' | 'Servicios' | 'Productos' | 'Promociones' | 'Ventas' | 'Notificaciones' | 'Configuración';
   onSignOut?: () => void;
 }
 
@@ -43,7 +43,7 @@ const desktopSections: NavigationSection[] = [
   { label: 'Promociones', icon: Tag, href: '/promociones/' },
   { label: 'Ventas', icon: CreditCard, href: '/ventas/' },
   { label: 'Analíticas', icon: BarChart3 },
-  { label: 'Notificaciones', icon: Bell },
+  { label: 'Notificaciones', icon: Bell, href: '/notificaciones/' },
   { label: 'Configuración', icon: Settings2, href: '/configuracion/' },
 ];
 

@@ -158,6 +158,34 @@ describe('AdminShell', () => {
     expect(salesMobile.getAttribute('aria-current')).toBe('page');
   });
 
+  it('links to Notifications in desktop navigation and the mobile More menu', () => {
+    render(<AdminShell activeSection="Notificaciones"><p>Contenido principal</p></AdminShell>);
+    const desktop = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const desktopLink = within(desktop).getByRole('link', { name: 'Notificaciones' });
+    expect(desktopLink.getAttribute('href')).toBe('/notificaciones/');
+    expect(desktopLink.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const more = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const mobileLink = within(more).getByRole('link', { name: 'Notificaciones' });
+    expect(mobileLink.getAttribute('href')).toBe('/notificaciones/');
+    expect(mobileLink.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('links to Notifications in desktop navigation and the mobile More menu', () => {
+    render(<AdminShell activeSection="Notificaciones"><p>Contenido principal</p></AdminShell>);
+    const desktop = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const desktopLink = within(desktop).getByRole('link', { name: 'Notificaciones' });
+    expect(desktopLink.getAttribute('href')).toBe('/notificaciones/');
+    expect(desktopLink.getAttribute('aria-current')).toBe('page');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const more = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const mobileLink = within(more).getByRole('link', { name: 'Notificaciones' });
+    expect(mobileLink.getAttribute('href')).toBe('/notificaciones/');
+    expect(mobileLink.getAttribute('aria-current')).toBe('page');
+  });
+
   it('clears only the demo session on sign-out', () => {
     const onSignOut = vi.fn();
     localStorage.setItem('webbys:demo-session', 'active');
