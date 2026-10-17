@@ -58,7 +58,7 @@ function getPromotionPrice(promotion: PromotionRecord): number;
 - [x] Implement pure calculation/status helpers and add `promotions?: PromotionRecord[]` to `AgendaState`.
 - [x] Extend Agenda validation to accept old states without promotions and reject malformed promotion data on load and save.
 - [x] Test that old-state load preserves original serialized bytes and invalid promotion loads/saves do not overwrite them; independent save-path recheck passed for invalid discounts and duplicate IDs.
-- [x] Run focused service/store tests; 30 passed.
+- [x] Run focused service/store tests; 30 passed. Commit: `c31605c`.
 
 ### Task 2: Promotion management page, preview, and route
 
@@ -69,7 +69,7 @@ function getPromotionPrice(promotion: PromotionRecord): number;
 - [x] Implement localStorage CRUD, customer-facing preview, date-based status labels, and validation feedback using existing modal/dropdown/navigation patterns.
 - [x] Link the protected `/promociones/` route from desktop and mobile More navigation.
 - [x] Update `DESIGN.md` with promotion list, preview, discount, and status behavior.
-- [x] Run `npm test` (203 passed), `npm run check` (0 diagnostics), and `npm run build` (10 static routes including `/promociones/`). Commits: pending.
+- [x] Run `npm test` (203 passed), `npm run check` (0 diagnostics), and `npm run build` (10 static routes including `/promociones/`). Commit: `41160bb`.
 
 ## Delivery
 
