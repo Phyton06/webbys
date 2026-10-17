@@ -4,6 +4,7 @@ import '../styles/agenda.css';
 
 interface MobileMonthCalendarProps {
   selectedDate: string;
+  displayedMonth?: string;
   appointments: AppointmentRecord[];
   onSelectDate: (date: string) => void;
   onNavigateMonth?: (date: string) => void;
@@ -35,11 +36,11 @@ function monthTitle(date: Date): string {
   return capitalize(new Intl.DateTimeFormat('es', { month: 'long', year: 'numeric' }).format(date));
 }
 
-function getMonthDays(selectedDate: string, appointments: AppointmentRecord[]): CalendarDay[] {
-  const selected = parseLocalDate(selectedDate);
-  const monthStart = new Date(selected.getFullYear(), selected.getMonth(), 1, 12);
+function getMonthDays(displayedMonth: string, appointments: AppointmentRecord[]): CalendarDay[] {
+  const month = parseLocalDate(displayedMonth);
+  const monthStart = new Date(month.getFullYear(), month.getMonth(), 1, 12);
   const mondayOffset = (monthStart.getDay() + 6) % 7;
-  const dayCount = new Date(selected.getFullYear(), selected.getMonth() + 1, 0).getDate();
+  const dayCount = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
   const cellCount = Math.ceil((mondayOffset + dayCount) / 7) * 7;
   const appointmentCounts = new Map<string, number>();
 
@@ -49,20 +50,20 @@ function getMonthDays(selectedDate: string, appointments: AppointmentRecord[]): 
   }
 
   return Array.from({ length: cellCount }, (_, index) => {
-    const date = new Date(selected.getFullYear(), selected.getMonth(), index - mondayOffset + 1, 12);
+    const date = new Date(month.getFullYear(), month.getMonth(), index - mondayOffset + 1, 12);
     const key = localDateKey(date);
     return {
       date,
       key,
       appointmentCount: appointmentCounts.get(key) ?? 0,
-      inDisplayedMonth: date.getMonth() === selected.getMonth(),
+      inDisplayedMonth: date.getMonth() === month.getMonth(),
     };
   });
 }
 
-export function MobileMonthCalendar({ selectedDate, appointments, onSelectDate, onNavigateMonth = onSelectDate }: MobileMonthCalendarProps) {
-  const selectedMonth = parseLocalDate(selectedDate);
-  const days = getMonthDays(selectedDate, appointments);
+export function MobileMonthCalendar({ selectedDate, displayedMonth = selectedDate, appointments, onSelectDate, onNavigateMonth = onSelectDate }: MobileMonthCalendarProps) {
+  const selectedMonth = parseLocalDate(displayedMonth);
+  const days = getMonthDays(displayedMonth, appointments);
 
   function moveMonth(offset: -1 | 1) {
     const nextMonth = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + offset, 1, 12);

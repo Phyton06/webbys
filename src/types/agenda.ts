@@ -79,6 +79,13 @@ export const PROMOTION_DISCOUNT_TYPE = {
 
 export type PromotionDiscountType = (typeof PROMOTION_DISCOUNT_TYPE)[keyof typeof PROMOTION_DISCOUNT_TYPE];
 
+export const PROMOTION_MODE = {
+  BUNDLE: 'bundle',
+  PRODUCT_DISCOUNT: 'product_discount',
+} as const;
+
+export type PromotionMode = (typeof PROMOTION_MODE)[keyof typeof PROMOTION_MODE];
+
 export const PROMOTION_MANUAL_STATUS = {
   DRAFT: 'draft',
   PUBLISHED: 'published',
@@ -91,6 +98,7 @@ export interface PromotionRecord {
   id: string;
   name: string;
   description: string;
+  mode?: PromotionMode;
   targets: PromotionTarget[];
   discountType: PromotionDiscountType;
   originalPrice: number;

@@ -14,6 +14,9 @@
 - Direct promotional price: from 0 through the original bundle price.
 - A promotion requires at least one target and valid inclusive start/end dates.
 - `draft` and `disabled` are manually controlled; `scheduled`, `active`, and `finished` derive from dates.
+- Bundle mode combines selected product/service values and supports percentage or direct promotional price; individual-discount mode applies a percentage to each selected product or service separately.
+- Target selection is searchable with selected items shown below and individually removable; the date range uses the existing month calendar component through the collapsed trigger-and-popover interaction from “Nueva cita”.
+- Product and service lookup reuses the existing client-search dropdown styling and interaction (`client-combobox` / `ClientCombobox`); reuse this pattern for future catalog selectors.
 - Unit limits are informational only; no sales, stock decrement, attribution, analytics, uploads, external fetches, or backend.
 - Loading old Agenda state without promotions must not rewrite stored bytes.
 
@@ -26,6 +29,12 @@
 **Interfaces:**
 
 ```ts
+const PROMOTION_MODE = {
+  BUNDLE: 'bundle',
+  PRODUCT_DISCOUNT: 'product_discount',
+} as const;
+type PromotionMode = (typeof PROMOTION_MODE)[keyof typeof PROMOTION_MODE];
+
 interface PromotionTarget {
   kind: 'product' | 'service';
   id: string;
@@ -37,6 +46,7 @@ interface PromotionRecord {
   id: string;
   name: string;
   description: string;
+  mode?: PromotionMode; // undefined means legacy bundle
   targets: PromotionTarget[];
   discountType: 'percentage' | 'fixed_price';
   originalPrice: number;
@@ -51,6 +61,7 @@ interface PromotionRecord {
 
 function getPromotionStatus(promotion: PromotionRecord, today: string): 'draft' | 'scheduled' | 'active' | 'finished' | 'disabled';
 function getPromotionPrice(promotion: PromotionRecord): number;
+function getPromotionTargetPrice(promotion: PromotionRecord, target: PromotionTarget): number;
 ```
 
 - [x] Add tests for percent/fixed-price calculations, each date-derived state, and invalid ranges/discounts/targets.
@@ -62,14 +73,14 @@ function getPromotionPrice(promotion: PromotionRecord): number;
 
 ### Task 2: Promotion management page, preview, and route
 
-**Files:** `src/components/PromotionsPage.tsx`, `src/components/PromotionsPage.test.tsx`, `src/styles/promotions.css`, `src/pages/promociones.astro`, `src/components/AdminShell.tsx`, `src/components/AdminShell.test.tsx`, `DESIGN.md`.
+**Files:** `src/components/PromotionsPage.tsx`, `src/components/PromotionsPage.test.tsx`, `src/styles/promotions.css`, `src/pages/promociones.astro`, `src/components/AdminShell.tsx`, `src/components/AdminShell.test.tsx`, `src/components/MobileMonthCalendar.tsx`, `src/components/MobileMonthCalendar.test.tsx`, `DESIGN.md`.
 
-- [x] Test promotion create/edit, search/status filtering, deactivation/reactivation, target snapshots after catalog edits, and preview totals.
+- [x] Test promotion create/edit, search/status filtering, deactivation/reactivation, target snapshots after catalog edits, target search/remove, bundle and individual-item discounts, collapsed date calendar selection, and per-item previews.
 - [x] Run `npm test -- src/components/PromotionsPage.test.tsx`; observed the expected missing-page failure.
-- [x] Implement localStorage CRUD, customer-facing preview, date-based status labels, and validation feedback using existing modal/dropdown/navigation patterns.
+- [x] Implement localStorage CRUD, customer-facing preview, date-based status labels, searchable removable target selection, separate bundle/product discount modes, and the shared calendar. Extend `MobileMonthCalendar` with optional displayed-month state so range navigation does not change the selected date.
 - [x] Link the protected `/promociones/` route from desktop and mobile More navigation.
 - [x] Update `DESIGN.md` with promotion list, preview, discount, and status behavior.
-- [x] Run `npm test` (203 passed), `npm run check` (0 diagnostics), and `npm run build` (10 static routes including `/promociones/`). Commit: `41160bb`.
+- [x] Run `npm test` (207 passed), `npm run check` (0 diagnostics), `npm run build` (10 static routes including `/promociones/`), and Impeccable detector (no findings). Initial implementation commit: `41160bb`; user-refinement follow-up remains local.
 
 ## Delivery
 

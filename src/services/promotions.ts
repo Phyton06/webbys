@@ -1,6 +1,7 @@
 import {
   PROMOTION_DISCOUNT_TYPE,
   PROMOTION_MANUAL_STATUS,
+  PROMOTION_MODE,
   PROMOTION_TARGET_KIND,
   type PromotionRecord,
   type PromotionTarget,
@@ -65,6 +66,7 @@ export function validatePromotion(value: unknown): PromotionValidation {
     || typeof value.description !== 'string'
     || !Array.isArray(value.targets)
     || (value.discountType !== PROMOTION_DISCOUNT_TYPE.PERCENTAGE && value.discountType !== PROMOTION_DISCOUNT_TYPE.FIXED_PRICE)
+    || (value.mode !== undefined && value.mode !== PROMOTION_MODE.BUNDLE && value.mode !== PROMOTION_MODE.PRODUCT_DISCOUNT)
     || typeof value.originalPrice !== 'number' || !Number.isFinite(value.originalPrice) || value.originalPrice < 0
     || typeof value.discountValue !== 'number' || !Number.isFinite(value.discountValue)
     || !isDateKey(value.startsOn) || !isDateKey(value.endsOn)
@@ -80,6 +82,12 @@ export function validatePromotion(value: unknown): PromotionValidation {
 
   const targetKeys = value.targets.map((target) => `${target.kind}:${target.id}`);
   if (new Set(targetKeys).size !== targetKeys.length) return { valid: false, reason: PROMOTION_FAILURE.INVALID_TARGETS };
+
+  const mode = value.mode ?? PROMOTION_MODE.BUNDLE;
+  if (mode === PROMOTION_MODE.PRODUCT_DISCOUNT
+    && value.discountType !== PROMOTION_DISCOUNT_TYPE.PERCENTAGE) {
+    return { valid: false, reason: PROMOTION_FAILURE.INVALID_TARGETS };
+  }
 
   const targetTotal = Math.round(value.targets.reduce((total, target) => total + target.price, 0) * 100) / 100;
   if (Math.abs(targetTotal - value.originalPrice) > 0.01) {
@@ -105,8 +113,17 @@ export function validatePromotion(value: unknown): PromotionValidation {
 }
 
 export function getPromotionPrice(promotion: PromotionRecord): number {
+  if ((promotion.mode ?? PROMOTION_MODE.BUNDLE) === PROMOTION_MODE.PRODUCT_DISCOUNT) {
+    return Math.round(promotion.targets.reduce((total, target) => total + getPromotionTargetPrice(promotion, target), 0) * 100) / 100;
+  }
   if (promotion.discountType === PROMOTION_DISCOUNT_TYPE.FIXED_PRICE) return promotion.discountValue;
   return Math.round(promotion.originalPrice * (1 - promotion.discountValue / 100) * 100) / 100;
+}
+
+export function getPromotionTargetPrice(promotion: PromotionRecord, target: PromotionTarget): number {
+  if ((promotion.mode ?? PROMOTION_MODE.BUNDLE) !== PROMOTION_MODE.PRODUCT_DISCOUNT
+    || promotion.discountType !== PROMOTION_DISCOUNT_TYPE.PERCENTAGE) return target.price;
+  return Math.round(target.price * (1 - promotion.discountValue / 100) * 100) / 100;
 }
 
 export function getPromotionStatus(promotion: PromotionRecord, today: string): PromotionStatus {

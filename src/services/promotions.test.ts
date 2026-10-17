@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { PromotionRecord } from '../types/agenda';
-import { getPromotionPrice, getPromotionStatus, validatePromotion } from './promotions';
+import { PROMOTION_MODE, type PromotionRecord } from '../types/agenda';
+import { getPromotionPrice, getPromotionStatus, getPromotionTargetPrice, validatePromotion } from './promotions';
 
 function promotion(overrides: Partial<PromotionRecord> = {}): PromotionRecord {
   return {
     id: 'promotion-corte',
     name: 'Corte de temporada',
     description: 'Precio especial de lanzamiento.',
+    mode: PROMOTION_MODE.BUNDLE,
     targets: [{ kind: 'service', id: 'service-1', name: 'Corte', price: 300 }],
     discountType: 'percentage',
     originalPrice: 300,
@@ -25,6 +26,21 @@ describe('promotion calculations and lifecycle', () => {
 
   it('uses the configured direct promotional price', () => {
     expect(getPromotionPrice(promotion({ discountType: 'fixed_price', discountValue: 175 }))).toBe(175);
+  });
+
+  it('applies an individual discount to each selected product and service independently', () => {
+    const first = { kind: 'product' as const, id: 'product-one', name: 'Shampoo', price: 160 };
+    const second = { kind: 'service' as const, id: 'service-one', name: 'Corte', price: 300 };
+    const general = promotion({
+      mode: PROMOTION_MODE.PRODUCT_DISCOUNT,
+      targets: [first, second],
+      originalPrice: 460,
+      discountValue: 20,
+    });
+
+    expect(getPromotionTargetPrice(general, first)).toBe(128);
+    expect(getPromotionTargetPrice(general, second)).toBe(240);
+    expect(getPromotionPrice(general)).toBe(368);
   });
 
   it('derives scheduled, active, and finished statuses from inclusive dates', () => {
@@ -46,5 +62,7 @@ describe('promotion calculations and lifecycle', () => {
     expect(validatePromotion(promotion({ startsOn: '2026-10-21' })).valid).toBe(false);
     expect(validatePromotion(promotion({ targets: [] })).valid).toBe(false);
     expect(validatePromotion(promotion({ discountType: 'fixed_price', discountValue: 301 })).valid).toBe(false);
+    expect(validatePromotion(promotion({ mode: PROMOTION_MODE.PRODUCT_DISCOUNT, discountType: 'fixed_price' })).valid).toBe(false);
+    expect(validatePromotion(promotion({ mode: PROMOTION_MODE.PRODUCT_DISCOUNT, targets: [{ kind: 'service', id: 'service-1', name: 'Corte', price: 300 }] })).valid).toBe(true);
   });
 });

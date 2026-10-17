@@ -46,6 +46,14 @@ describe('MobileMonthCalendar', () => {
     expect(onSelectDate).not.toHaveBeenCalled();
   });
 
+  it('can display a different month without changing the selected date', () => {
+    render(<MobileMonthCalendar selectedDate="2026-10-15" displayedMonth="2026-11-01" appointments={[]} onSelectDate={vi.fn()} />);
+
+    expect(screen.getByRole('heading', { name: 'Noviembre de 2026' })).toBeTruthy();
+    expect(screen.getByRole('group', { name: 'Días de Noviembre de 2026' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Jueves, 15 de octubre', pressed: true })).toBeNull();
+  });
+
   it('selects a calendar day when its date button is activated', () => {
     const onSelectDate = vi.fn();
     render(<MobileMonthCalendar selectedDate="2026-10-15" appointments={[]} onSelectDate={onSelectDate} />);

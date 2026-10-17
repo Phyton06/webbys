@@ -307,6 +307,159 @@
   accent-color: var(--color-accent-action);
 }
 
+.promotion-target-mode {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.promotion-target-mode p {
+  margin: 0;
+}
+
+.promotion-target-picker {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.promotion-target-picker > label input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-ink);
+  font: inherit;
+}
+
+.promotion-target-picker > label input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.promotion-target-results,
+.promotion-selected-targets ul,
+.promotion-individual-prices {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promotion-target-results li > label {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+}
+
+.promotion-target-results input {
+  width: 1.1rem;
+  min-height: 1.1rem;
+  accent-color: var(--color-accent-action);
+}
+
+.promotion-target-results span {
+  overflow-wrap: anywhere;
+}
+
+.promotion-target-results strong,
+.promotion-selected-targets li > strong {
+  color: var(--color-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.promotion-selected-targets {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-line);
+}
+
+.promotion-selected-targets h3,
+.promotion-date-range h3 {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: var(--text-md);
+}
+
+.promotion-selected-targets > p,
+.promotion-date-range > p {
+  margin: 0;
+  color: var(--color-ink-muted);
+  font-size: var(--text-sm);
+}
+
+.promotion-selected-targets li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+}
+
+.promotion-selected-targets li > span {
+  overflow-wrap: anywhere;
+}
+
+.promotion-remove-target {
+  min-height: 2.5rem;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--text-xs);
+}
+
+.promotion-date-range {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.promotion-date-targets {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.promotion-date-targets button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  overflow-wrap: anywhere;
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.promotion-date-targets button svg {
+  flex: 0 0 auto;
+  color: var(--color-ink-muted);
+}
+
+.promotion-date-targets button.is-active {
+  border-color: var(--color-accent);
+  background: var(--color-surface-muted);
+}
+
 .promotion-targets span {
   overflow-wrap: anywhere;
 }
@@ -329,10 +482,56 @@
   color: var(--color-ink-muted);
 }
 
+.promotion-individual-prices {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.promotion-individual-prices li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-line);
+}
+
+.promotion-individual-prices li > span {
+  color: var(--color-ink);
+}
+
+.promotion-individual-prices li > del {
+  color: var(--color-ink-subtle);
+}
+
+.promotion-individual-prices li > strong {
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.promotion-target-option {
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.promotion-target-option strong {
+  flex: 0 0 auto;
+  color: var(--color-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .promotion-form-actions > button {
   flex: 1;
   min-width: 0;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.promotion-form-actions > .availability-save-button {
+  flex: 1.15;
+  padding-inline: clamp(var(--space-2), 3vw, var(--space-4));
 }
 
 @media (min-width: 42rem) {

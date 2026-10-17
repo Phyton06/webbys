@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { CalendarDays } from 'lucide-preact';
 import {
   PROMOTION_DISCOUNT_TYPE,
   PROMOTION_MANUAL_STATUS,
+  PROMOTION_MODE,
   PROMOTION_TARGET_KIND,
   type AgendaState,
   type ProductRecord,
@@ -12,11 +14,13 @@ import {
   type ServiceRecord,
 } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
-import { getPromotionPrice, getPromotionStatus, type PromotionStatus, validatePromotion } from '../services/promotions';
+import { getPromotionPrice, getPromotionStatus, getPromotionTargetPrice, type PromotionStatus, validatePromotion } from '../services/promotions';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
+import { MobileMonthCalendar } from './MobileMonthCalendar';
+import { PromotionTargetCombobox } from './PromotionTargetCombobox';
 import '../styles/promotions.css';
 
 interface PromotionsPageProps {
@@ -37,6 +41,11 @@ type PromotionFilter = (typeof PROMOTION_FILTER)[keyof typeof PROMOTION_FILTER];
 const discountTypeOptions = [
   { value: PROMOTION_DISCOUNT_TYPE.PERCENTAGE, label: 'Descuento porcentual' },
   { value: PROMOTION_DISCOUNT_TYPE.FIXED_PRICE, label: 'Precio promocional' },
+];
+
+const promotionModeOptions = [
+  { value: PROMOTION_MODE.BUNDLE, label: 'Paquete de productos o servicios' },
+  { value: PROMOTION_MODE.PRODUCT_DISCOUNT, label: 'Descuento individual por elemento' },
 ];
 
 const manualStatusOptions = [
@@ -120,11 +129,15 @@ function PromotionForm({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [name, setName] = useState(promotion?.name ?? '');
   const [description, setDescription] = useState(promotion?.description ?? '');
+  const [mode, setMode] = useState(promotion?.mode ?? PROMOTION_MODE.BUNDLE);
   const [targetKeys, setTargetKeys] = useState<string[]>(promotion?.targets.map(({ kind, id }) => `${kind}:${id}`) ?? []);
   const [discountType, setDiscountType] = useState<PromotionDiscountType>(promotion?.discountType ?? PROMOTION_DISCOUNT_TYPE.PERCENTAGE);
   const [discountValue, setDiscountValue] = useState(promotion ? String(promotion.discountValue) : '20');
   const [startsOn, setStartsOn] = useState(promotion?.startsOn ?? dateKey(now));
   const [endsOn, setEndsOn] = useState(promotion?.endsOn ?? dateAfter(now, 7));
+  const [dateField, setDateField] = useState<'start' | 'end'>('start');
+  const [calendarDate, setCalendarDate] = useState(promotion?.startsOn ?? dateKey(now));
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [manualStatus, setManualStatus] = useState<PromotionManualStatus>(promotion?.manualStatus ?? PROMOTION_MANUAL_STATUS.DRAFT);
   const [imagePath, setImagePath] = useState(promotion?.imagePath ?? '');
   const [conditions, setConditions] = useState(promotion?.conditions ?? '');
@@ -148,6 +161,14 @@ function PromotionForm({
   const selectedTargets = promotion && targetsUnchanged
     ? promotion.targets
     : getPromotionTargets(targetKeys, products, services);
+  const searchableTargets: PromotionTarget[] = [
+    ...services
+      .filter((service) => service.active !== false || targetKeys.includes(`service:${service.id}`))
+      .map((service) => ({ kind: PROMOTION_TARGET_KIND.SERVICE, id: service.id, name: service.name, price: service.price })),
+    ...products
+      .filter((product) => product.active || targetKeys.includes(`product:${product.id}`))
+      .map((product) => ({ kind: PROMOTION_TARGET_KIND.PRODUCT, id: product.id, name: product.name, price: product.salePrice })),
+  ];
   const originalPrice = selectedTargets.reduce((total, target) => total + target.price, 0);
   const parsedDiscount = Number(discountValue);
   const normalizedOriginalPrice = Math.round(originalPrice * 100) / 100;
@@ -156,6 +177,7 @@ function PromotionForm({
     id: promotion?.id ?? 'promotion-preview',
     name: name.trim() || 'Promoción',
     description: description.trim(),
+    mode,
     targets: selectedTargets,
     discountType,
     originalPrice: normalizedOriginalPrice,
@@ -172,6 +194,27 @@ function PromotionForm({
     setTargetKeys((current) => current.includes(key)
       ? current.filter((entry) => entry !== key)
       : [...current, key]);
+  }
+
+  function changeMode(nextMode: typeof mode) {
+    setMode(nextMode);
+    if (nextMode === PROMOTION_MODE.PRODUCT_DISCOUNT) {
+      setDiscountType(PROMOTION_DISCOUNT_TYPE.PERCENTAGE);
+    }
+  }
+
+  function chooseCalendarDate(value: string) {
+    if (dateField === 'start') {
+      setStartsOn(value);
+      if (value > endsOn) setEndsOn(value);
+    } else if (value < startsOn) {
+      setError('La fecha de finalización debe ser igual o posterior al inicio.');
+      return;
+    } else {
+      setEndsOn(value);
+    }
+    setCalendarDate(value);
+    setError('');
   }
 
   function submit(event: SubmitEvent) {
@@ -218,7 +261,7 @@ function PromotionForm({
         <header class="appointment-form-heading">
           <div>
             <h2 id="promotion-form-title">{promotion ? 'Editar promoción' : 'Nueva promoción'}</h2>
-            <p>Combina productos y servicios con un precio especial.</p>
+            <p>Arma un paquete o aplica un descuento individual a productos y servicios.</p>
           </div>
           <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de promoción" onClick={onCancel}>Cerrar</button>
         </header>
@@ -230,42 +273,56 @@ function PromotionForm({
           <span>Descripción</span>
           <textarea value={description} onInput={(event) => setDescription(event.currentTarget.value)} />
         </label>
-        <fieldset class="promotion-targets">
-          <legend>Productos y servicios</legend>
-          {services.map((service) => (
-            <label key={`service:${service.id}`}>
-              <input
-                type="checkbox"
-                aria-label={`Servicio: ${service.name}`}
-                checked={targetKeys.includes(`service:${service.id}`)}
-                disabled={service.active === false && !targetKeys.includes(`service:${service.id}`)}
-                onChange={() => toggleTarget(`service:${service.id}`)}
-              />
-              <span>{service.name}</span>
-              <strong>${service.price.toLocaleString('es')}</strong>
-            </label>
-          ))}
-          {products.map((product) => (
-            <label key={`product:${product.id}`}>
-              <input
-                type="checkbox"
-                aria-label={`Producto: ${product.name}`}
-                checked={targetKeys.includes(`product:${product.id}`)}
-                disabled={!product.active && !targetKeys.includes(`product:${product.id}`)}
-                onChange={() => toggleTarget(`product:${product.id}`)}
-              />
-              <span>{product.name}</span>
-              <strong>${product.salePrice.toLocaleString('es')}</strong>
-            </label>
-          ))}
-        </fieldset>
+        <div class="promotion-target-mode">
+          <span>Tipo de promoción</span>
+          <Dropdown label="Tipo de promoción" value={mode} options={promotionModeOptions} onChange={changeMode} />
+          <p>{mode === PROMOTION_MODE.BUNDLE
+            ? 'Suma los precios seleccionados y aplica el descuento al paquete.'
+            : 'El descuento se aplica por separado a cada producto o servicio seleccionado.'}</p>
+        </div>
+        <section class="promotion-target-picker" aria-label="Seleccionar productos y servicios">
+          <label class="appointment-form-control">
+            <span>Productos y servicios</span>
+            <PromotionTargetCombobox
+              label="Buscar productos y servicios"
+              targets={searchableTargets}
+              selectedKeys={targetKeys}
+              onSelect={(target) => toggleTarget(`${target.kind}:${target.id}`)}
+            />
+          </label>
+          <section class="promotion-selected-targets" aria-label="Elementos seleccionados">
+            <h3>Seleccionados ({selectedTargets.length})</h3>
+            {selectedTargets.length > 0 ? (
+              <ul>
+                {selectedTargets.map((target) => (
+                  <li key={`${target.kind}:${target.id}`}>
+                    <span>{target.name}</span>
+                    <strong>${target.price.toLocaleString('es')}</strong>
+                    <button type="button" class="promotion-remove-target" aria-label={`Quitar ${target.name}`} onClick={() => toggleTarget(`${target.kind}:${target.id}`)}>Quitar</button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Selecciona elementos de los resultados; aparecerán aquí.</p>
+            )}
+          </section>
+        </section>
         <div class="promotion-form-grid">
           <label class="appointment-form-control">
             <span>Tipo de descuento</span>
-            <Dropdown label="Tipo de descuento" value={discountType} options={discountTypeOptions} onChange={setDiscountType} />
+            <Dropdown
+              label="Tipo de descuento"
+              value={discountType}
+              options={mode === PROMOTION_MODE.PRODUCT_DISCOUNT
+                ? discountTypeOptions.filter(({ value }) => value === PROMOTION_DISCOUNT_TYPE.PERCENTAGE)
+                : discountTypeOptions}
+              onChange={setDiscountType}
+            />
           </label>
           <label class="appointment-form-control">
-            <span>{discountType === PROMOTION_DISCOUNT_TYPE.PERCENTAGE ? 'Descuento (%)' : 'Precio promocional'}</span>
+            <span>{discountType === PROMOTION_DISCOUNT_TYPE.PERCENTAGE
+              ? (mode === PROMOTION_MODE.PRODUCT_DISCOUNT ? 'Descuento individual (%)' : 'Descuento del paquete (%)')
+              : 'Precio promocional del paquete'}</span>
             <input
               type="number"
               min="0"
@@ -277,14 +334,6 @@ function PromotionForm({
             />
           </label>
           <label class="appointment-form-control">
-            <span>Fecha de inicio</span>
-            <input type="date" required value={startsOn} onInput={(event) => setStartsOn(event.currentTarget.value)} />
-          </label>
-          <label class="appointment-form-control">
-            <span>Fecha de finalización</span>
-            <input type="date" required value={endsOn} onInput={(event) => setEndsOn(event.currentTarget.value)} />
-          </label>
-          <label class="appointment-form-control">
             <span>Estado de publicación</span>
             <Dropdown label="Estado de publicación" value={manualStatus} options={manualStatusOptions} onChange={setManualStatus} />
           </label>
@@ -293,6 +342,32 @@ function PromotionForm({
             <input type="number" min="1" step="1" value={unitLimit} onInput={(event) => setUnitLimit(event.currentTarget.value)} />
           </label>
         </div>
+        <section class="promotion-date-range" aria-label="Vigencia de la promoción">
+          <h3>Vigencia</h3>
+          <div class="promotion-date-targets">
+            <button type="button" class={`appointment-form-cancel${dateField === 'start' ? ' is-active' : ''}`} aria-label={`Inicio: ${new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${startsOn}T12:00:00`))}`} aria-pressed={dateField === 'start'} onClick={() => { setDateField('start'); setCalendarDate(startsOn); setDatePickerOpen(true); }}>
+              <CalendarDays aria-hidden="true" size={18} />
+              Inicio: {new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${startsOn}T12:00:00`))}
+            </button>
+            <button type="button" class={`appointment-form-cancel${dateField === 'end' ? ' is-active' : ''}`} aria-label={`Fin: ${new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${endsOn}T12:00:00`))}`} aria-pressed={dateField === 'end'} onClick={() => { setDateField('end'); setCalendarDate(endsOn); setDatePickerOpen(true); }}>
+              <CalendarDays aria-hidden="true" size={18} />
+              Fin: {new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(`${endsOn}T12:00:00`))}
+            </button>
+          </div>
+          <div class="appointment-date-picker-control">
+            {datePickerOpen && (
+              <div class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
+                <MobileMonthCalendar
+                  selectedDate={dateField === 'start' ? startsOn : endsOn}
+                  displayedMonth={calendarDate}
+                  appointments={[]}
+                  onNavigateMonth={setCalendarDate}
+                  onSelectDate={(value) => { chooseCalendarDate(value); setDatePickerOpen(false); }}
+                />
+              </div>
+            )}
+          </div>
+        </section>
         <label class="appointment-form-control">
           <span>Condiciones (opcional)</span>
           <textarea value={conditions} onInput={(event) => setConditions(event.currentTarget.value)} />
@@ -302,12 +377,26 @@ function PromotionForm({
           <input type="text" placeholder="/promotions/oferta.png" value={imagePath} onInput={(event) => setImagePath(event.currentTarget.value)} />
         </label>
         {canPreview && (
-          <section class="promotion-form-preview" aria-label="Vista previa de promoción">
+          <section class={`promotion-form-preview${mode === PROMOTION_MODE.PRODUCT_DISCOUNT ? ' is-product-discount' : ''}`} aria-label="Vista previa de promoción">
             <span>Vista previa</span>
             <strong>{name.trim() || 'Nombre de la promoción'}</strong>
             <span>{selectedTargets.map(({ name: targetName }) => targetName).join(' + ')}</span>
-            <p>Precio original: ${normalizedOriginalPrice.toLocaleString('es')}</p>
-            <p>Precio promocional: ${getPromotionPrice(previewRecord).toLocaleString('es')}</p>
+            {mode === PROMOTION_MODE.BUNDLE ? (
+              <>
+                <p>Precio original: ${normalizedOriginalPrice.toLocaleString('es')}</p>
+                <p>Precio del paquete: ${getPromotionPrice(previewRecord).toLocaleString('es')}</p>
+              </>
+            ) : (
+              <ul class="promotion-individual-prices">
+                {selectedTargets.map((target) => (
+                  <li key={target.id}>
+                    <span>{target.name}</span>
+                    <del>${target.price.toLocaleString('es')}</del>
+                    <strong>${getPromotionTargetPrice(previewRecord, target).toLocaleString('es')}</strong>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         )}
         {error && <p class="availability-error" role="alert">{error}</p>}
@@ -413,8 +502,27 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
               <p>{selectedPromotion.description || 'Sin descripción.'}</p>
               <dl>
                 <div><dt>Productos y servicios</dt><dd>{selectedPromotion.targets.map(({ name }) => name).join(' · ')}</dd></div>
-                <div><dt>Precio original</dt><dd>${selectedPromotion.originalPrice.toLocaleString('es')}</dd></div>
-                <div><dt>Precio promocional</dt><dd>${getPromotionPrice(selectedPromotion).toLocaleString('es')}</dd></div>
+                {selectedPromotion.mode === PROMOTION_MODE.PRODUCT_DISCOUNT ? (
+                  <div class="promotion-detail-items">
+                    <dt>Precio promocional por producto</dt>
+                    <dd>
+                      <ul>
+                        {selectedPromotion.targets.map((target) => (
+                          <li key={target.id}>
+                            <span>{target.name}</span>
+                            <del>${target.price.toLocaleString('es')}</del>
+                            <strong>${getPromotionTargetPrice(selectedPromotion, target).toLocaleString('es')}</strong>
+                          </li>
+                        ))}
+                      </ul>
+                    </dd>
+                  </div>
+                ) : (
+                  <>
+                    <div><dt>Precio original del paquete</dt><dd>${selectedPromotion.originalPrice.toLocaleString('es')}</dd></div>
+                    <div><dt>Precio promocional del paquete</dt><dd>${getPromotionPrice(selectedPromotion).toLocaleString('es')}</dd></div>
+                  </>
+                )}
                 <div><dt>Vigencia</dt><dd>{selectedPromotion.startsOn} – {selectedPromotion.endsOn}</dd></div>
                 {selectedPromotion.unitLimit !== undefined && <div><dt>Límite informativo</dt><dd>{selectedPromotion.unitLimit} unidades</dd></div>}
               </dl>
@@ -423,7 +531,19 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                 <span class="promotion-preview-label">Promoción</span>
                 <h3>{selectedPromotion.name}</h3>
                 <p>{selectedPromotion.description || selectedPromotion.targets.map(({ name }) => name).join(' + ')}</p>
-                <div><del>${selectedPromotion.originalPrice.toLocaleString('es')}</del><strong>${getPromotionPrice(selectedPromotion).toLocaleString('es')}</strong></div>
+                {selectedPromotion.mode === PROMOTION_MODE.PRODUCT_DISCOUNT ? (
+                  <ul class="promotion-individual-prices">
+                    {selectedPromotion.targets.map((target) => (
+                      <li key={target.id}>
+                        <span>{target.name}</span>
+                        <del>${target.price.toLocaleString('es')}</del>
+                        <strong>${getPromotionTargetPrice(selectedPromotion, target).toLocaleString('es')}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div><del>${selectedPromotion.originalPrice.toLocaleString('es')}</del><strong>${getPromotionPrice(selectedPromotion).toLocaleString('es')}</strong></div>
+                )}
                 {selectedPromotion.conditions && <small>{selectedPromotion.conditions}</small>}
               </article>
             </section>
@@ -450,7 +570,9 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                         </button>
                         <span class={`promotion-status status-${getPromotionStatus(promotion, today)}`}>{statusLabel(promotion)}</span>
                         <span>{promotion.startsOn} – {promotion.endsOn}</span>
-                        <strong>${getPromotionPrice(promotion).toLocaleString('es')}</strong>
+                        <strong>{promotion.mode === PROMOTION_MODE.PRODUCT_DISCOUNT
+                          ? `${promotion.discountValue}% por producto`
+                          : `$${getPromotionPrice(promotion).toLocaleString('es')}`}</strong>
                         <div class="promotion-actions">
                           <button class="appointment-form-cancel" type="button" aria-label={`Ver promoción ${promotion.name}`} onClick={() => setSelectedId(promotion.id)}>Ver</button>
                           <button class="appointment-form-cancel" type="button" aria-label={`Editar promoción ${promotion.name}`} onClick={() => { setEditingPromotion(promotion); setFormOpen(true); }}>Editar</button>
