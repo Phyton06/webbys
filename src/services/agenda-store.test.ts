@@ -130,6 +130,37 @@ describe('loadAgendaState and saveAgendaState', () => {
     expect(storage.storedValue()).toBe(original);
   });
 
+  it('round-trips inventory product records with optional acquisition cost and image', () => {
+    const state = createAgendaSeed(now);
+    state.products = [{
+      id: 'product-cera',
+      name: 'Cera mate',
+      description: 'Fijación media',
+      salePrice: 180,
+      stock: 12,
+      category: 'Cabello',
+      active: true,
+    }];
+    const storage = createMemoryStorage();
+
+    saveAgendaState(storage, state);
+
+    expect(loadAgendaState(storage, now).state.products).toEqual(state.products);
+  });
+
+  it('rejects negative product stock without overwriting stored bytes', () => {
+    const state = createAgendaSeed(now);
+    const malformed = {
+      ...state,
+      products: [{ id: 'product-bad', name: 'Producto', description: '', salePrice: 10, stock: -1, category: 'Cabello', active: true }],
+    };
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: malformed });
+    const storage = createMemoryStorage(original);
+
+    expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
   it.each([
     ['email', 42],
     ['active', 'false'],

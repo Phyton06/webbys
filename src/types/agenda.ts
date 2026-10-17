@@ -46,11 +46,24 @@ export interface ServiceRecord {
   active?: boolean;
 }
 
+export interface ProductRecord {
+  id: string;
+  name: string;
+  description: string;
+  salePrice: number;
+  costPrice?: number;
+  stock: number;
+  category: string;
+  imagePath?: string;
+  active: boolean;
+}
+
 export interface AgendaState {
   barbers: BarberRecord[];
   employees?: EmployeeRecord[];
   clients: ClientRecord[];
   services: ServiceRecord[];
+  products?: ProductRecord[];
   schedules: BarberSchedule[];
   exceptions: AvailabilityException[];
   appointments: AppointmentRecord[];

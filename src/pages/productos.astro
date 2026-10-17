@@ -1,0 +1,10 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/admin.css';
+import '../styles/agenda.css';
+import { ProductsPage } from '../components/ProductsPage';
+---
+
+<AppLayout title="Productos | Webbys">
+  <ProductsPage client:load />
+</AppLayout>

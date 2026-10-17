@@ -1,5 +1,5 @@
 import { createDemoData } from './demo';
-import { EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaState, type BarberRecord, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ServiceRecord } from '../types/agenda';
+import { EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaState, type BarberRecord, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ProductRecord, type ServiceRecord } from '../types/agenda';
 
 const barberNames = ['Diego', 'Raúl', 'Andrés'];
 const clientNames = [
@@ -33,7 +33,11 @@ const services: ServiceRecord[] = [
   { id: 'service-2', name: 'Barba', durationMinutes: 30, price: 250 },
   { id: 'service-3', name: 'Corte y barba', durationMinutes: 75, price: 500 },
 ];
-
+const products: ProductRecord[] = [
+  { id: 'product-shampoo', name: 'Shampoo', description: 'Limpieza diaria para cabello.', salePrice: 160, costPrice: 80, stock: 8, category: 'Cabello', active: true },
+  { id: 'product-gel', name: 'Gel para cabello', description: 'Fijación flexible.', salePrice: 120, costPrice: 55, stock: 12, category: 'Cabello', active: true },
+  { id: 'product-oil', name: 'Aceite para barba', description: 'Cuidado ligero para barba.', salePrice: 190, costPrice: 95, stock: 5, category: 'Barba', active: true },
+];
 function dateAtOffset(now: Date, days: number): string {
   const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days);
   return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
@@ -65,6 +69,7 @@ export function createAgendaSeed(now: Date): AgendaState {
     employees,
     clients,
     services,
+    products,
     schedules: createSchedules(),
     exceptions: [
       { barberId: 'barber-2', date: dateAtOffset(now, 2), unavailable: true },

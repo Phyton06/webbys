@@ -1,5 +1,5 @@
 import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
-import { AGENDA_LOAD_STATUS, EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
+import { AGENDA_LOAD_STATUS, EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ProductRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { validateScheduleIntervals } from './availability';
 import { normalizeEmployees, syncBarberProjection } from './employees';
@@ -101,6 +101,27 @@ function isService(value: unknown): value is ServiceRecord {
     && (value.active === undefined || typeof value.active === 'boolean');
 }
 
+function isProduct(value: unknown): value is ProductRecord {
+  return isRecord(value)
+    && isString(value.id)
+    && value.id.length > 0
+    && isString(value.name)
+    && value.name.trim().length > 0
+    && isString(value.description)
+    && typeof value.salePrice === 'number'
+    && Number.isFinite(value.salePrice)
+    && value.salePrice >= 0
+    && (value.costPrice === undefined || (typeof value.costPrice === 'number'
+      && Number.isFinite(value.costPrice) && value.costPrice >= 0))
+    && typeof value.stock === 'number'
+    && Number.isInteger(value.stock)
+    && value.stock >= 0
+    && isString(value.category)
+    && value.category.trim().length > 0
+    && (value.imagePath === undefined || isString(value.imagePath))
+    && typeof value.active === 'boolean';
+}
+
 function isAppointmentStatus(value: unknown): value is AppointmentStatus {
   return value === 'pending' || value === 'confirmed' || value === 'completed' || value === 'cancelled';
 }
@@ -131,6 +152,7 @@ function isAgendaState(value: unknown): value is AgendaState {
   if (!isRecord(value)
     || !Array.isArray(value.barbers)
     || (value.employees !== undefined && !Array.isArray(value.employees))
+    || (value.products !== undefined && !Array.isArray(value.products))
     || !Array.isArray(value.clients)
     || !Array.isArray(value.services)
     || !Array.isArray(value.schedules)
@@ -139,6 +161,7 @@ function isAgendaState(value: unknown): value is AgendaState {
 
   if (!value.barbers.every(isBarber)
     || (value.employees !== undefined && !value.employees.every(isEmployee))
+    || (value.products !== undefined && !value.products.every(isProduct))
     || !value.clients.every(isClient)
     || !value.services.every(isService)
     || !value.schedules.every(isBarberSchedule)
@@ -147,10 +170,12 @@ function isAgendaState(value: unknown): value is AgendaState {
 
   const barberIds = new Set(value.barbers.map(({ id }) => id));
   const employees = (value.employees ?? []) as EmployeeRecord[];
+  const products = (value.products ?? []) as ProductRecord[];
   const clientIds = new Set(value.clients.map(({ id }) => id));
   const serviceIds = new Set(value.services.map(({ id }) => id));
   return hasUniqueIds(value.barbers)
     && hasUniqueIds(employees)
+    && hasUniqueIds(products)
     && employees.every((employee) => employee.role !== EMPLOYEE_ROLE.BARBER || barberIds.has(employee.id))
     && hasUniqueIds(value.clients)
     && hasUniqueIds(value.services)
