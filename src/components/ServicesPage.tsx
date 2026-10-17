@@ -190,7 +190,10 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
         <section class="services-page" aria-labelledby="services-title">
           <header class="agenda-heading services-heading">
             <div>
-              <h1 id="services-title">Servicios</h1>
+              <div class="view-title-row">
+                {selectedService && <BackLink ariaLabel="Volver a Servicios" onClick={() => setSelectedId(undefined)} />}
+                <h1 id="services-title">Servicios</h1>
+              </div>
               <p>Administra precios y duraciones para calcular las citas.</p>
             </div>
             <button class="availability-save-button" type="button" onClick={() => { setEditingService(undefined); setFormOpen(true); }}>Nuevo servicio</button>
@@ -200,7 +203,6 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
 
           {selectedService ? (
             <section class="service-detail" aria-labelledby="service-detail-title">
-              <BackLink label="Servicios" onClick={() => setSelectedId(undefined)} />
               <header>
                 <div>
                   <h2 id="service-detail-title">{selectedService.name}</h2>

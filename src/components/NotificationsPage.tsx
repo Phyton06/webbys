@@ -311,7 +311,10 @@ export function NotificationsPage({ now = new Date() }: NotificationsPageProps) 
         <section class="notifications-page" aria-labelledby="notifications-title">
           <header class="agenda-heading notifications-heading">
             <div>
-              <h1 id="notifications-title">Notificaciones</h1>
+              <div class="view-title-row">
+                {view === 'composer' && <BackLink ariaLabel="Volver al historial" onClick={backToHistory} />}
+                <h1 id="notifications-title">Notificaciones</h1>
+              </div>
               <p>Prepara avisos y revisa su historial de simulación.</p>
             </div>
             {view === 'history' && <button class="availability-save-button" type="button" onClick={beginComposer}>Nueva notificación</button>}
@@ -368,7 +371,6 @@ export function NotificationsPage({ now = new Date() }: NotificationsPageProps) 
             <form class="notifications-composer" onSubmit={(event) => event.preventDefault()}>
               <header class="notifications-composer-heading">
                 <div><h2>Nueva notificación</h2><p>Elige destinatarios y revisa la vista previa antes de guardar.</p></div>
-                <BackLink label="Historial" ariaLabel="Volver al historial" onClick={backToHistory} />
               </header>
               <div class="notifications-composer-grid">
                 <div class="notifications-composer-fields">

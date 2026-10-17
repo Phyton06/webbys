@@ -124,7 +124,10 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
         <section class="sales-page" aria-labelledby="sales-page-title">
           <header class="agenda-heading sales-heading">
             <div>
-              <h1 id="sales-page-title">Ventas</h1>
+              <div class="view-title-row">
+                {selectedSaleId && <BackLink ariaLabel="Volver a Ventas" onClick={() => setSelectedSaleId(undefined)} />}
+                <h1 id="sales-page-title">Ventas</h1>
+              </div>
               <p>Consulta los registros, sus descuentos y el rendimiento del periodo.</p>
             </div>
           </header>
@@ -159,7 +162,6 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
 
           {selectedSale ? (
             <section class="sales-detail" aria-labelledby="sales-detail-title">
-              <BackLink label="Ventas" onClick={() => setSelectedSaleId(undefined)} />
               <header>
                 <div>
                   <h2 id="sales-detail-title">Venta {selectedSale.id}</h2>

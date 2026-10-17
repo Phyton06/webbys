@@ -90,7 +90,10 @@ export function SettingsPage() {
         <section class="settings-page" aria-labelledby="settings-title">
           <header class="agenda-heading">
             <div>
-              <h1 id="settings-title">Configuración</h1>
+              <div class="view-title-row">
+                {category !== null && <BackLink ariaLabel="Volver a Configuración" onClick={() => setCategory(null)} />}
+                <h1 id="settings-title">Configuración</h1>
+              </div>
               <p>Administra la información del negocio, preferencias y horarios.</p>
             </div>
           </header>
@@ -112,7 +115,6 @@ export function SettingsPage() {
               </nav>
             )}
             <div class="settings-detail" hidden={category === null}>
-              <BackLink label="Configuración" onClick={() => setCategory(null)} />
               <div class="settings-category-content">
                 <div hidden={category !== 'barber-schedules'}>
                   <BarberAvailabilityPanel

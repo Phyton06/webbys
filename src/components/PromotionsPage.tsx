@@ -480,7 +480,10 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
         <section class="promotions-page" aria-labelledby="promotions-title">
           <header class="agenda-heading promotions-heading">
             <div>
-              <h1 id="promotions-title">Promociones</h1>
+              <div class="view-title-row">
+                {selectedPromotion && <BackLink ariaLabel="Volver a Promociones" onClick={() => setSelectedId(undefined)} />}
+                <h1 id="promotions-title">Promociones</h1>
+              </div>
               <p>Administra descuentos y precios especiales para productos y servicios.</p>
             </div>
             <button class="availability-save-button" type="button" onClick={() => { setEditingPromotion(undefined); setFormOpen(true); }}>Nueva promoción</button>
@@ -489,7 +492,6 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
 
           {selectedPromotion ? (
             <section class="promotion-detail" aria-labelledby="promotion-detail-title">
-              <BackLink label="Promociones" onClick={() => setSelectedId(undefined)} />
               <header>
                 <div>
                   <h2 id="promotion-detail-title">{selectedPromotion.name}</h2>

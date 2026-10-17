@@ -273,12 +273,14 @@ export function EmployeesPage({ now = new Date() }: EmployeesPageProps) {
     return (
       <section class="employee-profile" aria-labelledby="employee-profile-title">
         <header class="agenda-heading employee-profile-heading">
-          <BackLink label="Empleados" onClick={() => setSelectedEmployeeId(undefined)} />
           <div class="employee-profile-title-row">
-            <div>
-              <h1 id="employee-profile-title">{employee.name}</h1>
-              <p class="employee-profile-role">{employeeRoleLabels[employee.role]}</p>
-              <span class={`employee-status${active ? ' is-active' : ' is-inactive'}`}>{active ? 'Activo' : 'Inactivo'}</span>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Volver a Empleados" onClick={() => setSelectedEmployeeId(undefined)} />
+              <div>
+                <h1 id="employee-profile-title">{employee.name}</h1>
+                <p class="employee-profile-role">{employeeRoleLabels[employee.role]}</p>
+                <span class={`employee-status${active ? ' is-active' : ' is-inactive'}`}>{active ? 'Activo' : 'Inactivo'}</span>
+              </div>
             </div>
             <div class="employee-profile-actions">
               <button class="appointment-form-cancel" type="button" onClick={() => beginEdit(employee)}>Editar empleado</button>

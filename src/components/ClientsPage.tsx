@@ -178,11 +178,13 @@ export function ClientsPage() {
     return (
       <section class="client-profile" aria-labelledby="client-profile-title">
         <header class="agenda-heading client-profile-heading">
-          <BackLink label="Clientes" onClick={() => setSelectedClientId(undefined)} />
           <div class="client-profile-title-row">
-            <div>
-              <h1 id="client-profile-title">{client.name}</h1>
-              <p class={`client-status${isActive(client) ? ' is-active' : ' is-inactive'}`}>{isActive(client) ? 'Cliente activo' : 'Cliente inactivo'}</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Volver a Clientes" onClick={() => setSelectedClientId(undefined)} />
+              <div>
+                <h1 id="client-profile-title">{client.name}</h1>
+                <p class={`client-status${isActive(client) ? ' is-active' : ' is-inactive'}`}>{isActive(client) ? 'Cliente activo' : 'Cliente inactivo'}</p>
+              </div>
             </div>
             <div class="client-profile-actions">
               <button class="appointment-form-cancel" type="button" onClick={() => beginEdit(client)}>Editar cliente</button>

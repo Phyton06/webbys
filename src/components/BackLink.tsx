@@ -2,18 +2,18 @@ import { ChevronLeft } from 'lucide-preact';
 import '../styles/back-link.css';
 
 interface BackLinkProps {
-  label: string;
+  label?: string;
   onClick?: () => void;
   href?: string;
   ariaLabel?: string;
 }
 
 export function BackLink({ label, onClick, href, ariaLabel }: BackLinkProps) {
-  const accessibleLabel = ariaLabel ?? `Volver a ${label}`;
+  const accessibleLabel = ariaLabel ?? (label ? `Volver a ${label}` : 'Volver');
   const content = (
     <>
-      <ChevronLeft size={18} aria-hidden="true" />
-      <span>{label}</span>
+      <ChevronLeft size={22} aria-hidden="true" />
+      {label && <span>{label}</span>}
     </>
   );
 

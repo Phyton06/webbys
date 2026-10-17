@@ -241,7 +241,10 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
         <section class="products-page" aria-labelledby="products-title">
           <header class="agenda-heading products-heading">
             <div>
-              <h1 id="products-title">Productos</h1>
+              <div class="view-title-row">
+                {selectedProduct && <BackLink ariaLabel="Volver a Productos" onClick={() => setSelectedId(undefined)} />}
+                <h1 id="products-title">Productos</h1>
+              </div>
               <p>Consulta precios y existencias del catálogo.</p>
             </div>
             <button class="availability-save-button product-flow-button" type="button" onClick={() => { setEditingProduct(undefined); setFormOpen(true); }}>Nuevo producto</button>
@@ -250,7 +253,6 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
 
           {selectedProduct ? (
             <section class="product-detail" aria-labelledby="product-detail-title">
-              <BackLink label="Productos" onClick={() => setSelectedId(undefined)} />
               <header>
                 <div class="product-detail-identity">
                   {localImagePath(selectedProduct.imagePath ?? '') && (
