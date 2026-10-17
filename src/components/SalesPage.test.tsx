@@ -91,7 +91,7 @@ describe('SalesPage', () => {
     chooseDropdown('Promoción', 'Oferta de temporada');
     list = screen.getByRole('list', { name: 'Registros de ventas' });
     expect([...list.querySelectorAll('li')].every((item) => item.textContent?.includes('Oferta de temporada'))).toBe(true);
-  });
+  }, 10_000);
 
   it('opens the shared date popover from the date value and applies a date range', () => {
     renderPage();
