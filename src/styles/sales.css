@@ -218,17 +218,6 @@
   font: inherit;
 }
 
-.sales-calendar-popover {
-  position: relative;
-  z-index: 2;
-  grid-column: 1 / -1;
-  min-width: 0;
-  padding: var(--space-2);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-raised);
-}
-
 .sales-report-grid {
   display: grid;
   gap: var(--space-4);

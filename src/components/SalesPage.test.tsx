@@ -97,7 +97,8 @@ describe('SalesPage', () => {
     renderPage();
     expect(screen.queryByRole('group', { name: 'Días de Octubre de 2026' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Desde: 14 de octubre de 2026' }));
-    expect(screen.getByRole('group', { name: 'Días de Octubre de 2026' })).toBeTruthy();
+    const calendar = screen.getByRole('group', { name: 'Días de Octubre de 2026' });
+    expect(calendar.closest('.appointment-date-picker-popover')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Jueves, 1 de octubre' }));
 
     expect(screen.getByRole('button', { name: 'Desde: 1 de octubre de 2026' })).toBeTruthy();

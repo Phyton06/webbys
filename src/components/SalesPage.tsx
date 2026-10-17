@@ -146,7 +146,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                 </button>
                 {(filters.startDate || filters.endDate) && <button type="button" class="sales-clear-dates" onClick={() => setFilters((current) => ({ ...current, startDate: '', endDate: '' }))}>Limpiar fechas</button>}
                 {datePickerOpen && (
-                  <div class="sales-calendar-popover" onClick={(event) => event.stopPropagation()}>
+                  <div class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
                     <MobileMonthCalendar
                       selectedDate={(dateField === 'start' ? filters.startDate : filters.endDate) || dateKey(now)}
                       displayedMonth={calendarDate}
