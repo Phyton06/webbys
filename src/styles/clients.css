@@ -179,10 +179,6 @@
   gap: var(--space-4);
 }
 
-.client-profile-back {
-  width: max-content;
-}
-
 .client-profile-title-row {
   display: flex;
   min-width: 0;

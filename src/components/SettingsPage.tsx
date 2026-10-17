@@ -1,6 +1,5 @@
 import { useState } from 'preact/hooks';
 import {
-  ArrowLeft,
   Bell,
   CalendarClock,
   CalendarX2,
@@ -16,6 +15,7 @@ import type { BusinessSettingsSection, SettingsCategory } from '../types/busines
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { BarberAvailabilityPanel } from './BarberAvailabilityPanel';
 import { AvailabilityExceptionEditor } from './AvailabilityExceptionEditor';
 import { BusinessSettingsPanel } from './BusinessSettingsPanel';
@@ -112,10 +112,7 @@ export function SettingsPage() {
               </nav>
             )}
             <div class="settings-detail" hidden={category === null}>
-              <button type="button" class="settings-back-button" onClick={() => setCategory(null)}>
-                <ArrowLeft size={18} aria-hidden="true" />
-                <span>Configuración</span>
-              </button>
+              <BackLink label="Configuración" onClick={() => setCategory(null)} />
               <div class="settings-category-content">
                 <div hidden={category !== 'barber-schedules'}>
                   <BarberAvailabilityPanel

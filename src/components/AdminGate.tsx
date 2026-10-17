@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { hasDemoSession } from '../lib/demo-auth';
+import { BackLink } from './BackLink';
 
 interface AdminGateProps {
   children: ComponentChildren;
@@ -43,7 +44,7 @@ export function AdminGate({ children, onUnauthenticated, storage }: AdminGatePro
     return (
       <main class="admin-gate-status">
         <p role="alert">Debes iniciar sesión para acceder al panel.</p>
-        <a href="/login/">Volver al acceso</a>
+        <BackLink href="/login/" label="Acceso" ariaLabel="Volver al acceso" />
       </main>
     );
   }

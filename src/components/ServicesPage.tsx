@@ -4,6 +4,7 @@ import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/services.css';
@@ -199,7 +200,7 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
 
           {selectedService ? (
             <section class="service-detail" aria-labelledby="service-detail-title">
-              <button class="service-secondary-button" type="button" onClick={() => setSelectedId(undefined)}>Volver a servicios</button>
+              <BackLink label="Servicios" onClick={() => setSelectedId(undefined)} />
               <header>
                 <div>
                   <h2 id="service-detail-title">{selectedService.name}</h2>

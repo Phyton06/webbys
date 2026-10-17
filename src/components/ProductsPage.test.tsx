@@ -109,14 +109,15 @@ describe('ProductsPage', () => {
     expect(loadAgendaState(localStorage, now).state.products?.find(({ name }) => name === 'Shampoo')?.active).toBe(false);
   });
 
-  it('uses matching action sizing for create and return buttons', () => {
+  it('uses the shared minimal back link for the return control', () => {
     renderPage();
     const createButton = screen.getByRole('button', { name: 'Nuevo producto' });
     const shampoo = screen.getByRole('article', { name: 'Producto Shampoo' });
     fireEvent.click(within(shampoo).getByRole('button', { name: 'ShampooLimpieza diaria para cabello.' }));
-    const backButton = screen.getByRole('button', { name: 'Volver a productos' });
+    const backButton = screen.getByRole('button', { name: 'Volver a Productos' });
 
     expect(createButton.classList.contains('product-flow-button')).toBe(true);
-    expect(backButton.classList.contains('product-flow-button')).toBe(true);
+    expect(backButton.classList.contains('view-back-link')).toBe(true);
+    expect(backButton.classList.contains('product-flow-button')).toBe(false);
   });
 });

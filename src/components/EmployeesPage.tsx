@@ -13,6 +13,7 @@ import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { canDeactivateEmployee, normalizeEmployees, syncBarberProjection } from '../services/employees';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { EmployeeForm } from './EmployeeForm';
 import '../styles/employees.css';
@@ -272,7 +273,7 @@ export function EmployeesPage({ now = new Date() }: EmployeesPageProps) {
     return (
       <section class="employee-profile" aria-labelledby="employee-profile-title">
         <header class="agenda-heading employee-profile-heading">
-          <button class="employee-text-action employee-profile-back" type="button" onClick={() => setSelectedEmployeeId(undefined)}>Volver a empleados</button>
+          <BackLink label="Empleados" onClick={() => setSelectedEmployeeId(undefined)} />
           <div class="employee-profile-title-row">
             <div>
               <h1 id="employee-profile-title">{employee.name}</h1>

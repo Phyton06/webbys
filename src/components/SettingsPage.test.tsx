@@ -49,7 +49,7 @@ describe('SettingsPage availability', () => {
     expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Excepciones por fecha' })).toBeNull();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a Configuración' }));
 
     const menu = screen.getByRole('navigation', { name: 'Categorías de configuración' });
     expect(within(menu).getByRole('button', { name: 'Excepciones por fecha' })).toBeTruthy();
@@ -63,7 +63,7 @@ describe('SettingsPage availability', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Perfil del negocio' }));
     fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Borrador sin guardar' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a Configuración' }));
     fireEvent.click(screen.getByRole('button', { name: 'Perfil del negocio' }));
 
     expect((screen.getByLabelText('Nombre del negocio') as HTMLInputElement).value).toBe('Borrador sin guardar');
@@ -94,7 +94,7 @@ describe('SettingsPage availability', () => {
     const menu = screen.getByRole('navigation', { name: 'Categorías de configuración' });
     fireEvent.click(within(menu).getByRole('button', { name: 'Horarios del equipo' }));
     expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a Configuración' }));
     fireEvent.click(screen.getByRole('button', { name: 'Excepciones por fecha' }));
     expect(screen.getByRole('heading', { name: 'Excepciones por fecha' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Navegación de escritorio' }).querySelector('[href="/configuracion/"]')?.getAttribute('aria-current')).toBe('page');
@@ -113,7 +113,7 @@ describe('SettingsPage availability', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());
 
-    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a Configuración' }));
     fireEvent.click(screen.getByRole('button', { name: 'Excepciones por fecha' }));
     fireEvent.click(screen.getByRole('button', { name: /^Fecha de la excepción/ }));
     fireEvent.click(screen.getByRole('button', { name: /^Viernes, 16 de octubre/ }));

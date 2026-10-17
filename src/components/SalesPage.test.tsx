@@ -120,7 +120,7 @@ describe('SalesPage', () => {
     expect(screen.getByRole('heading', { name: 'Venta demo-sale-01' })).toBeTruthy();
     expect(screen.getByText('Método de pago')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /editar|cancelar venta|reembolsar/i })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Volver a ventas' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Volver a Ventas' }));
     expect(screen.getByRole('list', { name: 'Registros de ventas' })).toBeTruthy();
   });
 

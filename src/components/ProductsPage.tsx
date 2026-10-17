@@ -4,6 +4,7 @@ import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/products.css';
@@ -249,7 +250,7 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
 
           {selectedProduct ? (
             <section class="product-detail" aria-labelledby="product-detail-title">
-              <button class="appointment-form-cancel product-flow-button" type="button" onClick={() => setSelectedId(undefined)}>Volver a productos</button>
+              <BackLink label="Productos" onClick={() => setSelectedId(undefined)} />
               <header>
                 <div class="product-detail-identity">
                   {localImagePath(selectedProduct.imagePath ?? '') && (

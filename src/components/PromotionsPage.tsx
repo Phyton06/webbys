@@ -18,6 +18,7 @@ import { getPromotionPrice, getPromotionStatus, getPromotionTargetPrice, type Pr
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { PromotionTargetCombobox } from './PromotionTargetCombobox';
@@ -488,7 +489,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
 
           {selectedPromotion ? (
             <section class="promotion-detail" aria-labelledby="promotion-detail-title">
-              <button class="appointment-form-cancel" type="button" onClick={() => setSelectedId(undefined)}>Volver a promociones</button>
+              <BackLink label="Promociones" onClick={() => setSelectedId(undefined)} />
               <header>
                 <div>
                   <h2 id="promotion-detail-title">{selectedPromotion.name}</h2>

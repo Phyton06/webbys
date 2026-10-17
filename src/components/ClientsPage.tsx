@@ -5,6 +5,7 @@ import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { ClientForm } from './ClientForm';
 import { Dropdown } from './Dropdown';
 import '../styles/clients.css';
@@ -177,7 +178,7 @@ export function ClientsPage() {
     return (
       <section class="client-profile" aria-labelledby="client-profile-title">
         <header class="agenda-heading client-profile-heading">
-          <button class="client-text-action client-profile-back" type="button" onClick={() => setSelectedClientId(undefined)}>Volver a clientes</button>
+          <BackLink label="Clientes" onClick={() => setSelectedClientId(undefined)} />
           <div class="client-profile-title-row">
             <div>
               <h1 id="client-profile-title">{client.name}</h1>

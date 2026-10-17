@@ -7,6 +7,7 @@ import type { PromotionRecord } from '../types/agenda';
 import type { SalePaymentMethod } from '../types/domain';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { SalesTrend } from './SalesTrend';
@@ -158,7 +159,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
 
           {selectedSale ? (
             <section class="sales-detail" aria-labelledby="sales-detail-title">
-              <button class="appointment-form-cancel" type="button" onClick={() => setSelectedSaleId(undefined)}>Volver a ventas</button>
+              <BackLink label="Ventas" onClick={() => setSelectedSaleId(undefined)} />
               <header>
                 <div>
                   <h2 id="sales-detail-title">Venta {selectedSale.id}</h2>

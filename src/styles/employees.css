@@ -222,10 +222,6 @@
   gap: var(--space-4);
 }
 
-.employee-profile-back {
-  width: max-content;
-}
-
 .employee-profile-title-row {
   display: flex;
   min-width: 0;

@@ -18,6 +18,7 @@ import {
 } from '../types/notifications';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
+import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { NotificationRecipientPicker } from './NotificationRecipientPicker';
@@ -367,7 +368,7 @@ export function NotificationsPage({ now = new Date() }: NotificationsPageProps) 
             <form class="notifications-composer" onSubmit={(event) => event.preventDefault()}>
               <header class="notifications-composer-heading">
                 <div><h2>Nueva notificación</h2><p>Elige destinatarios y revisa la vista previa antes de guardar.</p></div>
-                <button class="appointment-form-cancel" type="button" onClick={backToHistory}>Volver al historial</button>
+                <BackLink label="Historial" ariaLabel="Volver al historial" onClick={backToHistory} />
               </header>
               <div class="notifications-composer-grid">
                 <div class="notifications-composer-fields">
