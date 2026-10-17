@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
+import type { PromotionRecord } from '../types/agenda';
 import {
   AGENDA_STORAGE_KEY,
   AGENDA_STORAGE_VERSION,
@@ -21,6 +22,19 @@ function createMemoryStorage(initial?: string) {
 }
 
 describe('loadAgendaState and saveAgendaState', () => {
+  const validPromotion: PromotionRecord = {
+    id: 'promotion-corte',
+    name: 'Corte de temporada',
+    description: 'Precio especial.',
+    targets: [{ kind: 'service', id: 'service-1', name: 'Corte', price: 300 }],
+    discountType: 'percentage',
+    originalPrice: 300,
+    discountValue: 20,
+    startsOn: '2026-10-10',
+    endsOn: '2026-10-20',
+    manualStatus: 'published',
+  };
+
   it('seeds and persists an initial versioned state when storage is empty', () => {
     const storage = createMemoryStorage();
     const result = loadAgendaState(storage, now);
@@ -158,6 +172,50 @@ describe('loadAgendaState and saveAgendaState', () => {
     const storage = createMemoryStorage(original);
 
     expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
+  it('loads a legacy Agenda state without promotions without rewriting bytes', () => {
+    const state = createAgendaSeed(now);
+    const { promotions: _promotions, ...legacyState } = state;
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: legacyState });
+    const storage = createMemoryStorage(original);
+
+    const result = loadAgendaState(storage, now);
+
+    expect(result.status).toBe('loaded');
+    expect(result.state.promotions).toBeUndefined();
+    expect(storage.storedValue()).toBe(original);
+  });
+
+  it('round-trips valid promotions and preserves unrelated Agenda data', () => {
+    const state = createAgendaSeed(now);
+    state.promotions = [validPromotion];
+    const storage = createMemoryStorage();
+
+    saveAgendaState(storage, state);
+
+    expect(loadAgendaState(storage, now).state.promotions).toEqual([validPromotion]);
+    expect(loadAgendaState(storage, now).state.appointments).toEqual(state.appointments);
+  });
+
+  it('rejects an invalid promotion without overwriting stored bytes', () => {
+    const state = createAgendaSeed(now);
+    const malformed = { ...state, promotions: [{ ...validPromotion, discountValue: 125 }] };
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state: malformed });
+    const storage = createMemoryStorage(original);
+
+    expect(loadAgendaState(storage, now).status).toBe('invalid');
+    expect(storage.storedValue()).toBe(original);
+  });
+
+  it('rejects invalid promotion saves without overwriting existing bytes', () => {
+    const state = createAgendaSeed(now);
+    const original = JSON.stringify({ version: AGENDA_STORAGE_VERSION, state });
+    const storage = createMemoryStorage(original);
+    const invalid = { ...validPromotion, discountValue: 101 };
+
+    expect(() => saveAgendaState(storage, { ...state, promotions: [invalid] })).toThrow();
     expect(storage.storedValue()).toBe(original);
   });
 

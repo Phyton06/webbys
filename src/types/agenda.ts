@@ -58,12 +58,58 @@ export interface ProductRecord {
   active: boolean;
 }
 
+export const PROMOTION_TARGET_KIND = {
+  PRODUCT: 'product',
+  SERVICE: 'service',
+} as const;
+
+export type PromotionTargetKind = (typeof PROMOTION_TARGET_KIND)[keyof typeof PROMOTION_TARGET_KIND];
+
+export interface PromotionTarget {
+  kind: PromotionTargetKind;
+  id: string;
+  name: string;
+  price: number;
+}
+
+export const PROMOTION_DISCOUNT_TYPE = {
+  PERCENTAGE: 'percentage',
+  FIXED_PRICE: 'fixed_price',
+} as const;
+
+export type PromotionDiscountType = (typeof PROMOTION_DISCOUNT_TYPE)[keyof typeof PROMOTION_DISCOUNT_TYPE];
+
+export const PROMOTION_MANUAL_STATUS = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  DISABLED: 'disabled',
+} as const;
+
+export type PromotionManualStatus = (typeof PROMOTION_MANUAL_STATUS)[keyof typeof PROMOTION_MANUAL_STATUS];
+
+export interface PromotionRecord {
+  id: string;
+  name: string;
+  description: string;
+  targets: PromotionTarget[];
+  discountType: PromotionDiscountType;
+  originalPrice: number;
+  discountValue: number;
+  startsOn: string;
+  endsOn: string;
+  manualStatus: PromotionManualStatus;
+  imagePath?: string;
+  conditions?: string;
+  unitLimit?: number;
+}
+
 export interface AgendaState {
   barbers: BarberRecord[];
   employees?: EmployeeRecord[];
   clients: ClientRecord[];
   services: ServiceRecord[];
   products?: ProductRecord[];
+  promotions?: PromotionRecord[];
   schedules: BarberSchedule[];
   exceptions: AvailabilityException[];
   appointments: AppointmentRecord[];

@@ -1,8 +1,9 @@
 import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
-import { AGENDA_LOAD_STATUS, EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ProductRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
+import { AGENDA_LOAD_STATUS, EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ProductRecord, type PromotionRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { validateScheduleIntervals } from './availability';
 import { normalizeEmployees, syncBarberProjection } from './employees';
+import { validatePromotion } from './promotions';
 
 export const AGENDA_STORAGE_KEY = 'webbys:agenda:v1';
 export const AGENDA_STORAGE_VERSION = 1;
@@ -122,6 +123,10 @@ function isProduct(value: unknown): value is ProductRecord {
     && typeof value.active === 'boolean';
 }
 
+function isPromotion(value: unknown): value is PromotionRecord {
+  return validatePromotion(value).valid;
+}
+
 function isAppointmentStatus(value: unknown): value is AppointmentStatus {
   return value === 'pending' || value === 'confirmed' || value === 'completed' || value === 'cancelled';
 }
@@ -153,6 +158,7 @@ function isAgendaState(value: unknown): value is AgendaState {
     || !Array.isArray(value.barbers)
     || (value.employees !== undefined && !Array.isArray(value.employees))
     || (value.products !== undefined && !Array.isArray(value.products))
+    || (value.promotions !== undefined && !Array.isArray(value.promotions))
     || !Array.isArray(value.clients)
     || !Array.isArray(value.services)
     || !Array.isArray(value.schedules)
@@ -162,6 +168,7 @@ function isAgendaState(value: unknown): value is AgendaState {
   if (!value.barbers.every(isBarber)
     || (value.employees !== undefined && !value.employees.every(isEmployee))
     || (value.products !== undefined && !value.products.every(isProduct))
+    || (value.promotions !== undefined && !value.promotions.every(isPromotion))
     || !value.clients.every(isClient)
     || !value.services.every(isService)
     || !value.schedules.every(isBarberSchedule)
@@ -171,11 +178,13 @@ function isAgendaState(value: unknown): value is AgendaState {
   const barberIds = new Set(value.barbers.map(({ id }) => id));
   const employees = (value.employees ?? []) as EmployeeRecord[];
   const products = (value.products ?? []) as ProductRecord[];
+  const promotions = (value.promotions ?? []) as PromotionRecord[];
   const clientIds = new Set(value.clients.map(({ id }) => id));
   const serviceIds = new Set(value.services.map(({ id }) => id));
   return hasUniqueIds(value.barbers)
     && hasUniqueIds(employees)
     && hasUniqueIds(products)
+    && hasUniqueIds(promotions)
     && employees.every((employee) => employee.role !== EMPLOYEE_ROLE.BARBER || barberIds.has(employee.id))
     && hasUniqueIds(value.clients)
     && hasUniqueIds(value.services)
@@ -188,6 +197,12 @@ function isAgendaState(value: unknown): value is AgendaState {
 }
 
 export function saveAgendaState(storage: Pick<Storage, 'setItem'>, state: AgendaState): void {
+  if (state.promotions !== undefined
+    && (!Array.isArray(state.promotions)
+      || !state.promotions.every((promotion) => validatePromotion(promotion).valid)
+      || new Set(state.promotions.map(({ id }) => id)).size !== state.promotions.length)) {
+    throw new Error('Cannot save invalid promotion data.');
+  }
   const employees = normalizeEmployees(state.employees, state.barbers);
   const normalizedState: AgendaState = {
     ...state,
