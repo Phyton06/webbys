@@ -21,7 +21,7 @@ import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { PromotionTargetCombobox } from './PromotionTargetCombobox';
-import { formatCurrency, readBusinessCurrency } from '../services/currency';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/promotions.css';
 
 interface PromotionsPageProps {
@@ -128,7 +128,7 @@ function PromotionForm({
   onCancel: () => void;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const [name, setName] = useState(promotion?.name ?? '');
   const [description, setDescription] = useState(promotion?.description ?? '');
   const [mode, setMode] = useState(promotion?.mode ?? PROMOTION_MODE.BUNDLE);
@@ -414,7 +414,7 @@ function PromotionForm({
 
 export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   const [state, setState] = useState(() => loadInitialState(now));
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<PromotionFilter>(PROMOTION_FILTER.ALL);
   const [selectedId, setSelectedId] = useState<string>();

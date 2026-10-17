@@ -8,3 +8,12 @@ export function formatCurrency(amount: number, currency: CurrencyCode): string {
 export function readBusinessCurrency(storage: Pick<Storage, 'getItem'>): CurrencyCode {
   return loadBusinessSettings(storage).settings.currency;
 }
+
+export function getCurrentBusinessCurrency(): CurrencyCode {
+  if (typeof window === 'undefined') return 'MXN';
+  try {
+    return readBusinessCurrency(window.localStorage);
+  } catch {
+    return 'MXN';
+  }
+}

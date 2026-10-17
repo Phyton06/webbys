@@ -5,7 +5,7 @@ import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
-import { formatCurrency, readBusinessCurrency } from '../services/currency';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/products.css';
 
 interface ProductsPageProps {
@@ -164,7 +164,7 @@ function ProductForm({
 
 export function ProductsPage({ now = new Date() }: ProductsPageProps) {
   const [initial] = useState(() => loadInitialState(now));
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const [state, setState] = useState(initial.state);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');

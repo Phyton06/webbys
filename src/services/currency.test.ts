@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BUSINESS_SETTINGS_STORAGE_KEY, createDefaultBusinessSettings } from './business-settings-store';
-import { formatCurrency, readBusinessCurrency } from './currency';
+import { formatCurrency, getCurrentBusinessCurrency, readBusinessCurrency } from './currency';
 
 afterEach(() => localStorage.clear());
+afterEach(() => vi.unstubAllGlobals());
 
 describe('formatCurrency', () => {
   it.each(['MXN', 'USD', 'EUR'] as const)('uses es-MX currency formatting for %s', (currency) => {
@@ -42,5 +43,13 @@ describe('readBusinessCurrency', () => {
 
     expect(readBusinessCurrency(localStorage)).toBe('MXN');
     expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).toBe(invalid);
+  });
+});
+
+describe('getCurrentBusinessCurrency', () => {
+  it('uses MXN safely when rendered without a browser window', () => {
+    vi.stubGlobal('window', undefined);
+
+    expect(getCurrentBusinessCurrency()).toBe('MXN');
   });
 });

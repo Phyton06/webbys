@@ -9,7 +9,7 @@ import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
-import { formatCurrency, readBusinessCurrency } from '../services/currency';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/sales.css';
 
 interface SalesPageProps {
@@ -44,7 +44,7 @@ function readPromotions(now: Date): PromotionRecord[] {
   }
 }
 
-function SalesTrend({ sales, currency }: { sales: SaleRecord[]; currency: ReturnType<typeof readBusinessCurrency> }) {
+function SalesTrend({ sales, currency }: { sales: SaleRecord[]; currency: ReturnType<typeof getCurrentBusinessCurrency> }) {
   const buckets = getSalesTrend(sales);
   if (buckets.length === 0) return <p class="sales-empty-chart">No hay ventas para graficar con estos filtros.</p>;
 
@@ -92,7 +92,7 @@ function SalesTrend({ sales, currency }: { sales: SaleRecord[]; currency: Return
 
 export function SalesPage({ now = new Date() }: SalesPageProps) {
   const [sales] = useState(() => createDemoData(now).sales);
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const [promotions] = useState(() => readPromotions(now));
   const [filters, setFilters] = useState<SalesFilters>({
     query: '', startDate: dateKey(now), endDate: dateKey(now), employeeId: '', productId: '', serviceId: '', promotionId: '',

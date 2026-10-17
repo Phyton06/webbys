@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'preact/hooks';
 import { Dropdown } from './Dropdown';
-import { formatCurrency, readBusinessCurrency } from '../services/currency';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { Activity, ArrowUpRight, CalendarDays, Clock3 } from 'lucide-preact';
 import type { AppointmentRecord, DemoData } from '../types/domain';
 import {
@@ -77,7 +77,7 @@ function getRecentActivity(data: DemoData, now: Date) {
     .slice(0, 4);
 }
 
-function SalesChart({ data, range, currency }: { data: ReturnType<typeof getSalesSeries>; range: DashboardRange; currency: ReturnType<typeof readBusinessCurrency> }) {
+function SalesChart({ data, range, currency }: { data: ReturnType<typeof getSalesSeries>; range: DashboardRange; currency: ReturnType<typeof getCurrentBusinessCurrency> }) {
   const maxValue = Math.max(1, ...data.map(({ value }) => value));
   const width = 560;
   const height = 140;
@@ -139,7 +139,7 @@ function SalesChart({ data, range, currency }: { data: ReturnType<typeof getSale
 
 export function DashboardPanel({ data, now = new Date() }: DashboardPanelProps) {
   const [range, setRange] = useState<DashboardRange>('week');
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const summary = useMemo(
     () => getDashboardSummary(data.sales, data.appointments, range, now),
     [data, now, range],

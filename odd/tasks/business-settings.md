@@ -33,10 +33,10 @@ Assumption: initialize all category preferences as disabled until the administra
 
 ## Tasks
 
-- [ ] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: pending; commit: pending.
-- [ ] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: pending; commit: pending.
-- [ ] T3 — Extend the existing Settings page with business/profile fields, read-only logo, general hours, and local notification preferences; route: inline; status: pending; commit: pending.
-- [ ] T4 — Run full verification, independent risk assessment as required, update progress, and close; route: inline; status: pending; commit: pending.
+- [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; commit: `d1306ae` (17 tests, RED → GREEN).
+- [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1` plus SSR-safe fallback follow-up.
+- [x] T3 — Extend the existing Settings page with business/profile fields, read-only logo, general hours, and local notification preferences; route: inline; status: complete; commit: `fed1102` (25 settings/store tests passed).
+- [ ] T4 — Run full verification, independent risk assessment as required, update progress, and close; route: inline; status: in progress; commit: pending.
 
 ## Log
 
@@ -46,3 +46,7 @@ Assumption: initialize all category preferences as disabled until the administra
 - L4: Spec self-review found no placeholders or internal contradictions; spec/task commit: `f331e5a`. Engram mirror save was attempted but the service could not resolve the authoritative runtime session; local task document is preserved and mirror is pending.
 - L5: Implementation plan saved to `docs/superpowers/plans/2026-10-17-webbys-business-settings.md`; route remains direct inline because the units are sequential and no parallel writer trigger applies. Plan coverage was checked against S1–S4; notification preferences default off as an explicitly labeled opt-in implementation assumption.
 - L6: User selected `stacked-to-main` for delivery slices if the feature exceeds the review budget. This choice does not authorize push or PR creation.
+- L7: T1 implements a separate schema-versioned settings envelope, explicit default/unconfigured states, strict weekday/currency/preference validation, and invalid-byte preservation. `npm test -- src/services/business-settings-store.test.ts`: 17 passed; `npm run check`: zero diagnostics. RDD status was read as off (global); no review lifecycle was started. Commit: `d1306ae`.
+- L8: T2 introduced the `Intl.NumberFormat('es-MX')` currency service and applied settings to Dashboard, Products, Services, Promotions/target picker, AppointmentForm, and Sales. No numeric state or Agenda data is changed by formatting. Focused suite: 58 passed across 7 files; Astro check: zero diagnostics; RED → GREEN observed. Commit: `6281ed1`.
+- L9: T3 extended the existing Configuration screen with business/admin profiles, read-only current logo, unconfigured/open/closed informational business hours, global currency selector, locally persisted category preferences, and unchanged barber schedule/exception panels. `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts`: 25 passed; Astro check: zero diagnostics. Commit: `fed1102`.
+- L10: T2 build verification exposed that directly reading `window.localStorage` during Astro server prerender throws on Products. Added the SSR-safe `getCurrentBusinessCurrency()` fallback and test; focused 7-file suite now has 59 passed, Astro check has zero diagnostics, and build produced 12 routes. Risk remains `none` because the added display path is covered and does not mutate stored amounts.

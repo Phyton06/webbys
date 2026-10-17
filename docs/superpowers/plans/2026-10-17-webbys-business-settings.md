@@ -86,6 +86,7 @@ export function loadBusinessSettings(storage: Pick<Storage, 'getItem'>): Busines
 export function saveBusinessSettings(storage: Pick<Storage, 'setItem'>, settings: BusinessSettings): void;
 export function formatCurrency(amount: number, currency: CurrencyCode): string;
 export function readBusinessCurrency(storage: Pick<Storage, 'getItem'>): CurrencyCode;
+export function getCurrentBusinessCurrency(): CurrencyCode;
 ```
 
 ### Task 1 type/default and validation sketch
@@ -184,6 +185,15 @@ export function formatCurrency(amount: number, currency: CurrencyCode): string {
 export function readBusinessCurrency(storage: Pick<Storage, 'getItem'>): CurrencyCode {
   return loadBusinessSettings(storage).settings.currency;
 }
+
+export function getCurrentBusinessCurrency(): CurrencyCode {
+  if (typeof window === 'undefined') return 'MXN';
+  try {
+    return readBusinessCurrency(window.localStorage);
+  } catch {
+    return 'MXN';
+  }
+}
 ```
 
 `BusinessSettingsPanel` owns editable form state and persists only on explicit submit. It receives no `AgendaState`:
@@ -222,20 +232,19 @@ In `BusinessSettingsPanel`, `updateCurrency(value: CurrencyCode)` changes only `
 
 **Files:** `src/types/business-settings.ts`, `src/services/business-settings-store.ts`, `src/services/business-settings-store.test.ts`.
 
-- [ ] Write failing tests proving default business identity is `Webby's Barbershop`, default currency is MXN, optional contact/profile fields are blank, each weekday is unconfigured, and notification preferences default off.
-- [ ] Write failing tests accepting valid open/closed/unconfigured weekday states and rejecting invalid currency codes, malformed hours, open times where `closesAt <= opensAt`, invalid profile field types, and missing preference categories.
-- [ ] Write failing storage tests for missing key, valid schema version 1, corrupt JSON, wrong schema version, invalid settings, storage read exceptions, and invalid saves preserving the exact pre-existing bytes.
-- [ ] Implement `createDefaultBusinessSettings`, `validateBusinessSettings`, `loadBusinessSettings`, and `saveBusinessSettings` using `webbys:business-settings:v1`. Loading must not rewrite invalid bytes; saving must validate before calling `setItem`.
-- [ ] Run `npm test -- src/services/business-settings-store.test.ts`; confirm the new tests fail before the implementation and pass after it.
-- [ ] Run `npm run check`; expect zero diagnostics.
-- [ ] Commit: `feat(settings): add isolated business settings store`.
+- [x] Write failing tests proving default business identity is `Webby's Barbershop`, default currency is MXN, optional contact/profile fields are blank, each weekday is unconfigured, and notification preferences default off.
+- [x] Write failing tests accepting valid open/closed/unconfigured weekday states and rejecting invalid currency codes, malformed hours, open times where `closesAt <= opensAt`, invalid profile field types, and missing preference categories.
+- [x] Write failing storage tests for missing key, valid schema version 1, corrupt JSON, wrong schema version, invalid settings, storage read exceptions, and invalid saves preserving the exact pre-existing bytes.
+- [x] Implement `createDefaultBusinessSettings`, `validateBusinessSettings`, `loadBusinessSettings`, and `saveBusinessSettings` using `webbys:business-settings:v1`. Loading does not rewrite invalid bytes; saving validates before calling `setItem`.
+- [x] Run `npm test -- src/services/business-settings-store.test.ts` (17 passed) and `npm run check` (zero diagnostics); RED → GREEN observed.
+- [x] Commit: `d1306ae feat(settings): add isolated business settings store`.
 
 ### Task 2: Shared currency formatting across monetary consumers
 
 **Files:** `src/services/currency.ts`, `src/services/currency.test.ts`, `src/components/DashboardPanel.tsx` / `.test.tsx`, `src/components/ProductsPage.tsx` / `.test.tsx`, `src/components/ServicesPage.tsx` / `.test.tsx`, `src/components/PromotionTargetCombobox.tsx` (covered through `src/components/PromotionsPage.test.tsx`), `src/components/PromotionsPage.tsx` / `.test.tsx`, `src/components/AppointmentForm.tsx` / `.test.tsx`, `src/components/SalesPage.tsx` / `.test.tsx`.
 
-- [ ] Add failing formatter tests for zero, integer, and decimal MXN/USD/EUR amounts using `Intl.NumberFormat('es-MX', { style: 'currency', currency })`.
-- [ ] Assert the formatter contract before implementation:
+- [x] Add failing formatter tests for zero, integer, and decimal MXN/USD/EUR amounts using `Intl.NumberFormat('es-MX', { style: 'currency', currency })`.
+- [x] Assert the formatter contract before implementation:
 
 ```ts
 it.each(['MXN', 'USD', 'EUR'] as const)('formats %s using the Spanish-Mexico locale', (currency) => {
@@ -244,23 +253,22 @@ it.each(['MXN', 'USD', 'EUR'] as const)('formats %s using the Spanish-Mexico loc
 });
 ```
 
-- [ ] Add consumer assertions that a non-default saved currency appears consistently in each monetary screen while the underlying price, sale, discount, and promotion numbers remain unchanged.
-- [ ] Implement `formatCurrency(amount, currency)` and `readBusinessCurrency(storage)` in `src/services/currency.ts`; the latter reads the validated setting and falls back to MXN without writing storage.
-- [ ] Replace hard-coded `$` formatting in the listed components with the shared formatter and the currency loaded on component initialization. Do not change calculation inputs, serialized numbers, rounding rules, or sale/stock/appointment behavior.
-- [ ] For each page test, seed `webbys:business-settings:v1` with a valid USD setting before mounting, assert the visible amount uses the USD format, and compare the stored numeric prices/sales before and after rendering.
-- [ ] Update only existing tests whose expected visible currency format is intentionally changed; retain assertions that source numeric values and totals are unchanged.
-- [ ] Run `npm test -- src/services/currency.test.ts src/components/DashboardPanel.test.tsx src/components/ProductsPage.test.tsx src/components/ServicesPage.test.tsx src/components/PromotionsPage.test.tsx src/components/AppointmentForm.test.tsx src/components/SalesPage.test.tsx`.
-- [ ] Run `npm run check`; expect zero diagnostics.
-- [ ] Commit: `feat(settings): apply selected currency formatting`.
+- [x] Add consumer assertions that a non-default saved currency appears consistently in each monetary screen while the underlying price, sale, discount, and promotion numbers remain unchanged.
+- [x] Implement `formatCurrency(amount, currency)`, `readBusinessCurrency(storage)`, and `getCurrentBusinessCurrency()` in `src/services/currency.ts`; server rendering and inaccessible localStorage safely fall back to MXN without writing storage.
+- [x] Replace hard-coded currency formatting in Dashboard, Products, Services, Promotions/target picker, AppointmentForm, and Sales. No calculation inputs, serialized numbers, rounding rules, stock, or appointment behavior changed.
+- [x] Add consumer tests seeding `webbys:business-settings:v1` with USD and asserting display changes without numeric mutation.
+- [x] Update existing visible currency expectations while preserving assertions that source numeric values and totals are unchanged.
+- [x] Run the focused 7-file currency consumer suite (59 passed), `npm run check` (zero diagnostics), and `npm run build` (12 routes). A first build exposed a server-render `window` access; TDD added coverage and `getCurrentBusinessCurrency()` fixed the SSR fallback.
+- [x] Commit: `6281ed1 feat(settings): apply selected currency formatting`.
 
 ### Task 3: Configuration profile, hours, and preference controls
 
 **Files:** `src/components/BusinessSettingsPanel.tsx`, `src/components/BusinessSettingsPanel.test.tsx`, `src/components/SettingsPage.tsx`, `src/components/SettingsPage.test.tsx`, `src/styles/business-settings.css`.
 
-- [ ] Add failing component tests for editable business name/address/phone/email and administrator display name/email/phone, a visible read-only current logo, currency dropdown defaulting to MXN, and save/reload persistence.
-- [ ] Add failing tests for each weekday's `Sin configurar`/`Cerrado`/opening and closing time states, rejecting invalid open intervals, and successful saves not changing generated barber appointment slots.
-- [ ] Add failing tests for local category preference toggles persisting across remount and not mutating Agenda bytes, notification history bytes, or device-test state.
-- [ ] Add failing integration tests proving existing per-barber schedules/exceptions still load, save, and survive independent business settings updates.
+- [x] Add failing component tests for editable business name/address/phone/email and administrator display name/email/phone, a visible read-only current logo, currency dropdown defaulting to MXN, and save/reload persistence.
+- [x] Add failing tests for each weekday's `Sin configurar`/`Cerrado`/opening and closing time states, rejecting invalid open intervals, and successful saves not changing generated barber appointment slots.
+- [x] Add failing tests for local category preference toggles persisting across remount and not mutating Agenda bytes, notification history bytes, or device-test state.
+- [x] Add integration tests proving existing per-barber schedules/exceptions still load, save, and survive independent business settings updates.
 - [ ] Assert the separated write paths explicitly:
 
 ```tsx
@@ -271,11 +279,11 @@ expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).not.toBeNull();
 expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsSave);
 ```
 
-- [ ] Implement `BusinessSettingsPanel` using the store and existing form, Dropdown, and token patterns. Show the current logo as read-only; keep general hours explicitly informational and notification preferences labeled as local preferences that do not dispatch notices.
-- [ ] Render `BusinessSettingsPanel` in the existing `/configuracion/` view alongside the existing schedule and exception panels. Do not move those panels or change their Agenda-store write path.
-- [ ] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx`.
-- [ ] Run `npm run check`; expect zero diagnostics.
-- [ ] Commit: `feat(settings): complete business configuration page`.
+- [x] Implement `BusinessSettingsPanel` using the store and existing form, Dropdown, and token patterns. The logo is read-only; hours are informational; preferences do not dispatch notices.
+- [x] Render `BusinessSettingsPanel` in the existing `/configuracion/` view alongside existing schedule and exception panels. Existing Agenda write paths remain unchanged.
+- [x] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts` (25 passed).
+- [x] Run `npm run check` (zero diagnostics).
+- [x] Commit: `fed1102 feat(settings): complete business configuration page`.
 
 ### Task 4: Full verification and close
 

@@ -5,7 +5,7 @@ import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
 import { AdminShell } from './AdminShell';
 import { Dropdown } from './Dropdown';
-import { formatCurrency, readBusinessCurrency } from '../services/currency';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/services.css';
 
 interface ServicesPageProps {
@@ -129,7 +129,7 @@ function ServiceForm({
 
 export function ServicesPage({ now = new Date() }: ServicesPageProps) {
   const [state, setState] = useState(() => loadInitialState(now));
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ServiceFilter>(SERVICE_FILTER.ALL);
   const [selectedId, setSelectedId] = useState<string>();

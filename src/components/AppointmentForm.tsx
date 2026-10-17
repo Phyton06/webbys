@@ -6,7 +6,7 @@ import { getAvailableSlots, validateBooking } from '../services/availability';
 import { getBookableBarbers } from '../services/employees';
 import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
-import { formatCurrency, readBusinessCurrency } from '../services/currency';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { ClientCombobox } from './ClientCombobox';
 import { Dropdown } from './Dropdown';
 
@@ -55,7 +55,7 @@ function resolveValidationError(result: BookingValidation): string | undefined {
 }
 
 export function AppointmentForm({ state, appointment, now, onSave, onClientSave, onCancel }: AppointmentFormProps) {
-  const [currency] = useState(() => readBusinessCurrency(window.localStorage));
+  const [currency] = useState(getCurrentBusinessCurrency);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bookableBarbers = getBookableBarbers(state.employees, state.barbers, appointment?.barberId);
   const selectableServices = state.services.filter((service) => service.active !== false
