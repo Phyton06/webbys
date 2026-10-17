@@ -109,17 +109,6 @@
   flex: 0 0 auto;
 }
 
-.analytics-calendar-popover {
-  position: relative;
-  z-index: 2;
-  grid-column: 1 / -1;
-  min-width: 0;
-  padding: var(--space-2);
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-raised);
-}
-
 .analytics-report-grid {
   display: grid;
   gap: var(--space-4);
@@ -216,6 +205,13 @@
   color: var(--color-ink-muted);
   font-size: var(--text-xs);
   list-style: none;
+}
+
+@media (min-width: 42rem) {
+  .analytics-date-period {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, auto);
+    align-items: center;
+  }
 }
 
 @media (min-width: 48rem) {

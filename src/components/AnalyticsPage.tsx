@@ -108,7 +108,7 @@ export function AnalyticsPage({ now = new Date() }: AnalyticsPageProps) {
                 <CalendarDays size={17} aria-hidden="true" />{endLabel}
               </button>
               {datePickerOpen && (
-                <div class="analytics-calendar-popover" onClick={(event) => event.stopPropagation()}>
+                <div class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
                   <MobileMonthCalendar
                     selectedDate={(dateField === 'start' ? range.startDate : range.endDate) || dateKey(now)}
                     displayedMonth={calendarDate}
