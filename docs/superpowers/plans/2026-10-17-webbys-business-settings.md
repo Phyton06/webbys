@@ -254,9 +254,9 @@ In `BusinessSettingsPanel`, `updateCurrency(value: CurrencyCode)` changes only `
 - [x] Implement `createDefaultBusinessSettings`, `validateBusinessSettings`, `loadBusinessSettings`, and `saveBusinessSettings` using `webbys:business-settings:v1`. Loading does not rewrite invalid bytes; saving validates before calling `setItem`.
 - [x] Run `npm test -- src/services/business-settings-store.test.ts` (17 passed) and `npm run check` (zero diagnostics); RED → GREEN observed.
 - [x] Commit: `d1306ae feat(settings): add isolated business settings store`.
-- [ ] Add a failing test that saving one category merges only that category with existing settings; other saved categories and corrupt bytes remain unchanged.
-- [ ] Implement `saveBusinessSettingsSection` using `loadBusinessSettings`; reject `status === 'invalid'`, replace only `draft[section]` for valid/default data, and call `saveBusinessSettings`.
-- [ ] Run `npm test -- src/services/business-settings-store.test.ts`; expect the new category-merge test to pass with the existing store tests.
+- [x] Add a failing test that saving one category merges only that category with existing settings; other saved categories and corrupt bytes remain unchanged.
+- [x] Implement `saveBusinessSettingsSection` using `loadBusinessSettings`; reject `status === 'invalid'`, replace only `draft[section]` for valid/default data, and call `saveBusinessSettings`.
+- [x] Run `npm test -- src/services/business-settings-store.test.ts` (19 passed) and `npm run check` (zero diagnostics).
 - [ ] Commit the S5 store follow-up in a separate Conventional Commit.
 
 ### Task 2: Shared currency formatting across monetary consumers

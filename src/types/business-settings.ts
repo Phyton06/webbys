@@ -55,6 +55,8 @@ export interface BusinessSettings {
   notificationPreferences: Record<NotificationPreferenceCategory, boolean>;
 }
 
+export type BusinessSettingsSection = keyof BusinessSettings;
+
 export interface BusinessSettingsEnvelope {
   schemaVersion: 1;
   settings: BusinessSettings;

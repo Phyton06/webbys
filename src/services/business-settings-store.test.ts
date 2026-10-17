@@ -9,6 +9,7 @@ import {
   createDefaultBusinessSettings,
   loadBusinessSettings,
   saveBusinessSettings,
+  saveBusinessSettingsSection,
   validateBusinessSettings,
 } from './business-settings-store';
 
@@ -113,5 +114,33 @@ describe('saveBusinessSettings', () => {
 
     expect(() => saveBusinessSettings(storage, createDefaultBusinessSettings())).toThrow('quota exceeded');
     expect(storage.setItem).toHaveBeenCalledOnce();
+  });
+});
+
+describe('saveBusinessSettingsSection', () => {
+  it('updates one category and preserves the last saved values in all other categories', () => {
+    const persisted = createDefaultBusinessSettings();
+    persisted.business.name = 'Negocio guardado';
+    persisted.currency = 'USD';
+    persisted.notificationPreferences.promotion = true;
+    saveBusinessSettings(localStorage, persisted);
+
+    const draft = createDefaultBusinessSettings();
+    draft.business.name = 'Borrador del negocio';
+    draft.currency = 'EUR';
+    draft.notificationPreferences.promotion = false;
+    saveBusinessSettingsSection(localStorage, draft, 'business');
+
+    expect(loadBusinessSettings(localStorage).settings.business.name).toBe('Borrador del negocio');
+    expect(loadBusinessSettings(localStorage).settings.currency).toBe('USD');
+    expect(loadBusinessSettings(localStorage).settings.notificationPreferences.promotion).toBe(true);
+  });
+
+  it('preserves corrupt bytes rather than replacing another category save', () => {
+    const corrupt = '{unreadable business data';
+    localStorage.setItem(BUSINESS_SETTINGS_STORAGE_KEY, corrupt);
+
+    expect(() => saveBusinessSettingsSection(localStorage, createDefaultBusinessSettings(), 'currency')).toThrow();
+    expect(localStorage.getItem(BUSINESS_SETTINGS_STORAGE_KEY)).toBe(corrupt);
   });
 });

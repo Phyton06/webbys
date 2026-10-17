@@ -43,7 +43,7 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 
 ## Tasks
 
-- [ ] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: reopened for S5 section-level persistence; baseline commit: `d1306ae`; follow-up commit: pending.
+- [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete for S5 section-level persistence; baseline commit: `d1306ae`; follow-up commit: pending.
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
 - [ ] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: reopened for S5; baseline commit: `fed1102`; follow-up commit: pending.
 - [ ] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: reopened for S5; baseline verification: `a7e9a02`; follow-up commit: pending.
@@ -66,4 +66,5 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 - L14: User selected “opcion 1” (desktop category sidebar, mobile category Dropdown) and “Guardar por categoría”.
 - L15: User approved updating the design and plan: “si hazlo”.
 - L16: S5 reopens T1, T3, and T4 only; the implemented settings data, currency consumers, and their completed tests remain valid.
+- L17: Added the T1 S5 helper to persist one settings section while merging with current saved state; invalid envelopes fail without replacing bytes. Store tests: 19 passed; Astro check: zero diagnostics. RDD remains off. Follow-up commit pending.
 - Risk: none for the completed S1–S4 implementation; its monetary consumers/settings behavior are covered and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain unchanged. Reassess after the S5 follow-up closes.

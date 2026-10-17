@@ -3,6 +3,7 @@ import {
   NOTIFICATION_PREFERENCE_CATEGORIES,
   type BusinessDayHours,
   type BusinessSettings,
+  type BusinessSettingsSection,
   type BusinessSettingsEnvelope,
   type BusinessSettingsLoadResult,
   type CurrencyCode,
@@ -104,4 +105,16 @@ export function saveBusinessSettings(storage: Pick<Storage, 'setItem'>, settings
 
   const envelope: BusinessSettingsEnvelope = { schemaVersion: 1, settings };
   storage.setItem(BUSINESS_SETTINGS_STORAGE_KEY, JSON.stringify(envelope));
+}
+
+export function saveBusinessSettingsSection(
+  storage: Pick<Storage, 'getItem' | 'setItem'>,
+  draft: BusinessSettings,
+  section: BusinessSettingsSection,
+): void {
+  const stored = loadBusinessSettings(storage);
+  if (stored.status === 'invalid') {
+    throw new Error('No se pueden guardar los cambios hasta revisar los datos guardados.');
+  }
+  saveBusinessSettings(storage, { ...stored.settings, [section]: draft[section] });
 }
