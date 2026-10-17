@@ -15,7 +15,7 @@ Add a read-only Sales module so the administrator can inspect existing sale reco
 - Add a protected `/ventas/` route linked from the existing authenticated navigation.
 - Show a searchable/filterable, mobile-first sales register and a sale detail view.
 - Filter records by date range, employee, product, service, and promotion.
-- Show gross sales, discounts, net sales, and sale count for a selected period; provide useful read-only breakdowns for products, services, employees, and promotions.
+- Show gross sales, discounts, net sales, sale count, and average ticket for the selected records; chart daily net sales and provide read-only breakdowns for products, services, employees, and promotions.
 - Keep promotion attribution explicit and distinct from sales that only occurred during a promotion's date range. Date overlap is contextual reporting, not proof of causality.
 - Extend only the generated demonstration records and their types with the snapshots/IDs required for these views. Reuse the current sales data flow rather than adding a writable sales collection.
 

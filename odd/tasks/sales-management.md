@@ -15,7 +15,7 @@ The administrator can inspect generated sales records through a protected `/vent
 
 User requirement: “si la opcion 1”
 
-Provide read-only period summaries and breakdowns for gross sales, discounts, net sales, and record count. Promotion analytics must separate explicit promotion-attributed sales from records whose timestamps merely overlap a promotion's validity dates; overlap must not be represented as causal attribution. Verify calculations and classifications through pure service tests.
+Provide read-only summaries for gross sales, discounts, net sales, record count, and average ticket; chart daily net sales and break down products, services, employees, and promotions. Promotion analytics must separate explicit promotion-attributed sales from records whose timestamps merely overlap a promotion's validity dates; overlap must not be represented as causal attribution. Verify calculations and classifications through pure service tests.
 
 ### S3 — Approved direction
 
@@ -25,10 +25,10 @@ Use the approved read-only register-and-analytics direction. Add only the data f
 
 ## Tasks
 
-- [x] T1 — Define and test read-only sales record snapshots and deterministic reporting; route: inline; status: complete; commits: `481e79d`, `6c3b00a` (RED → GREEN: `src/services/dashboard.test.ts`, `src/services/sales.test.ts`).
-- [ ] T2 — Build the protected Sales register, search/filters, and record detail; route: inline; status: pending; commit: pending.
-- [ ] T3 — Add sales-period, product/service/employee, and explicitly attributed versus date-overlap promotion insights; route: inline; status: pending; commit: pending.
-- [ ] T4 — Verify the full feature, update design/implementation docs, and record the final check results; route: inline; status: pending; commit: pending.
+- [x] T1 — Define and test read-only sale snapshots and generated fixtures; route: inline; status: complete; commit: `481e79d` (RED → GREEN: `src/services/dashboard.test.ts`).
+- [x] T2 — Implement deterministic filters, daily trend, summaries, breakdowns, and explicit-attribution versus date-overlap reporting; route: inline; status: complete; commits: `6c3b00a` plus attribution/trend follow-up (RED → GREEN: `src/services/sales.test.ts`).
+- [ ] T3 — Build the protected Sales register, search/date/catalog filters, detail view, analytics, and navigation; route: inline; status: pending; commit: pending.
+- [ ] T4 — Verify the full feature, update design/implementation docs, and record final check results; route: inline; status: pending; commit: pending.
 
 ## Log
 

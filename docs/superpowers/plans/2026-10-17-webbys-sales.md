@@ -76,6 +76,7 @@ export function getSalesBreakdown(sales: SaleRecord[]): {
   services: Array<{ id: string; name: string; units: number; grossTotal: number }>;
   employees: Array<{ id: string; name: string; saleCount: number; netTotal: number }>;
 };
+export function getSalesTrend(sales: SaleRecord[]): Array<{ date: string; saleCount: number; netTotal: number }>;
 export function getPromotionSalesInsights(sales: SaleRecord[], promotions: PromotionRecord[]): Array<{
   id: string; name: string; attributedSalesCount: number; attributedNetTotal: number;
   occurredDuringSalesCount: number; occurredDuringNetTotal: number;
@@ -99,17 +100,18 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
 
 - [x] Add failing tests for inclusive date boundaries, text search over sale/item/employee names, employee/product/service/promotion filters, totals, and item breakdowns. Invalid date inputs or reversed ranges return no results.
 - [x] Add failing tests showing explicit `promotionId` attribution is distinct from records merely inside `startsOn`/`endsOn`; test inclusive dates and overlapping promotions without inferring attribution.
-- [x] Implement exported pure functions matching the interfaces above. Treat optional metadata as absent for legacy sale records, and return no results for malformed date inputs or reversed ranges.
-- [x] Run `npm test -- src/services/dashboard.test.ts src/services/sales.test.ts` (13 tests passed), `npm run check` (0 diagnostics), and commit: `6c3b00a feat(sales): add read-only sales queries`.
+- [x] Add a failing test for chronological daily net-sales buckets and implement `getSalesTrend`; malformed date inputs or reversed filter ranges return no sales.
+- [x] Implement exported pure functions matching the interfaces above. Treat optional metadata as absent for legacy sale records, and exclude explicitly attributed sales from date-overlap-only counts.
+- [x] Run `npm test -- src/services/dashboard.test.ts src/services/sales.test.ts` (15 tests passed), `npm run check` (0 diagnostics), and commit query calculations: `6c3b00a` plus the attribution/trend follow-up commit (identity pending).
 
 ### Task 3: Protected Sales register and navigation
 
 **Files:** `src/components/SalesPage.tsx`, `src/components/SalesPage.test.tsx`, `src/pages/ventas.astro`, `src/components/AdminShell.tsx`, `src/components/AdminShell.test.tsx`, `src/styles/sales.css`.
 
-- [ ] Add failing page tests for read-only sales list/detail, search, each required filter, summary values, attributed-vs-overlap labels, empty results, and absence of sale-mutation controls.
-- [ ] Add failing navigation tests for the Sales route and current-page semantics on desktop and mobile More.
-- [ ] Implement `/ventas/` using `AdminGate`, `AdminShell`, `Dropdown`, `createDemoData(now).sales`, and current promotion snapshots; render sale details without actions that mutate records or inventory.
-- [ ] Run `npm test -- src/components/SalesPage.test.tsx src/components/AdminShell.test.tsx`, then commit: `feat(sales): add read-only sales register`.
+- [x] Add failing page tests for read-only sales list/detail, search, every required filter, summaries, attributed-vs-overlap labels, daily net-sales chart, and no sale mutation.
+- [x] Add failing navigation tests for the Sales route and current-page semantics on desktop and mobile More; update prior “coming soon” assertions for Sales.
+- [x] Implement `/ventas/` using `AdminGate`, `AdminShell`, `Dropdown`, `MobileMonthCalendar`, generated `DemoData.sales`, and current promotion snapshots; details have no sale/inventory mutation controls.
+- [x] Run `npm test -- src/components/SalesPage.test.tsx src/components/AdminShell.test.tsx src/services/sales.test.ts` (27 tests passed), `npm run check` (0 diagnostics), and commit: pending commit identity.
 
 ### Task 4: Verify and close the feature
 

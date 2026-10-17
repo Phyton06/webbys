@@ -24,6 +24,7 @@ export interface PromotionSalesInsight {
   attributedNetTotal: number;
   occurredDuringSalesCount: number;
   occurredDuringNetTotal: number;
+  hasDateWindow: boolean;
 }
 
 function isDateKey(value: string): boolean {
@@ -121,6 +122,19 @@ export function getSalesBreakdown(sales: SaleRecord[]): SalesBreakdown {
   };
 }
 
+export function getSalesTrend(sales: SaleRecord[]): Array<{ date: string; saleCount: number; netTotal: number }> {
+  const daily = new Map<string, { date: string; saleCount: number; netTotal: number }>();
+  for (const sale of sales) {
+    const date = localDateKey(sale.occurredAt);
+    if (!date) continue;
+    const bucket = daily.get(date) ?? { date, saleCount: 0, netTotal: 0 };
+    bucket.saleCount += 1;
+    bucket.netTotal += sale.netTotal;
+    daily.set(date, bucket);
+  }
+  return [...daily.values()].sort((first, second) => first.date.localeCompare(second.date));
+}
+
 export function getPromotionSalesInsights(sales: SaleRecord[], promotions: PromotionRecord[]): PromotionSalesInsight[] {
   const definitions = new Map(promotions.map((promotion) => [promotion.id, promotion]));
   const attributedSnapshots = new Map<string, string>();
@@ -133,12 +147,13 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
     const promotion = definitions.get(id);
     const name = promotion?.name ?? attributedSnapshots.get(id) ?? id;
     const attributedSales = sales.filter((sale) => sale.promotionId === id);
-    const occurredDuringSales = promotion
-      ? sales.filter((sale) => {
-        const date = localDateKey(sale.occurredAt);
-        return date !== undefined && date >= promotion.startsOn && date <= promotion.endsOn;
-      })
-      : [];
+    const dateWindow = promotion ? { start: promotion.startsOn, end: promotion.endsOn } : undefined;
+    const hasDateWindow = dateWindow !== undefined;
+    const occurredDuringSales = sales.filter((sale) => {
+      if (!dateWindow || sale.promotionId === id) return false;
+      const date = localDateKey(sale.occurredAt);
+      return date !== undefined && date >= dateWindow.start && date <= dateWindow.end;
+    });
 
     return {
       id,
@@ -147,6 +162,7 @@ export function getPromotionSalesInsights(sales: SaleRecord[], promotions: Promo
       attributedNetTotal: attributedSales.reduce((total, sale) => total + sale.netTotal, 0),
       occurredDuringSalesCount: occurredDuringSales.length,
       occurredDuringNetTotal: occurredDuringSales.reduce((total, sale) => total + sale.netTotal, 0),
+      hasDateWindow,
     };
   }).sort((first, second) => first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
 }

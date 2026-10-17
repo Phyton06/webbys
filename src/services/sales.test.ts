@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PromotionRecord } from '../types/agenda';
 import type { SaleRecord } from '../types/domain';
-import { getPromotionSalesInsights, getSalesBreakdown, filterSales, summarizeSales } from './sales';
+import { getPromotionSalesInsights, getSalesBreakdown, getSalesTrend, filterSales, summarizeSales } from './sales';
 
 function sale(overrides: Partial<SaleRecord> = {}): SaleRecord {
   return {
@@ -102,6 +102,17 @@ describe('sales summaries and promotion insights', () => {
     });
   });
 
+  it('groups net sales by local calendar day in chronological order', () => {
+    expect(getSalesTrend([
+      sale({ id: 'later', occurredAt: '2026-10-15T12:00:00.000Z', netTotal: 125 }),
+      sale({ id: 'earlier', occurredAt: '2026-10-13T12:00:00.000Z', netTotal: 75 }),
+      sale({ id: 'same-day', occurredAt: '2026-10-15T15:00:00.000Z', netTotal: 25 }),
+    ])).toEqual([
+      { date: '2026-10-13', saleCount: 1, netTotal: 75 },
+      { date: '2026-10-15', saleCount: 2, netTotal: 150 },
+    ]);
+  });
+
   it('keeps explicit attribution separate from sales that only overlap a promotion date range', () => {
     const insights = getPromotionSalesInsights([
       sale({ promotionId: 'promotion-seasonal', promotionName: 'Oferta de temporada' }),
@@ -114,8 +125,23 @@ describe('sales summaries and promotion insights', () => {
       name: 'Oferta de temporada',
       attributedSalesCount: 1,
       attributedNetTotal: 600,
-      occurredDuringSalesCount: 2,
-      occurredDuringNetTotal: 1200,
+      occurredDuringSalesCount: 1,
+      occurredDuringNetTotal: 600,
+      hasDateWindow: true,
+    }]);
+  });
+
+  it('does not invent a promotion date window from an attribution name snapshot', () => {
+    expect(getPromotionSalesInsights([
+      sale({ promotionId: 'old-promotion', promotionName: 'Promoción anterior' }),
+    ], [])).toEqual([{
+      id: 'old-promotion',
+      name: 'Promoción anterior',
+      attributedSalesCount: 1,
+      attributedNetTotal: 600,
+      occurredDuringSalesCount: 0,
+      occurredDuringNetTotal: 0,
+      hasDateWindow: false,
     }]);
   });
 });
