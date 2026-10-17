@@ -102,29 +102,30 @@ export async function showLocalNotificationTest(title: string, body: string, run
 - [x] Implement `showLocalNotificationTest` to return a result without prompting unless called by the page's explicit test button.
 - [x] Add a minimal service-worker message handler for one explicit local-test message. On the explicit page action, register it, await `navigator.serviceWorker.ready`, send the current title/body with `MessageChannel`, and have the worker call `self.registration.showNotification(title, { body })` and reply with success/failure. Add no fetch/push event listener.
 - [x] Run `npm test -- src/services/local-notification-test.test.ts src/services/notification-test-worker.test.ts` (7 tests passed) and `npm run check` (0 diagnostics).
-- [ ] This task changes service-worker/runtime behavior (risk item 5); independent read-only verification is pending before task closure.
+- [x] Independent read-only verification found no blockers; advisory: add tests for wrong-type title/body and missing reply port if extending worker validation.
 - [x] Commit: `ed2242d feat(notifications): add local device notification test`.
 
 ### Task 3: History-first Notifications page and recipient controls
 
 **Files:** `src/components/NotificationRecipientPicker.tsx`, `src/components/NotificationRecipientPicker.test.tsx`, `src/components/NotificationsPage.tsx`, `src/components/NotificationsPage.test.tsx`, `src/pages/notificaciones.astro`, `src/components/AdminShell.tsx`, `src/components/AdminShell.test.tsx`, `src/styles/notifications.css`, `.impeccable/surfaces/src-pages-notificaciones-astro.md`.
 
-- [ ] Before the first UI source edit, resolve/create the `/notificaciones/` surface brief in Operate mode. Preserve the accepted history-first entry, open composer with preview, existing charcoal/red system, and the custom client/Dropdown/calendar control patterns.
-- [ ] Add failing UI tests proving History is the entry view, “Nueva notificación” opens the composer, and the preview matches title/body.
-- [ ] Add failing tests for client/employee group selection, employee role segments, searching/selecting/removing individuals, Draft/Programar/Simular actions, local persistence across remount, and no recipient delivery.
-- [ ] Add failing tests for local device test statuses: it does not request permission on render, an explicit button does, a granted permission shows the preview locally, and the notification record/audience/Agenda bytes stay unchanged.
-- [ ] Add the permission state panel; label real push as not configured. For insecure/unsupported/denied/failed tests, show a clear in-app status and do not claim the OS notification appeared.
-- [ ] Implement the protected `/notificaciones/` route, `AdminShell` links, history-first list, composer/audience picker, preview, scheduled status, and simulated-send history.
-- [ ] Run `npm test -- src/components/NotificationRecipientPicker.test.tsx src/components/NotificationsPage.test.tsx src/components/AdminShell.test.tsx`.
-- [ ] Commit: `feat(notifications): add history-first notification center`.
+- [x] Resolve/create the `/notificaciones/` surface brief in Operate mode before UI source edits. Preserve the accepted history-first entry, open composer with preview, existing charcoal/red system, and custom client/Dropdown/calendar control patterns.
+- [x] Add UI tests proving History is the entry view, “Nueva notificación” opens the composer, and preview matches title/body.
+- [x] Add tests for client/employee groups, role segments, searchable selection/removal, draft/schedule/simulated flow, and device test not modifying history/Agenda.
+- [x] Verify permission is not requested on render and status copy accurately distinguishes local device notifications from recipient delivery.
+- [x] Implement protected `/notificaciones/`, desktop/mobile nav, history-first list, composer, audience picker, preview, schedule and simulated history.
+- [x] Run focused checks (38 tests passed), Astro check (0 diagnostics), static build (12 routes); browser smoke check verified calendar interaction and 390px layout without horizontal overflow.
+- [x] Run the Impeccable mechanical detector once over the changed UI targets; result: `[]` (no findings).
+- [x] Commit: `30c42ca feat(notifications): add history-first notification center`.
 
 ### Task 4: Verify and close the feature
 
 **Files:** `odd/tasks/notifications-management.md`, `docs/superpowers/plans/2026-10-17-webbys-notifications.md`, the approved design spec, and the Notifications surface brief.
 
-- [ ] Run `npm test`, `npm run check`, `npm run build`, and `git diff --check`; record exact outcomes.
-- [ ] Obtain independent verification for risk item 5; inspect the worker to ensure it has no fetch/push handlers and confirm no page action writes recipient, Agenda, Sales, or inventory data.
-- [ ] Run the Impeccable detector once on changed web targets, fix mechanical findings, and record any residual advisory.
+- [x] Run full verification: `npm test` (250 tests, 36 files); `npm run check` (0 diagnostics); `npm run build` (12 routes); `git diff --check` (passed).
+- [x] Obtain independent verification for risk item 5; no blockers found; worker has no fetch/push handlers and device-test path does not write persisted state.
+- [x] Run the Impeccable detector once on changed web targets; it returned `[]` (no findings).
+- [x] Commit verification/task evidence in a separate documentation work unit; do not push or create a PR without separate authorization.
 - [ ] Mark observed ODD tasks complete and commit final verification/documentation evidence. Do not push or create PRs without separate authorization.
 
 ## Known Decisions
