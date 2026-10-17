@@ -292,7 +292,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Run `npm test` (288 tests/39 files), `npm run check` (zero diagnostics), `npm run build` (12 static routes), and `git diff --check` (passed).
 - [x] Verify every requirement in `docs/superpowers/specs/2026-10-16-webbys-business-settings-design.md`, including preserved Agenda storage, all global currency consumers, no conversion, and no notification delivery.
 - [x] RDD was read as off (global); no review lifecycle or mode changes were performed.
-- [x] Record final result and commit identity in `odd/tasks/business-settings.md`; no push or PR was performed.
+- [x] Record final result in `odd/tasks/business-settings.md`; verification work-unit commit: `a7e9a02`. No push or PR was performed.
 
 ## Known Decisions and Assumptions
 

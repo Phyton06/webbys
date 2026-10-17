@@ -36,7 +36,7 @@ Assumption: initialize all category preferences as disabled until the administra
 - [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; commit: `d1306ae` (17 tests, RED → GREEN).
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
 - [x] T3 — Extend the existing Settings page with business/profile fields, read-only logo, general hours, and local notification preferences; route: inline; status: complete; commit: `fed1102` (25 settings/store tests passed).
-- [x] T4 — Run full verification, independent risk assessment as required, update progress, and close; route: inline; status: complete; commit: pending.
+- [x] T4 — Run full verification, independent risk assessment as required, update progress, and close; route: inline; status: complete; verification work-unit commit: `a7e9a02`.
 
 ## Log
 
@@ -51,4 +51,5 @@ Assumption: initialize all category preferences as disabled until the administra
 - L9: T3 extended the existing Configuration screen with business/admin profiles, read-only current logo, unconfigured/open/closed informational business hours, global currency selector, locally persisted category preferences, and unchanged barber schedule/exception panels. `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts`: 25 passed; Astro check: zero diagnostics. Commit: `fed1102`.
 - L10: T2 build verification exposed that directly reading `window.localStorage` during Astro server prerender throws on Products. Added the SSR-safe `getCurrentBusinessCurrency()` fallback and test; focused 7-file suite now has 59 passed, Astro check has zero diagnostics, and build produced 12 routes. Risk remains `none` because the added display path is covered and does not mutate stored amounts.
 - L11: Final verification: `npm test` (288 tests, 39 files); `npm run check` (zero diagnostics); `npm run build` (12 static routes); `git diff --check` passed. Impeccable detector returned `[]`. RDD remains off by global choice. No push/PR authorized for this phase; Engram mirror remains pending because the service cannot resolve an authoritative runtime session.
+- L12: T4 verification record committed as `a7e9a02 docs(settings): record business settings verification`.
 - Risk: none (all changed monetary consumers and settings behavior have focused coverage; persisted monetary values, Agenda schedules, appointment availability, and notification delivery remain unchanged).
