@@ -98,12 +98,12 @@ export async function showLocalNotificationTest(title: string, body: string, run
 
 **Files:** `src/services/local-notification-test.ts`, `src/services/local-notification-test.test.ts`, `public/notification-test-sw.js`.
 
-- [ ] Add failing service tests for insecure origin, unsupported Notification/service-worker APIs, permission `default`→granted, denied permission, display success, and display failure; inject `LocalNotificationRuntime` so tests never request browser permission.
-- [ ] Implement `showLocalNotificationTest` to return a result without prompting unless called by the page's explicit test button.
-- [ ] Add a minimal service-worker message handler for one explicit local-test message. On the explicit page action, register it, await `navigator.serviceWorker.ready`, send the current title/body with `MessageChannel`, and have the worker call `self.registration.showNotification(title, { body })` and reply with success/failure. Add no fetch/push event listener.
-- [ ] Run `npm test -- src/services/local-notification-test.test.ts`.
-- [ ] This task changes service-worker/runtime behavior (risk item 5); after its own focused checks, use an independent read-only verifier before task closure.
-- [ ] Commit: `feat(notifications): add local device notification test`.
+- [x] Add failing service tests for insecure origin, unsupported Notification/service-worker APIs, permission `default`→granted, denied permission, display success, and display failure; inject `LocalNotificationRuntime` so tests never request browser permission.
+- [x] Implement `showLocalNotificationTest` to return a result without prompting unless called by the page's explicit test button.
+- [x] Add a minimal service-worker message handler for one explicit local-test message. On the explicit page action, register it, await `navigator.serviceWorker.ready`, send the current title/body with `MessageChannel`, and have the worker call `self.registration.showNotification(title, { body })` and reply with success/failure. Add no fetch/push event listener.
+- [x] Run `npm test -- src/services/local-notification-test.test.ts src/services/notification-test-worker.test.ts` (7 tests passed) and `npm run check` (0 diagnostics).
+- [ ] This task changes service-worker/runtime behavior (risk item 5); independent read-only verification is pending before task closure.
+- [x] Commit: `ed2242d feat(notifications): add local device notification test`.
 
 ### Task 3: History-first Notifications page and recipient controls
 
