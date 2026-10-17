@@ -18,34 +18,50 @@ beforeEach(() => {
 });
 
 describe('SettingsPage availability', () => {
-  it('offers all categories in a desktop menu and opens one category at a time', () => {
+  it('shows only the category menu first and opens one category at a time', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
     render(<SettingsPage />);
 
-    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
-    expect(within(categoryNavigation).getAllByRole('button')).toHaveLength(7);
-    expect(within(categoryNavigation).getByRole('button', { name: 'Perfil del negocio' }).getAttribute('aria-current')).toBe('page');
-    expect(screen.getByLabelText('Nombre del negocio')).toBeTruthy();
-
-    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Perfil administrativo' }));
-
-    expect(screen.getByLabelText('Nombre del administrador')).toBeTruthy();
+    const menu = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    expect(within(menu).getAllByRole('button')).toHaveLength(7);
     expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
+
+    fireEvent.click(within(menu).getByRole('button', { name: 'Perfil del negocio' }));
+
+    expect(screen.getByLabelText('Nombre del negocio')).toBeTruthy();
+    expect(screen.queryByRole('navigation', { name: 'Categorías de configuración' })).toBeNull();
   });
 
-  it('selects categories with buttons instead of a selector and keeps team editors separate', () => {
+  it('opens the selected category without menu buttons and returns to the menu', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
     render(<SettingsPage />);
 
-    expect(screen.queryByRole('button', { name: /^Sección de configuración:/ })).toBeNull();
-    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
-    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Horarios del equipo' }));
 
     expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
     expect(screen.queryByLabelText('Nombre del negocio')).toBeNull();
-    expect(within(categoryNavigation).getByRole('button', { name: 'Perfil del negocio' }).getAttribute('aria-current')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Excepciones por fecha' })).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+
+    const menu = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    expect(within(menu).getByRole('button', { name: 'Excepciones por fecha' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Horarios de trabajo' })).toBeNull();
+  });
+
+  it('keeps in-memory drafts when returning to the menu and reopening the category', () => {
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, createAgendaSeed(now));
+    render(<SettingsPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Perfil del negocio' }));
+    fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Borrador sin guardar' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Perfil del negocio' }));
+
+    expect((screen.getByLabelText('Nombre del negocio') as HTMLInputElement).value).toBe('Borrador sin guardar');
   });
 
   it('saves business settings separately while preserving existing barber availability data', async () => {
@@ -54,6 +70,7 @@ describe('SettingsPage availability', () => {
     const agendaBytes = localStorage.getItem('webbys:agenda:v1');
     render(<SettingsPage />);
 
+    fireEvent.click(screen.getByRole('button', { name: 'Perfil del negocio' }));
     fireEvent.input(screen.getByLabelText('Nombre del negocio'), { target: { value: 'Barbería del Centro' } });
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
     await waitFor(() => expect(screen.getByText('Configuración guardada localmente.')).toBeTruthy());
@@ -69,10 +86,11 @@ describe('SettingsPage availability', () => {
     render(<SettingsPage />);
 
     expect(screen.getByRole('heading', { name: 'Configuración' })).toBeTruthy();
-    const categoryNavigation = screen.getByRole('navigation', { name: 'Categorías de configuración' });
-    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Horarios del equipo' }));
+    const menu = screen.getByRole('navigation', { name: 'Categorías de configuración' });
+    fireEvent.click(within(menu).getByRole('button', { name: 'Horarios del equipo' }));
     expect(screen.getByRole('heading', { name: 'Horarios de trabajo' })).toBeTruthy();
-    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Excepciones por fecha' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Excepciones por fecha' }));
     expect(screen.getByRole('heading', { name: 'Excepciones por fecha' })).toBeTruthy();
     expect(screen.getByRole('navigation', { name: 'Navegación de escritorio' }).querySelector('[href="/configuracion/"]')?.getAttribute('aria-current')).toBe('page');
     expect(screen.queryByRole('region', { name: 'Agenda' })).toBeNull();
@@ -90,7 +108,8 @@ describe('SettingsPage availability', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar horarios' }));
     await waitFor(() => expect(screen.getByText('Horarios actualizados.')).toBeTruthy());
 
-    fireEvent.click(within(categoryNavigation).getByRole('button', { name: 'Excepciones por fecha' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Configuración' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Excepciones por fecha' }));
     fireEvent.input(screen.getByLabelText('Fecha de la excepción'), { target: { value: '2026-10-16' } });
     fireEvent.click(screen.getByLabelText('Día libre'));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar excepción' }));
