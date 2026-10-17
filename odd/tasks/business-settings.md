@@ -35,9 +35,9 @@ Assumption: initialize all category preferences as disabled until the administra
 
 User request: “ok esta bien pero siento que esta todo mal organizado estando todo asi, quiero que hagamos opciones para cada cosa”
 
-User decisions: “opcion 1” / “Guardar por categoría” / “si hazlo”.
+User decisions: “opcion 1” / “Guardar por categoría” / “si hazlo” / “También en escritorio”.
 
-Replace the long Settings page with a desktop sidebar and mobile custom category Dropdown for Perfil del negocio, Perfil administrativo, Moneda, Horario general, Preferencias de notificación, Horarios del equipo, and Excepciones por fecha. Open Perfil del negocio by default. Show one category at a time; keep in-session drafts when switching; save only the selected category. Never save pending values from another category. Business preferences remain in the business settings store; team hours/exceptions remain in Agenda storage and retain their own save handlers.
+Replace the long Settings page with one wrapping row of category buttons above the content for Perfil del negocio, Perfil administrativo, Moneda, Horario general, Preferencias de notificación, Horarios del equipo, and Excepciones por fecha. Open Perfil del negocio by default. Show one category at a time; keep in-session drafts when switching; save only the selected category. Never save pending values from another category. Business preferences remain in the business settings store; team hours/exceptions remain in Agenda storage and retain their own save handlers.
 
 Assumption: unsaved drafts remain only in component memory and are discarded on reload; the last saved values are restored.
 
@@ -45,7 +45,7 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 
 - [x] T1 — Add business settings types, validation, independent versioned persistence, and tests; route: inline; status: complete; baseline commit: `d1306ae`; follow-up commits: `d3e1f4a`, `34d1059`.
 - [x] T2 — Add shared currency formatting and update all affected monetary displays with regression tests; route: inline; status: complete; commits: `6281ed1`, `caf55a1`.
-- [x] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: complete; baseline commit: `fed1102`; follow-up commit: `10cb798`.
+- [x] T3 — Reorganize Settings into category navigation with independent saves; route: inline; status: complete; baseline commit: `fed1102`; follow-up commits: `10cb798`, `6b118cf`.
 - [x] T4 — Re-run complete verification after S5 and close the updated candidate; route: inline; status: complete; baseline verification: `a7e9a02`; verification commit: `2804885`.
 
 ## Log
@@ -70,4 +70,7 @@ Assumption: unsaved drafts remain only in component memory and are discarded on 
 - L18: Implemented the S5 UI: desktop category sidebar, mobile category Dropdown, one visible category at a time, section-scoped saves with in-memory drafts, and the Agenda editors kept in their own hidden categories. Focused suite 32 passed; full suite 295 passed; Astro check zero diagnostics; build 12 routes. Commit `10cb798`.
 - L19: Reviewing the T1 helper exposed a dead end: refusing to overwrite unreadable stored bytes removed the only recovery path the old full save provided. `saveBusinessSettingsSection` now merges over default settings when the envelope is unreadable, so an explicit save replaces corrupt bytes; the panel warning clears after that save. Tests updated; commit `34d1059`.
 - L20: Final S5 verification: `npm test` (296 tests, 39 files); `npm run check` (zero diagnostics); `npm run build` (12 static routes); `git diff --check` passed; Impeccable detector on `SettingsPage.tsx`, `BusinessSettingsPanel.tsx`, `business-settings.css`, and the built `/configuracion/` page returned no findings. RDD remains off by global choice; Engram mirror remains pending because the service cannot resolve an authoritative runtime session.
-- Risk: none for S1–S5. S5 changes configuration UI structure and the section-merge write path; both have focused coverage, the stored envelope schema is unchanged, and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain untouched.
+- L21: User correction: “no quiero que sea un selector asi, quiero que sean primero botones y cuando ya preciones uno aparezca toda las opciones y dezparezcan las opciones no asi como lo aplicaste”.
+- L22: User selected the button row at every screen size (“También en escritorio”): category buttons above the content; pressing one shows its option and hides the others; no sidebar and no Dropdown.
+- L23: Replaced the desktop sidebar and mobile `Dropdown` with one wrapping button row at every size; `SettingsPage.test.tsx` updated (RED observed: the selector-absent assertion failed first). Focused 20 passed; full suite 296/39; `npm run check` zero diagnostics; build 12 routes; `git diff --check` clean; Impeccable on the running `/configuracion/` page exit 0 with no findings; real-browser check confirmed the row and category switching on desktop and mobile. Commit `6b118cf`.
+- Risk: none for S1–S5. S5 changes configuration UI structure and the section-merge write path; both have focused coverage, the stored envelope schema is unchanged, and persisted amounts, Agenda schedules, appointment availability, and notification delivery remain untouched. The button-row follow-up is UI navigation only: save paths, stored schema, and Agenda behavior are unchanged.

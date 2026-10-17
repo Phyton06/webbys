@@ -317,6 +317,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - [x] Run `npm test -- src/components/BusinessSettingsPanel.test.tsx src/components/SettingsPage.test.tsx src/services/business-settings-store.test.ts`; 32 focused tests passed, then the full suite at 296 tests.
 - [x] Run `npm run check`; zero diagnostics.
 - [x] Commit the S5 UI follow-up: `10cb798 feat(settings): reorganize configuration into categories`; legacy navigation coverage updated in `AgendaPage.test.tsx` and `SettingsPage.test.tsx`.
+- [x] User follow-up (S5): replaced the desktop sidebar and mobile `Dropdown` with one wrapping button row above the content at every size; `SettingsPage.test.tsx` updated; focused 20 passed, full suite 296 passed, check zero diagnostics, build 12 routes; commit `6b118cf`.
 
 ### Task 4: Full verification and close
 
@@ -338,7 +339,7 @@ expect(localStorage.getItem(AGENDA_STORAGE_KEY)).toBe(agendaBytesBeforeSettingsS
 - Notification-category preferences start disabled until the user explicitly enables them. They are local future-integration preferences, not delivery controls.
 - The initial currency is MXN; USD and EUR are the other initial options. Changing currency is presentation-only.
 - Monetary displays currently appear in Dashboard, Products, Services, Promotions/target picker, AppointmentForm, and Sales; the shared formatter must cover every listed consumer.
-- The S5 organization uses a desktop category sidebar and a mobile category Dropdown; each business settings category has its own Save action, and unsaved drafts live only in component memory.
+- The S5 organization uses one wrapping row of category buttons above the content at every screen size (no sidebar or Dropdown); each business settings category has its own Save action, and unsaved drafts live only in component memory.
 - Final UI detector run over SettingsPage, BusinessSettingsPanel, its stylesheet, and the built `/configuracion/` page after S5 returned no findings.
 
 ## Verification and Delivery

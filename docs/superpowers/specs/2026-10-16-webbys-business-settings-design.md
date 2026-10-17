@@ -49,8 +49,10 @@ Complete the existing Configuration module with locally persisted business and a
 
 User request: “ok esta bien pero siento que esta todo mal organizado estando todo asi, quiero que hagamos opciones para cada cosa”
 
+Follow-up request: “no quiero que sea un selector asi, quiero que sean primero botones y cuando ya preciones uno aparezca toda las opciones y dezparezcan las opciones no asi como lo aplicaste” — applied at every screen size (“También en escritorio”).
+
 - Replace the single long configuration form with category navigation: **Perfil del negocio**, **Perfil administrativo**, **Moneda**, **Horario general**, **Preferencias de notificación**, **Horarios del equipo**, and **Excepciones por fecha**.
-- Use a sidebar on desktop and the existing custom `Dropdown` as the category selector on phones. Open **Perfil del negocio** by default and show one category's content at a time.
+- Show the seven category buttons in one wrapping row above the content at every screen size. Pressing one shows its category and hides the others. No sidebar and no `Dropdown` selector. Open **Perfil del negocio** by default and show one category's content at a time.
 - Each category has its own Save action. Business settings continue using `webbys:business-settings:v1`; barber schedules and date exceptions continue using `webbys:agenda:v1` and their existing save behavior.
 - Saving one business settings category updates only that category in the stored envelope and preserves previously saved values in other categories. Unsaved drafts remain in memory while switching categories, are not included when another category is saved, and are discarded on reload.
 - Keep the existing logo, informational general hours, currency presentation-only behavior, dark theme, and local-only notification preference constraints unchanged.
@@ -84,5 +86,5 @@ User request: “ok esta bien pero siento que esta todo mal organizado estando t
 - Unit-test settings schema validation, defaults, versioned persistence, invalid-write byte preservation, and business-hour validation.
 - Test currency formatting for MXN/USD/EUR and unchanged numeric values; test every changed monetary consumer.
 - Test the Settings page's separate storage boundaries, form persistence, read-only logo, informational hours, and notification preference toggles.
-- Test desktop category navigation, mobile Dropdown selection, category-specific saves, draft retention while switching, and reload of only saved values.
+- Test category button navigation at any screen size, category-specific saves, draft retention while switching, and reload of only saved values.
 - Run `npm test`, `npm run check`, `npm run build`, and `git diff --check`.
