@@ -3,6 +3,7 @@ import {
   BarChart3,
   Bell,
   CalendarDays,
+  ChevronDown,
   CreditCard,
   Home,
   LogOut,
@@ -27,10 +28,22 @@ const ACTIVE_ADMIN_SECTION = {
   AGENDA: 'Agenda',
 } as const;
 
-interface NavigationSection {
+interface NavigationLink {
   label: string;
   icon: typeof Home;
   href?: string;
+}
+
+interface NavigationGroup {
+  label: string;
+  icon: typeof Home;
+  children: NavigationLink[];
+}
+
+type NavigationSection = NavigationLink | NavigationGroup;
+
+function isNavigationGroup(section: NavigationSection): section is NavigationGroup {
+  return 'children' in section;
 }
 
 const desktopSections: NavigationSection[] = [
@@ -38,8 +51,14 @@ const desktopSections: NavigationSection[] = [
   { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
   { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
   { label: 'Empleados', icon: UsersRound, href: '/empleados/' },
-  { label: 'Servicios', icon: Scissors, href: '/servicios/' },
-  { label: 'Productos', icon: Package, href: '/productos/' },
+  {
+    label: 'Catálogo',
+    icon: Package,
+    children: [
+      { label: 'Servicios', icon: Scissors, href: '/servicios/' },
+      { label: 'Productos', icon: Package, href: '/productos/' },
+    ],
+  },
   { label: 'Promociones', icon: Tag, href: '/promociones/' },
   { label: 'Ventas', icon: CreditCard, href: '/ventas/' },
   { label: 'Analíticas', icon: BarChart3, href: '/analiticas/' },
@@ -47,7 +66,7 @@ const desktopSections: NavigationSection[] = [
   { label: 'Configuración', icon: Settings2, href: '/configuracion/' },
 ];
 
-const mobileQuickSections: NavigationSection[] = [
+const mobileQuickSections: NavigationLink[] = [
   { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
   { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
 ];
@@ -57,6 +76,9 @@ const mobileMoreSections = desktopSections.filter(({ label }) => label !== 'Inic
 export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME, onSignOut }: AdminShellProps) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [announcement, setAnnouncement] = useState('');
+  const catalogIsActive = activeSection === 'Servicios' || activeSection === 'Productos';
+  const [desktopCatalogOpen, setDesktopCatalogOpen] = useState(catalogIsActive);
+  const [mobileCatalogOpen, setMobileCatalogOpen] = useState(catalogIsActive);
 
   function showUnavailable(section: string) {
     setAnnouncement(`La sección ${section} aún no está disponible en esta etapa.`);
@@ -86,8 +108,49 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
         </a>
         <p class="sidebar-caption">BARBERÍA</p>
         <nav aria-label="Navegación de escritorio">
-          {desktopSections.map(({ label, icon: Icon, href }) => (
-            href ? (
+          {desktopSections.map((section) => {
+            if (isNavigationGroup(section)) {
+              const Icon = section.icon;
+              return (
+                <div class="desktop-nav-group" role="group" aria-label={section.label} key={section.label}>
+                  <button
+                    class={`desktop-nav-item desktop-nav-group-toggle${catalogIsActive ? ' is-active' : ''}`}
+                    type="button"
+                    aria-expanded={desktopCatalogOpen}
+                    aria-controls="desktop-catalog-links"
+                    onClick={() => setDesktopCatalogOpen((open) => !open)}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span>{section.label}</span>
+                    <ChevronDown class={desktopCatalogOpen ? 'is-open' : ''} size={16} aria-hidden="true" />
+                  </button>
+                  <div class="desktop-nav-submenu" id="desktop-catalog-links" hidden={!desktopCatalogOpen}>
+                    {section.children.map(({ label, icon: ChildIcon, href }) => (
+                      href ? (
+                        <a
+                          class={`desktop-nav-item desktop-nav-subitem${activeSection === label ? ' is-active' : ''}`}
+                          href={href}
+                          aria-current={activeSection === label ? 'page' : undefined}
+                          key={label}
+                        >
+                          <ChildIcon size={18} aria-hidden="true" />
+                          <span>{label}</span>
+                        </a>
+                      ) : (
+                        <button class="desktop-nav-item desktop-nav-subitem" type="button" aria-label={`${label}, próximamente`} onClick={() => showUnavailable(label)} key={label}>
+                          <ChildIcon size={18} aria-hidden="true" />
+                          <span>{label}</span>
+                          <span class="desktop-coming-soon">Próx.</span>
+                        </button>
+                      )
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            const { label, icon: Icon, href } = section;
+            return href ? (
               <a
                 class={`desktop-nav-item${activeSection === label ? ' is-active' : ''}`}
                 href={href}
@@ -109,8 +172,8 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
                 <span>{label}</span>
                 <span class="desktop-coming-soon">Próx.</span>
               </button>
-            )
-          ))}
+            );
+          })}
         </nav>
         <div class="sidebar-footer">
           <span class="sidebar-status-dot" aria-hidden="true" />
@@ -142,8 +205,44 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
 
       {moreOpen && (
         <nav id="mobile-more-sections" class="mobile-more-menu" aria-label="Más secciones de administración">
-          {mobileMoreSections.map(({ label, icon: Icon, href }) => (
-            href ? (
+          {mobileMoreSections.map((section) => {
+            if (isNavigationGroup(section)) {
+              const Icon = section.icon;
+              return (
+                <div class="mobile-more-group" role="group" aria-label={section.label} key={section.label}>
+                  <button
+                    class="mobile-more-group-toggle"
+                    type="button"
+                    aria-expanded={mobileCatalogOpen}
+                    aria-controls="mobile-catalog-links"
+                    onClick={() => setMobileCatalogOpen((open) => !open)}
+                  >
+                    <Icon size={18} aria-hidden="true" />
+                    <span>{section.label}</span>
+                    <ChevronDown class={mobileCatalogOpen ? 'is-open' : ''} size={16} aria-hidden="true" />
+                  </button>
+                  <div class="mobile-more-submenu" id="mobile-catalog-links" hidden={!mobileCatalogOpen}>
+                    {section.children.map(({ label, icon: ChildIcon, href }) => (
+                      href ? (
+                        <a href={href} aria-current={activeSection === label ? 'page' : undefined} key={label}>
+                          <ChildIcon size={18} aria-hidden="true" />
+                          <span>{label}</span>
+                        </a>
+                      ) : (
+                        <button type="button" aria-label={`${label}, próximamente`} onClick={() => showUnavailable(label)} key={label}>
+                          <ChildIcon size={18} aria-hidden="true" />
+                          <span>{label}</span>
+                          <span class="coming-soon-label">Próximamente</span>
+                        </button>
+                      )
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            const { label, icon: Icon, href } = section;
+            return href ? (
               <a href={href} aria-current={activeSection === label ? 'page' : undefined} key={label}>
                 <Icon size={18} aria-hidden="true" />
                 <span>{label}</span>
@@ -154,8 +253,8 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
                 <span>{label}</span>
                 <span class="coming-soon-label">Próximamente</span>
               </button>
-            )
-          ))}
+            );
+          })}
         </nav>
       )}
 

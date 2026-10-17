@@ -73,32 +73,65 @@ describe('AdminShell', () => {
     expect(employeesMobileLink.getAttribute('aria-current')).toBe('page');
   });
 
-  it('links Services from desktop and the mobile More menu and marks the current route', () => {
+  it('groups Services and Products in Catalog on desktop and marks the current route', () => {
     render(<AdminShell activeSection="Servicios"><p>Contenido principal</p></AdminShell>);
     const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
-    const servicesDesktopLink = within(desktopNavigation).getByRole('link', { name: 'Servicios' });
+    const desktopCatalog = within(desktopNavigation).getByRole('group', { name: 'Catálogo' });
+    const desktopCatalogToggle = within(desktopCatalog).getByRole('button', { name: 'Catálogo' });
+    expect(desktopCatalogToggle.getAttribute('aria-expanded')).toBe('true');
+    const servicesDesktopLink = within(desktopCatalog).getByRole('link', { name: 'Servicios' });
     expect(servicesDesktopLink.getAttribute('href')).toBe('/servicios/');
     expect(servicesDesktopLink.getAttribute('aria-current')).toBe('page');
+    expect(within(desktopCatalog).getByRole('link', { name: 'Productos' }).getAttribute('href')).toBe('/productos/');
 
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
     const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    const servicesMobileLink = within(moreNavigation).getByRole('link', { name: 'Servicios' });
+    const mobileCatalog = within(moreNavigation).getByRole('group', { name: 'Catálogo' });
+    const servicesMobileLink = within(mobileCatalog).getByRole('link', { name: 'Servicios' });
     expect(servicesMobileLink.getAttribute('href')).toBe('/servicios/');
     expect(servicesMobileLink.getAttribute('aria-current')).toBe('page');
+    expect(within(mobileCatalog).getByRole('link', { name: 'Productos' }).getAttribute('href')).toBe('/productos/');
   });
 
-  it('links Products from desktop and the mobile More menu and marks the current route', () => {
+  it('marks Products current inside Catalog on desktop and in the mobile More menu', () => {
     render(<AdminShell activeSection="Productos"><p>Contenido principal</p></AdminShell>);
     const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
-    const productsDesktopLink = within(desktopNavigation).getByRole('link', { name: 'Productos' });
+    const desktopCatalog = within(desktopNavigation).getByRole('group', { name: 'Catálogo' });
+    const productsDesktopLink = within(desktopCatalog).getByRole('link', { name: 'Productos' });
     expect(productsDesktopLink.getAttribute('href')).toBe('/productos/');
     expect(productsDesktopLink.getAttribute('aria-current')).toBe('page');
+    expect(within(desktopCatalog).getByRole('link', { name: 'Servicios' }).getAttribute('href')).toBe('/servicios/');
 
     fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
     const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
-    const productsMobileLink = within(moreNavigation).getByRole('link', { name: 'Productos' });
+    const mobileCatalog = within(moreNavigation).getByRole('group', { name: 'Catálogo' });
+    const productsMobileLink = within(mobileCatalog).getByRole('link', { name: 'Productos' });
     expect(productsMobileLink.getAttribute('href')).toBe('/productos/');
     expect(productsMobileLink.getAttribute('aria-current')).toBe('page');
+    expect(within(mobileCatalog).getByRole('link', { name: 'Servicios' }).getAttribute('href')).toBe('/servicios/');
+  });
+
+  it('expands Catalog links on desktop and in the mobile More menu', () => {
+    render(<AdminShell><p>Contenido principal</p></AdminShell>);
+    const desktopNavigation = screen.getByRole('navigation', { name: 'Navegación de escritorio' });
+    const desktopCatalog = within(desktopNavigation).getByRole('group', { name: 'Catálogo' });
+    const desktopToggle = within(desktopCatalog).getByRole('button', { name: 'Catálogo' });
+    expect(desktopToggle.getAttribute('aria-expanded')).toBe('false');
+    expect(within(desktopCatalog).queryByRole('link', { name: 'Servicios' })).toBeNull();
+    fireEvent.click(desktopToggle);
+    expect(desktopToggle.getAttribute('aria-expanded')).toBe('true');
+    expect(within(desktopCatalog).getByRole('link', { name: 'Servicios' }).getAttribute('href')).toBe('/servicios/');
+    expect(within(desktopCatalog).getByRole('link', { name: 'Productos' }).getAttribute('href')).toBe('/productos/');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Más secciones' }));
+    const moreNavigation = screen.getByRole('navigation', { name: 'Más secciones de administración' });
+    const mobileCatalog = within(moreNavigation).getByRole('group', { name: 'Catálogo' });
+    const mobileToggle = within(mobileCatalog).getByRole('button', { name: 'Catálogo' });
+    expect(mobileToggle.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(mobileToggle);
+    expect(mobileToggle.getAttribute('aria-expanded')).toBe('true');
+    expect(within(mobileCatalog).getByRole('link', { name: 'Servicios' }).getAttribute('href')).toBe('/servicios/');
+    expect(within(mobileCatalog).getByRole('link', { name: 'Productos' }).getAttribute('href')).toBe('/productos/');
   });
 
   it('links Promotions from desktop and the mobile More menu and marks the current route', () => {
