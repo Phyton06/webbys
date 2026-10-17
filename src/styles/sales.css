@@ -74,6 +74,17 @@
   font-size: var(--text-sm);
 }
 
+.sales-date-period {
+  display: grid;
+  gap: var(--space-3);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.sales-date-period .sales-section-heading {
+  margin: 0;
+}
+
 .sales-trend {
   min-width: 0;
   margin: 0;
@@ -461,6 +472,11 @@
 }
 
 @media (min-width: 42rem) {
+  .sales-date-period {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, auto);
+    align-items: center;
+  }
+
   .sales-summary {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

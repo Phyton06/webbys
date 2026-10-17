@@ -22,19 +22,27 @@ function chooseDropdown(label: string, option: string) {
   fireEvent.click(screen.getByRole('option', { name: option }));
 }
 
+function showAllDates() {
+  fireEvent.click(screen.getByRole('button', { name: 'Limpiar fechas' }));
+}
+
 describe('SalesPage', () => {
   it('shows generated read-only sales, period totals, and daily trend', () => {
     renderPage();
 
     expect(screen.getByRole('heading', { name: 'Ventas' })).toBeTruthy();
-    expect(screen.getByText('35')).toBeTruthy();
-    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(35);
+    expect(screen.getByRole('button', { name: 'Desde: 14 de octubre de 2026' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Hasta: 14 de octubre de 2026' })).toBeTruthy();
+    expect(screen.getByText('Rango seleccionado · Día · 14 de octubre de 2026')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('1');
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(1);
     expect(screen.getByRole('img', { name: 'Ventas netas por día' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /registrar|nueva venta|guardar venta/i })).toBeNull();
   });
 
   it('searches sale, employee, product, service, and promotion snapshots', () => {
     renderPage();
+    showAllDates();
     const search = screen.getByRole('searchbox', { name: 'Buscar ventas' });
     fireEvent.input(search, { target: { value: 'cera' } });
 
@@ -50,6 +58,7 @@ describe('SalesPage', () => {
 
   it('filters sales by employee, product, service, and explicit promotion attribution', () => {
     renderPage();
+    showAllDates();
     chooseDropdown('Empleado', 'Diego');
     let list = screen.getByRole('list', { name: 'Registros de ventas' });
     expect([...list.querySelectorAll('li')].every((item) => item.textContent?.includes('Diego'))).toBe(true);
@@ -73,17 +82,25 @@ describe('SalesPage', () => {
   it('opens the shared date popover from the date value and applies a date range', () => {
     renderPage();
     expect(screen.queryByRole('group', { name: 'Días de Octubre de 2026' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Desde cualquier fecha' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Desde: 14 de octubre de 2026' }));
     expect(screen.getByRole('group', { name: 'Días de Octubre de 2026' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Jueves, 1 de octubre' }));
 
     expect(screen.getByRole('button', { name: 'Desde: 1 de octubre de 2026' })).toBeTruthy();
     expect(screen.queryByRole('group', { name: 'Días de Octubre de 2026' })).toBeNull();
-    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li').length).toBeLessThan(35);
+    expect(screen.getByRole('button', { name: 'Hasta: 14 de octubre de 2026' })).toBeTruthy();
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li').length).toBeGreaterThan(1);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Hasta: 14 de octubre de 2026' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Lunes, 5 de octubre' }));
+    expect(screen.getByText('Rango seleccionado · 1 de octubre de 2026 – 5 de octubre de 2026')).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('5');
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(5);
   });
 
   it('opens a read-only sale detail and returns to the filtered list', () => {
     renderPage();
+    showAllDates();
     fireEvent.click(screen.getByRole('button', { name: 'Ver venta demo-sale-01' }));
 
     expect(screen.getByRole('heading', { name: 'Venta demo-sale-01' })).toBeTruthy();
@@ -95,6 +112,7 @@ describe('SalesPage', () => {
 
   it('does not change Agenda or inventory data when searching or viewing records', () => {
     renderPage();
+    showAllDates();
     const before = localStorage.getItem('webbys:agenda:v1');
     fireEvent.input(screen.getByRole('searchbox', { name: 'Buscar ventas' }), { target: { value: 'Cera' } });
     fireEvent.click(screen.getByRole('button', { name: 'Ver venta demo-sale-31' }));

@@ -97,7 +97,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
   const [sales] = useState(() => createDemoData(now).sales);
   const [promotions] = useState(() => readPromotions(now));
   const [filters, setFilters] = useState<SalesFilters>({
-    query: '', startDate: '', endDate: '', employeeId: '', productId: '', serviceId: '', promotionId: '',
+    query: '', startDate: dateKey(now), endDate: dateKey(now), employeeId: '', productId: '', serviceId: '', promotionId: '',
   });
   const [selectedSaleId, setSelectedSaleId] = useState<string>();
   const [dateField, setDateField] = useState<'start' | 'end'>('start');
@@ -154,6 +154,15 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
 
   const startLabel = filters.startDate ? `Desde: ${formatDate(filters.startDate)}` : 'Desde cualquier fecha';
   const endLabel = filters.endDate ? `Hasta: ${formatDate(filters.endDate)}` : 'Hasta cualquier fecha';
+  const selectedRangeLabel = filters.startDate && filters.endDate
+    ? filters.startDate === filters.endDate
+      ? `Día · ${formatDate(filters.startDate)}`
+      : `${formatDate(filters.startDate)} – ${formatDate(filters.endDate)}`
+    : filters.startDate
+      ? `Desde ${formatDate(filters.startDate)}`
+      : filters.endDate
+        ? `Hasta ${formatDate(filters.endDate)}`
+        : 'Todas las fechas';
 
   return (
     <AdminGate>
@@ -165,6 +174,34 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
               <p>Consulta los registros, sus descuentos y el rendimiento del periodo.</p>
             </div>
           </header>
+
+          {!selectedSale && (
+            <section class="sales-date-period" aria-label="Periodo de ventas">
+              <div class="sales-section-heading">
+                <div><h2>Periodo de ventas</h2><p>Rango seleccionado · {selectedRangeLabel}</p></div>
+              </div>
+              <div class="sales-date-filters" aria-label="Elegir rango de fechas">
+                <button type="button" class="appointment-form-cancel" aria-label={startLabel} aria-pressed={dateField === 'start'} onClick={() => { setDateField('start'); setCalendarDate(filters.startDate || dateKey(now)); setDatePickerOpen(true); }}>
+                  <CalendarDays size={17} aria-hidden="true" />{startLabel}
+                </button>
+                <button type="button" class="appointment-form-cancel" aria-label={endLabel} aria-pressed={dateField === 'end'} onClick={() => { setDateField('end'); setCalendarDate(filters.endDate || dateKey(now)); setDatePickerOpen(true); }}>
+                  <CalendarDays size={17} aria-hidden="true" />{endLabel}
+                </button>
+                {(filters.startDate || filters.endDate) && <button type="button" class="sales-clear-dates" onClick={() => setFilters((current) => ({ ...current, startDate: '', endDate: '' }))}>Limpiar fechas</button>}
+                {datePickerOpen && (
+                  <div class="sales-calendar-popover" onClick={(event) => event.stopPropagation()}>
+                    <MobileMonthCalendar
+                      selectedDate={(dateField === 'start' ? filters.startDate : filters.endDate) || dateKey(now)}
+                      displayedMonth={calendarDate}
+                      appointments={[]}
+                      onNavigateMonth={setCalendarDate}
+                      onSelectDate={chooseDate}
+                    />
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
 
           {selectedSale ? (
             <section class="sales-detail" aria-labelledby="sales-detail-title">
@@ -229,26 +266,6 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                   <div class="sales-filter-control"><span>Producto</span><Dropdown label="Producto" value={filters.productId} options={[allOption, ...products.map(([value, label]) => ({ value, label }))]} onChange={(value) => updateFilter('productId', value)} /></div>
                   <div class="sales-filter-control"><span>Servicio</span><Dropdown label="Servicio" value={filters.serviceId} options={[allOption, ...services.map(([value, label]) => ({ value, label }))]} onChange={(value) => updateFilter('serviceId', value)} /></div>
                   <div class="sales-filter-control"><span>Promoción atribuida</span><Dropdown label="Promoción" value={filters.promotionId} options={[{ value: '', label: 'Todas' }, ...promotionOptions.map(([value, label]) => ({ value, label }))]} onChange={(value) => updateFilter('promotionId', value)} /></div>
-                </div>
-                <div class="sales-date-filters" aria-label="Filtrar por fechas">
-                  <button type="button" class="appointment-form-cancel" aria-label={startLabel} aria-pressed={dateField === 'start'} onClick={() => { setDateField('start'); setCalendarDate(filters.startDate || dateKey(now)); setDatePickerOpen(true); }}>
-                    <CalendarDays size={17} aria-hidden="true" />{startLabel}
-                  </button>
-                  <button type="button" class="appointment-form-cancel" aria-label={endLabel} aria-pressed={dateField === 'end'} onClick={() => { setDateField('end'); setCalendarDate(filters.endDate || dateKey(now)); setDatePickerOpen(true); }}>
-                    <CalendarDays size={17} aria-hidden="true" />{endLabel}
-                  </button>
-                  {(filters.startDate || filters.endDate) && <button type="button" class="sales-clear-dates" onClick={() => setFilters((current) => ({ ...current, startDate: '', endDate: '' }))}>Limpiar fechas</button>}
-                  {datePickerOpen && (
-                    <div class="sales-calendar-popover" onClick={(event) => event.stopPropagation()}>
-                      <MobileMonthCalendar
-                        selectedDate={(dateField === 'start' ? filters.startDate : filters.endDate) || dateKey(now)}
-                        displayedMonth={calendarDate}
-                        appointments={[]}
-                        onNavigateMonth={setCalendarDate}
-                        onSelectDate={chooseDate}
-                      />
-                    </div>
-                  )}
                 </div>
               </section>
 
