@@ -10,6 +10,7 @@ Implement the demonstration assistant sign-in alongside the existing admin sign-
 Acceptance: both demo roles reach their intended panels; assistant access to restricted admin modules is denied; sign-out works; the assistant dashboard uses shared records and the mobile layout remains usable.
 Additional requirement from L6: “la pagina de inicio los botones ahi se ven todos desorganizados, hay que darle mejor disenio [Image 1]”. Acceptance: arrange the existing quick actions into a clear, consistent group without changing their destinations or behavior.
 Checks: focused auth/permission tests; `npm run build`.
+Additional requirement from L8: “en la agenda quiero que el calendario este oculto y sea desplegable como en los demas modulos, tambien aplicalo en el de administrador, igual en todas las pantallas y modales sustituye el boton de cerrar [Image 1] por solo una flecha < antes del titulo de donde estan, asi como en notificaciones [Image 2], igual aplica esto para todo incluido en administrador, ademas aqui [Image 3] hay que poner iconos en los botones de accion y ademas al cobrar siempre debe ser las citas del dia y ya, solo el filtro para buscar por barbero o cliente, pero los botones y lo demas no por que para ver las pagadas y esas pues ya esta en la seccion de historial de ventas, esto debe ser solo para cobrar y ya debe mantenerse simple”. Acceptance: use a collapsed date-picker disclosure in both agenda roles; replace modal close buttons with the existing back-chevron pattern before each modal title, including administrator screens; put meaningful icons on dashboard action buttons; keep cashier focused on unpaid appointments today with only client/barber search.
 
 ### S2 — Appointment-centered point of sale
 Source: `task 2.md`, sections 7–11 and Stage 3 (lines 225–493, 818–828).
@@ -25,12 +26,13 @@ Integrate the assistant with the existing agenda, clients, products, services, p
 Acceptance: assistant operations are reflected in the existing administrator data; authorization restrictions hold; essential app checks pass.
 Additional requirement from L6: “el panel de cliente tampoco tiene bien los margenes, mismo caso con pruductos y servicios, ademas unelos igual que en admin, en promociones el mismo problema con los margenes, historial de ventas tambien estan mal los margenes, ademas en el registro de ventas al historial de ventas agregale paginacion de 5 en 5 ordenado por fecha”. Acceptance: align assistant shared pages with the admin gutters and paginate the filtered sales register five records per page, newest first.
 Additional requirement from L7: “ok continua pero recuerda la paginacion a todo lo que lo necesite, siempre 5 y con las flechas de siguiente y anterior”. Acceptance: apply the same five-record, arrow-controlled pagination to other unbounded operational and history lists that exceed the page size.
+Additional requirement from L8: “en la agenda quiero que el calendario este oculto y sea desplegable como en los demas modulos, tambien aplicalo en el de administrador, igual en todas las pantallas y modales sustituye el boton de cerrar [Image 1] por solo una flecha < antes del titulo de donde estan, asi como en notificaciones [Image 2], igual aplica esto para todo incluido en administrador, ademas aqui [Image 3] hay que poner iconos en los botones de accion y ademas al cobrar siempre debe ser las citas del dia y ya, solo el filtro para buscar por barbero o cliente, pero los botones y lo demas no por que para ver las pagadas y esas pues ya esta en la seccion de historial de ventas, esto debe ser solo para cobrar y ya debe mantenerse simple”. Acceptance: make the agenda calendar disclosure apply consistently to assistant and administrator roles; use a leading back-chevron control instead of text “Cerrar” in every applicable modal/form and include the administrator; add action icons to the dashboard; show only today’s unpaid appointments in the cashier queue with one client/barber search field.
 Checks: focused tests for changed behavior and `npm run build`.
 
 ## Tasks
-- T1 — S1 — inline — complete for L6 — follow-up commit `b6caf64`
-- T2 — S2 — inline — complete for L6/L7 — follow-up commit `4533534`
-- T3 — S3 — inline — complete for L6/L7 — follow-up commit `ba2e8a1`
+- T1 — S1 — inline — complete for L8 — follow-up commit `265f985`
+- T2 — S2 — inline — complete for L8 — follow-up commit `265f985`
+- T3 — S3 — inline — complete for L8 — follow-up commit `265f985`
 
 ## Log
 
@@ -56,6 +58,9 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 ### L7 — Five-record pagination rule (2026-10-17)
 "ok continua pero recuerda la paginacion a todo lo que lo necesite, siempre 5 y con las flechas de siguiente y anterior"
 
+### L8 — Agenda, modal headers, action icons, and cashier scope (2026-10-18)
+"en la agenda quiero que el calendario este oculto y sea desplegable como en los demas modulos, tambien aplicalo en el de administrador, igual en todas las pantallas y modales sustituye el boton de cerrar [Image 1]  por solo una flecha < antes del titulo de donde estan, asi como en notificaciones [Image 2], igual aplica esto para todo incluido en administrador, ademas aqui [Image 3]  hay que poner iconos en los botones de accion y ademas al cobrar siempre debe ser las citas del dia y ya, solo el filtro para buscar por barbero o cliente, pero los botones y lo demas no por que para ver las pagadas y esas pues ya esta en la seccion de historial de ventas, esto debe ser solo para cobrar y ya debe mantenerse simple"
+
 ### Progress
 - `task 2.md` is the user-owned phase specification and remains untracked; preserve it.
 - Baseline: the administrator PWA already had shared agenda, client, catalog, promotion, and sales modules; assistant credentials and role-specific navigation were absent.
@@ -80,3 +85,6 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 - Essential verification: seven changed-page test files passed (57 tests); `npm run build` passed with 0 errors, warnings, and hints and built 16 routes; the final Impeccable detector returned no findings; mobile screenshots inspected the assistant dashboard and quick-sale flow. `git diff --check` passed before committing.
 - Full-suite result: 366 passed and one test failed at `src/components/LoginForm.test.tsx:15` (`allows sign-in with no credentials and enters the admin panel`: expected the email input to be enabled, received disabled). LoginForm source and test are unchanged by this work. Needs your decision: should I expand scope to investigate this separate login failure?
 - Risk: none — the changes paginate requested record lists without changing stored data, sales calculations, access rules, or public contracts.
+- L8 implementation: AgendaPanel now reveals its month calendar from the date control in both roles; modal/form dismissals use the shared leading back-chevron before titles (including the installation prompt); assistant quick actions carry accessible Lucide icons; cashier queue is restricted to unpaid appointments today and one client/barber search field, including appointment deep links.
+- L8 verification: 11 focused test files passed (84 tests); `npm run build` passed with zero errors, warnings, or hints and produced 16 routes; screenshots inspected the collapsed/open calendar, modal chevron, assistant actions, and mobile cashier queue. The final detector reported existing palette/type advisories in legacy `agenda.css` and `install-prompt.css`; no new declarations were flagged. `git diff --check` passed.
+- L8 follow-up work-unit commit: `265f985` (`feat(assistant): simplify agenda and cashier flows`). No push or PR was authorized.
