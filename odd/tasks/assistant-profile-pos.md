@@ -23,9 +23,9 @@ Acceptance: assistant operations are reflected in the existing administrator dat
 Checks: focused tests for changed behavior and `npm run build`.
 
 ## Tasks
-- T1 — S1 — inline — implemented; `d0a1e9d`; focused verification passed
-- T2 — S2 — inline — implemented; `74842a6`; focused verification passed
-- T3 — S3 — implemented; independent test coverage mapped; manual visual review accepted — awaiting work-unit commit
+- T1 — S1 — inline — complete — commit `d0a1e9d`
+- T2 — S2 — inline — complete — commit `74842a6`
+- T3 — S3 — inline — complete — commit `dd37ee9`
 
 ## Log
 
@@ -57,7 +57,9 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 - T2 storage decision: store committed sales and optional appointment payment status in the existing versioned AgendaState envelope so inventory, payment, and sale record persist with one localStorage write. Legacy records remain valid because the new fields are optional; focused service tests cover duplicate prevention and rejected-payment state preservation.
 - Added `.impeccable/surfaces/src-pages-cobrar-astro.md` documenting the appointment-first Operate surface within Webbys' existing visual system; no new visual identity or external service is introduced.
 - Receipt-driven development is globally off, so no native review lifecycle applies. The independent verifier mapped S1–S3 assertions to tests/source and found no unmet behavior in the scoped automated probes; it passed 18 test files/150 tests and the build in a scratch copy. Baseline comparison was not run. The dedicated visual finish-reviewer agent was unavailable; the user accepted manual mobile/desktop preview inspection as the fallback, not an independent finish verdict.
-- The feature exceeds 400 authored changed lines. User selected `stacked-to-main`; planned slice order is T1 assistant access/shell → T2 cashier transaction/UI → T3 shared agenda/client/admin integration. No PR or push has been authorized or created. Local work-unit commits are authorized.
+- The user selected `stacked-to-main`; local work-unit order is T1 → T2 → T3. No PR or push has been authorized or created. T1 changed 780 lines, T2 changed 1,230, and T3 changed 57; a future PR must split the first two work units further or obtain an explicit size exception.
 - T1 work-unit commit `d0a1e9d` (`feat(assistant): add role-based operations dashboard`) contains login, role gates, assistant dashboard/shell/profile, and shared operational access. Focused verification passed 11 files/89 tests; the staged whitespace check passed.
 - T2 work-unit commit `74842a6` (`feat(cashier): add appointment-first checkout`) contains the POS transaction service, shared sales/inventory/payment storage, cashier UI, receipts, and surface brief. Focused verification passed 3 files/37 tests; staged whitespace check passed.
+- T3 work-unit commit `dd37ee9` (`feat(assistant): share cashier sales with admin reports`) connects persisted cashier sales to the administrator dashboard, sales history, and analytics. Focused verification passed 4 files/24 tests; staged whitespace check passed.
+- T3 work-unit commit `dd37ee9` (`feat(assistant): share cashier sales with admin reports`) connects persisted cashier sales to the administrator dashboard, sales history, and analytics. Focused verification passed 4 files/24 tests; staged whitespace check passed.
 - The user selected `stacked-to-main`; no PR or push was authorized. T1 and T2 local commits exceed the 400-line PR budget, so any future PR must be further sliced or receive an explicit size exception.
