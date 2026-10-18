@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
+import { ShoppingBag } from 'lucide-preact';
 import type { AgendaState, PromotionRecord } from '../types/agenda';
 import type { SaleItem, SalePaymentMethod, SaleRecord } from '../types/domain';
 import type { CurrencyCode } from '../types/business-settings';
@@ -9,6 +10,9 @@ import { getPromotionStatus } from '../services/promotions';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { AdminGate } from './AdminGate';
 import { AssistantShell } from './AssistantShell';
+import { Dropdown } from './Dropdown';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
+import '../styles/admin.css';
 import '../styles/cashier.css';
 
 interface CashierPageProps {
@@ -126,10 +130,12 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
   const [storageError] = useState(initial.error);
   const [search, setSearch] = useState('');
   const [appointmentFilter, setAppointmentFilter] = useState<AppointmentFilter>('all');
+  const [appointmentPage, setAppointmentPage] = useState(0);
   const [dateFilter, setDateFilter] = useState('');
   const [barberFilter, setBarberFilter] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [selectedProductId, setSelectedProductId] = useState('');
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | undefined>(requestedAppointmentId);
   const [quickSale, setQuickSale] = useState(() => (
     !requestedAppointmentId && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('quick') === '1'
@@ -165,6 +171,8 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
       .sort((first, second) => Number(appointmentDateKey(second.startsAt) === todayKey) - Number(appointmentDateKey(first.startsAt) === todayKey)
         || new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime());
   }, [appointmentFilter, barberFilter, dateFilter, now, search, state]);
+  const appointmentPageCount = Math.ceil(visibleAppointments.length / RECORD_PAGE_SIZE);
+  const pageAppointments = pageRecords(visibleAppointments, Math.min(appointmentPage, Math.max(0, appointmentPageCount - 1)));
 
   const selectedAppointment = state.appointments.find(({ id }) => id === selectedAppointmentId);
   const categories = [...new Set((state.products ?? []).map(({ category }) => category))].sort((a, b) => a.localeCompare(b, 'es'));
@@ -315,24 +323,24 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
             <header class="cashier-heading">
               <div>
                 <h1 id="cashier-title">Cobrar</h1>
-                <p>Primero, selecciona una cita pendiente de pago.</p>
+                    <p>{quickSale ? 'Agrega productos para una venta sin cita.' : 'Primero, selecciona una cita pendiente de pago.'}</p>
               </div>
-              {!selectedAppointment && <button class="cashier-secondary-button" type="button" onClick={startQuickSale}>Venta rápida</button>}
+              {!selectedAppointment && !quickSale && <button class="cashier-quick-sale-button" type="button" onClick={startQuickSale}><ShoppingBag size={18} aria-hidden="true" />Venta rápida</button>}
             </header>
             {storageError && <p class="cashier-error" role="alert">{storageError}</p>}
             {error && <p class="cashier-error" role="alert">{error}</p>}
             {!selectedAppointment && !quickSale ? (
               <>
                 <section class="cashier-filters" aria-label="Buscar citas pendientes de cobro">
-                  <label><span>Buscar cliente o barbero</span><input type="search" value={search} onInput={(event) => setSearch(event.currentTarget.value)} /></label>
-                  <label><span>Fecha</span><input type="date" value={dateFilter} onInput={(event) => setDateFilter(event.currentTarget.value)} /></label>
-                  <label><span>Barbero</span><select value={barberFilter} onChange={(event) => setBarberFilter(event.currentTarget.value)}><option value="">Todos</option>{state.barbers.map((barber) => <option value={barber.id} key={barber.id}>{barber.name}</option>)}</select></label>
+                  <label><span>Buscar cliente o barbero</span><input type="search" value={search} onInput={(event) => { setSearch(event.currentTarget.value); setAppointmentPage(0); }} /></label>
+                  <label><span>Fecha</span><input type="date" value={dateFilter} onInput={(event) => { setDateFilter(event.currentTarget.value); setAppointmentPage(0); }} /></label>
+                  <div class="cashier-filter-control"><span>Barbero</span><Dropdown label="Barbero" value={barberFilter} options={[{ value: '', label: 'Todos' }, ...state.barbers.map(({ id, name }) => ({ value: id, label: name }))]} onChange={(value) => { setBarberFilter(value); setAppointmentPage(0); }} /></div>
                 </section>
                 <div class="cashier-filter-tabs" role="group" aria-label="Filtrar citas por estado de atención">
-                  {appointmentFilters.map(({ value, label }) => <button class={appointmentFilter === value ? 'is-active' : ''} type="button" aria-pressed={appointmentFilter === value} onClick={() => setAppointmentFilter(value)} key={value}>{label}</button>)}
+                  {appointmentFilters.map(({ value, label }) => <button class={appointmentFilter === value ? 'is-active' : ''} type="button" aria-pressed={appointmentFilter === value} onClick={() => { setAppointmentFilter(value); setAppointmentPage(0); }} key={value}>{label}</button>)}
                 </div>
                 <section class="cashier-appointment-list" aria-label="Citas pendientes de pago">
-                  {visibleAppointments.length ? visibleAppointments.map((appointment) => {
+                  {visibleAppointments.length ? pageAppointments.map((appointment) => {
                     const services = appointment.serviceIds.flatMap((id) => state.services.filter((service) => service.id === id));
                     const estimated = services.reduce((total, service) => total + service.price, 0);
                     const alreadyPaid = appointment.paymentStatus === 'paid';
@@ -350,6 +358,7 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
                     </article>;
                   }) : <p class="cashier-empty-state">No hay citas elegibles con estos filtros.</p>}
                 </section>
+                <RecordPagination page={Math.min(appointmentPage, Math.max(0, appointmentPageCount - 1))} pageCount={appointmentPageCount} label="Paginación de citas" onPageChange={setAppointmentPage} />
               </>
             ) : (
               <div class="cashier-checkout-layout">
@@ -359,7 +368,7 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
                     <div><h2>{selectedAppointment?.clientName ?? selectedClient?.name ?? 'Cliente ocasional'}</h2><p>{selectedAppointment ? `${formatDateTime(selectedAppointment.startsAt)} · ${selectedAppointment.barberName}` : 'Venta de productos sin cita'}</p></div>
                     {selectedAppointment && <span class={`cashier-attention-status status-${selectedAppointment.status}`}>{selectedAppointment.status === 'completed' ? 'Atención completada' : selectedAppointment.status === 'confirmed' ? 'Atención confirmada' : 'Atención pendiente'}</span>}
                   </header>
-                  {quickSale && <label class="cashier-client-select"><span>Cliente</span><select value={quickClientId} onChange={(event) => setQuickClientId(event.currentTarget.value)}><option value="">Cliente ocasional</option>{state.clients.filter(({ active }) => active !== false).map((client) => <option value={client.id} key={client.id}>{client.name}</option>)}</select></label>}
+                  {quickSale && <div class="cashier-client-select"><span>Cliente</span><Dropdown label="Cliente" value={quickClientId} options={[{ value: '', label: 'Cliente ocasional' }, ...state.clients.filter(({ active }) => active !== false).map(({ id, name }) => ({ value: id, label: name }))]} onChange={setQuickClientId} /></div>}
                   {selectedAppointment && <p class="cashier-appointment-reference">Cita {selectedAppointment.id} · estado de pago: pendiente</p>}
                   <section class="cashier-cart" aria-labelledby="cashier-cart-title">
                     <h3 id="cashier-cart-title">Resumen del cobro</h3>
@@ -376,20 +385,18 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
                   <section class="cashier-catalog" aria-labelledby="cashier-catalog-title">
                     <div class="cashier-section-heading"><h3 id="cashier-catalog-title">Agregar productos</h3><span>Disponibles para venta</span></div>
                     <div class="cashier-catalog-filters">
-                      <label><span>Buscar producto</span><input type="search" value={itemSearch} onInput={(event) => setItemSearch(event.currentTarget.value)} /></label>
-                      <label><span>Categoría</span><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.currentTarget.value)}><option value="all">Todas</option>{categories.map((category) => <option value={category} key={category}>{category}</option>)}</select></label>
+                      <label><span>Buscar producto</span><input type="search" value={itemSearch} onInput={(event) => { setItemSearch(event.currentTarget.value); setSelectedProductId(''); }} /></label>
+                      <div class="cashier-filter-control"><span>Categoría</span><Dropdown label="Categoría" value={categoryFilter} options={[{ value: 'all', label: 'Todas' }, ...categories.map((category) => ({ value: category, label: category }))]} onChange={(value) => { setCategoryFilter(value); setSelectedProductId(''); }} /></div>
                     </div>
-                    {visibleProducts.length ? <ul class="cashier-product-list">{visibleProducts.map((product) => <li key={product.id}>
-                      <div><strong>{product.name}</strong><span>{product.category} · {product.stock} disponibles</span></div>
-                      <strong>{formatCurrency(product.salePrice, currency)}</strong>
-                      <button class="cashier-secondary-button" type="button" aria-label={`Agregar producto ${product.name}`} onClick={() => addProduct(product.id)}>Agregar</button>
-                    </li>)}</ul> : <p class="cashier-empty-state">No hay productos disponibles con estos filtros.</p>}
+                    {visibleProducts.length
+                      ? <div class="cashier-product-picker"><span>Producto para agregar</span><Dropdown label="Producto para agregar" value={selectedProductId} options={[{ value: '', label: 'Selecciona un producto' }, ...visibleProducts.map((product) => ({ value: product.id, label: `${product.name} · ${formatCurrency(product.salePrice, currency)} · ${product.stock} disponibles` }))]} onChange={(value) => { if (value) addProduct(value); setSelectedProductId(''); }} /></div>
+                      : <p class="cashier-empty-state">No hay productos disponibles con estos filtros.</p>}
                   </section>
                   {selectedAppointment && <details class="cashier-add-service">
                     <summary>Agregar servicio adicional</summary>
                     <p>Si aún no se realiza, se valida el horario del barbero antes de cobrarlo.</p>
-                    <label><span>Servicio</span><select aria-label="Servicio adicional" value={additionalServiceId} onChange={(event) => setAdditionalServiceId(event.currentTarget.value)}><option value="">Selecciona un servicio</option>{state.services.filter(({ active }) => active !== false).map((service) => <option value={service.id} key={service.id}>{service.name} · {formatCurrency(service.price, currency)}</option>)}</select></label>
-                    <label><span>Barbero</span><select aria-label="Barbero del servicio adicional" value={additionalBarberId || selectedAppointment.barberId} onChange={(event) => setAdditionalBarberId(event.currentTarget.value)}>{state.barbers.map((barber) => <option value={barber.id} key={barber.id}>{barber.name}</option>)}</select></label>
+                    <label><span>Servicio</span><Dropdown label="Servicio adicional" value={additionalServiceId} options={[{ value: '', label: 'Selecciona un servicio' }, ...state.services.filter(({ active }) => active !== false).map((service) => ({ value: service.id, label: `${service.name} · ${formatCurrency(service.price, currency)}` }))]} onChange={setAdditionalServiceId} /></label>
+                    <label><span>Barbero</span><Dropdown label="Barbero del servicio adicional" value={additionalBarberId || selectedAppointment.barberId} options={state.barbers.map(({ id, name }) => ({ value: id, label: name }))} onChange={setAdditionalBarberId} /></label>
                     <label class="cashier-service-performed"><input type="checkbox" checked={additionalServicePerformed} onChange={(event) => setAdditionalServicePerformed(event.currentTarget.checked)} /><span>El servicio ya fue realizado</span></label>
                     <button type="button" class="cashier-secondary-button" disabled={!additionalServiceId} onClick={() => {
                       const service = state.services.find(({ id }) => id === additionalServiceId);
@@ -406,7 +413,7 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
                 </section>
                 <aside class="cashier-payment-panel" aria-label="Total y pago">
                   <h2>Total del cobro</h2>
-                  <label class="cashier-promotion-select"><span>Promoción aplicable</span><select value={promotionId} onChange={(event) => setPromotionId(event.currentTarget.value)}><option value="">Sin promoción</option>{applicablePromotions.map((promotion: PromotionRecord) => <option value={promotion.id} key={promotion.id}>{promotion.name}</option>)}</select></label>
+                  <div class="cashier-promotion-select"><span>Promoción aplicable</span><Dropdown label="Promoción aplicable" value={promotionId} options={[{ value: '', label: 'Sin promoción' }, ...applicablePromotions.map((promotion: PromotionRecord) => ({ value: promotion.id, label: promotion.name }))]} onChange={setPromotionId} /></div>
                   <dl class="cashier-totals"><div><dt>Subtotal</dt><dd>{formatCurrency(totals.grossTotal, currency)}</dd></div><div><dt>Descuento</dt><dd>−{formatCurrency(totals.discountTotal, currency)}</dd></div><div class="cashier-grand-total"><dt>Total</dt><dd>{formatCurrency(totals.netTotal, currency)}</dd></div></dl>
                   <fieldset class="cashier-payment-method"><legend>Método de pago</legend>{([{ value: 'cash', label: 'Efectivo' }, { value: 'card', label: 'Tarjeta' }, { value: 'transfer', label: 'Transferencia' }] as const).map(({ value, label }) => <label key={value}><input type="radio" name="payment-method" value={value} checked={paymentMethod === value} onChange={() => setPaymentMethod(value)} /><span>{label}{value !== 'cash' ? ' · simulado' : ''}</span></label>)}</fieldset>
                   {paymentMethod === 'cash' && <div class="cashier-cash-fields"><label><span>Monto recibido</span><input aria-label="Monto recibido" type="number" min={totals.netTotal} step="0.01" value={cashReceived} onInput={(event) => setCashReceived(event.currentTarget.value)} /></label><p>Cambio: <strong>{formatCurrency(changeDue, currency)}</strong></p></div>}

@@ -23,14 +23,54 @@ function seedAssistantState() {
   return { state, appointment, product: state.products![0]! };
 }
 
+function addProduct(productName: string) {
+  fireEvent.click(screen.getByRole('button', { name: /Producto para agregar/ }));
+  fireEvent.click(screen.getByRole('option', { name: new RegExp(productName) }));
+}
+
 describe('CashierPage', () => {
+  it('paginates the appointment queue in groups of five with previous and next controls', () => {
+    const { state } = seedAssistantState();
+    const template = state.appointments[0]!;
+    state.appointments = Array.from({ length: 12 }, (_, index) => ({
+      ...template,
+      id: `queue-${index}`,
+      clientName: `Queue client ${index}`,
+      startsAt: new Date(now.getTime() + index * 60_000).toISOString(),
+      status: 'confirmed' as const,
+      paymentStatus: 'pending' as const,
+    }));
+    saveAgendaState(localStorage, state);
+    render(<CashierPage now={now} />);
+    const getRows = () => [...document.querySelectorAll('.cashier-appointment-row')];
+    const firstPageFirstRow = getRows()[0]?.textContent;
+
+    expect(getRows()).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 3')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(getRows()).toHaveLength(5);
+    expect(getRows()[0]?.textContent).not.toBe(firstPageFirstRow);
+    fireEvent.click(screen.getByRole('button', { name: 'Página anterior' }));
+    expect(getRows()[0]?.textContent).toBe(firstPageFirstRow);
+  });
+
+  it('keeps the product catalog collapsed behind its selector', () => {
+    seedAssistantState();
+    render(<CashierPage now={now} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Venta rápida' }));
+    expect(screen.getByRole('button', { name: /Producto para agregar/ })).toBeTruthy();
+    expect(document.querySelector('.cashier-product-list')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Venta rápida' })).toBeNull();
+    expect(screen.getByText('Agrega productos para una venta sin cita.')).toBeTruthy();
+  });
+
   it('loads appointment services, adds a product, records payment, and shows its receipt', () => {
     const { state, appointment, product } = seedAssistantState();
     render(<CashierPage now={now} />);
 
     fireEvent.click(screen.getByRole('button', { name: `Cobrar ${appointment.clientName}` }));
     expect(screen.getByText(appointment.serviceName)).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: `Agregar producto ${product.name}` }));
+    addProduct(product.name);
     fireEvent.input(screen.getByLabelText('Monto recibido'), { target: { value: '1000' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar cobro' }));
 
@@ -50,7 +90,7 @@ describe('CashierPage', () => {
     render(<CashierPage now={now} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Venta rápida' }));
-    fireEvent.click(screen.getByRole('button', { name: `Agregar producto ${product.name}` }));
+    addProduct(product.name);
     fireEvent.input(screen.getByLabelText('Monto recibido'), { target: { value: '1000' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirmar cobro' }));
 
@@ -74,12 +114,12 @@ describe('CashierPage', () => {
   });
 
   it('opens the product-only flow from the quick-sale route', () => {
-    const { product } = seedAssistantState();
+    seedAssistantState();
     window.history.replaceState({}, '', '/cobrar/?quick=1');
     render(<CashierPage now={now} />);
 
     expect(screen.getByText('Venta de productos sin cita')).toBeTruthy();
-    expect(screen.getByRole('button', { name: `Agregar producto ${product.name}` })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Producto para agregar/ })).toBeTruthy();
   });
 
   it('opens the same checkout when launched from an appointment detail link', () => {

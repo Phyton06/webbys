@@ -1,4 +1,4 @@
-.cashier-page { --cashier-title-size: clamp(1.8rem, 5vw, 2.5rem); width: min(100%, 84rem); margin: 0 auto; padding: clamp(1rem, 4vw, 2rem); }
+.cashier-page { --cashier-title-size: clamp(1.8rem, 5vw, 2.5rem); width: 100%; margin: 0; padding: 0; }
 .cashier-heading, .cashier-section-heading, .cashier-customer-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .cashier-heading { margin-bottom: 1.25rem; }
 .cashier-heading h1, .cashier-customer-heading h2 { margin: 0; font-size: var(--cashier-title-size); }
@@ -6,13 +6,16 @@
 .cashier-secondary-button, .cashier-primary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0.65rem 0.9rem; border: 1px solid var(--control-border, #74767a); border-radius: 0.5rem; color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; }
 .cashier-primary-button { min-height: 3.25rem; border-color: var(--accent-action, #c52520); color: #fff; background: var(--accent-action, #c52520); }
 .cashier-primary-button:hover:not(:disabled) { background: var(--accent-hover, #b9231e); }
+.cashier-quick-sale-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; min-height: 2.9rem; padding: 0.65rem 1rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; font-weight: 700; cursor: pointer; }
+.cashier-quick-sale-button:hover { border-color: var(--accent, #e43d37); background: var(--surface-muted, #2a2c30); }
+.cashier-quick-sale-button:focus-visible, .cashier-filter-tabs button:focus-visible { outline: 2px solid var(--ink, #f4f2ef); outline-offset: 2px; }
 .cashier-primary-button:disabled, .cashier-secondary-button:disabled { opacity: 0.55; cursor: not-allowed; }
 .cashier-filters, .cashier-catalog-filters { display: grid; grid-template-columns: minmax(12rem, 2fr) minmax(10rem, 1fr) minmax(10rem, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
-.cashier-filters label, .cashier-catalog-filters label, .cashier-client-select, .cashier-promotion-select, .cashier-cash-fields label { display: grid; gap: 0.4rem; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-filters label, .cashier-catalog-filters label, .cashier-filter-control, .cashier-product-picker, .cashier-client-select, .cashier-promotion-select, .cashier-cash-fields label { display: grid; gap: 0.4rem; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .cashier-filters input, .cashier-filters select, .cashier-catalog-filters input, .cashier-catalog-filters select, .cashier-client-select select, .cashier-promotion-select select, .cashier-cash-fields input, .cashier-add-service select { width: 100%; min-height: 2.75rem; padding: 0.55rem 0.7rem; border: 1px solid var(--control-border, #74767a); border-radius: 0.5rem; color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; }
-.cashier-filter-tabs { display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 0.75rem; }
-.cashier-filter-tabs button { min-height: 2.5rem; padding: 0.5rem 0.75rem; border: 1px solid var(--divider, #34363a); border-radius: 999px; color: var(--ink-muted, #b6b4b0); background: transparent; white-space: nowrap; }
-.cashier-filter-tabs button.is-active { border-color: var(--accent, #e43d37); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); }
+.cashier-filter-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-bottom: 1rem; }
+.cashier-filter-tabs button { min-height: 2.75rem; padding: 0.5rem 0.65rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink-muted, #b6b4b0); background: var(--surface-raised, #222428); font: inherit; font-size: var(--text-sm, 0.875rem); font-weight: 600; }
+.cashier-filter-tabs button.is-active { border-color: var(--accent, #e43d37); color: var(--ink, #f4f2ef); background: var(--surface-muted, #2a2c30); box-shadow: inset 0 -2px var(--accent, #e43d37); }
 .cashier-appointment-list { border-top: 1px solid var(--divider, #34363a); }
 .cashier-appointment-row { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr) auto auto auto; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--divider, #34363a); }
 .cashier-appointment-row time { font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -41,6 +44,7 @@
 .cashier-remove-item { grid-column: 2 / 4; justify-self: end; border: 0; color: var(--ink-muted, #b6b4b0); background: transparent; text-decoration: underline; text-underline-offset: 0.15em; }
 .cashier-remove-item:disabled { display: none; }
 .cashier-section-heading { margin-bottom: 0.75rem; }
+.cashier-product-picker { max-width: 34rem; margin-top: 0.75rem; }
 .cashier-section-heading > span { color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .cashier-catalog-filters { grid-template-columns: 1.5fr 1fr; }
 .cashier-product-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.75rem; min-height: 4rem; border-top: 1px solid var(--divider, #34363a); }
@@ -49,7 +53,7 @@
 .cashier-add-service p { grid-column: 1 / -1; margin: 0; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .cashier-add-service label:not(.cashier-service-performed) { display: grid; gap: 0.35rem; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .cashier-add-service .cashier-service-performed { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.6rem; min-height: 2.5rem; color: var(--ink-muted, #b6b4b0); }
-.cashier-add-service .cashier-service-performed input { width: 1rem; height: 1rem; accent-color: var(--accent, #e43d37); }
+.cashier-add-service .cashier-service-performed input { width: 1.2rem; height: 1.2rem; flex: 0 0 auto; accent-color: var(--accent, #e43d37); }
 .cashier-payment-panel { position: sticky; top: 5rem; padding: 1rem; border: 1px solid var(--divider, #34363a); border-radius: 0.75rem; background: var(--surface, #191a1d); }
 .cashier-payment-panel h2 { margin: 0 0 1rem; font-size: var(--text-lg, 1.25rem); }
 .cashier-totals { display: grid; gap: 0.65rem; margin: 1rem 0; }
@@ -59,8 +63,9 @@
 .cashier-totals .cashier-grand-total { padding-top: 0.75rem; border-top: 1px solid var(--divider, #34363a); color: var(--ink, #f4f2ef); font-size: var(--text-lg, 1.25rem); font-weight: 700; }
 .cashier-payment-method { display: grid; gap: 0.5rem; padding: 0; border: 0; }
 .cashier-payment-method legend { margin-bottom: 0.5rem; font-weight: 700; }
-.cashier-payment-method label { display: flex; align-items: center; gap: 0.65rem; min-height: 2.75rem; color: var(--ink-muted, #b6b4b0); }
-.cashier-payment-method input { accent-color: var(--accent, #e43d37); }
+.cashier-payment-method label { display: flex; align-items: center; gap: 0.65rem; min-height: 2.75rem; padding: 0.4rem 0.65rem; border: 1px solid var(--divider, #34363a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink-muted, #b6b4b0); background: var(--surface-raised, #222428); cursor: pointer; }
+.cashier-payment-method label:has(input:checked) { border-color: var(--accent, #e43d37); color: var(--ink, #f4f2ef); }
+.cashier-payment-method input { width: 1.15rem; height: 1.15rem; accent-color: var(--accent, #e43d37); }
 .cashier-cash-fields { margin: 0.75rem 0; }
 .cashier-cash-fields p { display: flex; justify-content: space-between; color: var(--ink-muted, #b6b4b0); }
 .cashier-cash-fields p strong { color: var(--ink, #f4f2ef); }
@@ -85,10 +90,9 @@
   .cashier-payment-panel { position: static; }
 }
 @media (max-width: 620px) {
-  .cashier-page { padding: 1rem 0.85rem 1.5rem; }
-  .cashier-heading { align-items: flex-start; }
+  .cashier-heading { align-items: flex-start; flex-wrap: wrap; }
   .cashier-filters, .cashier-catalog-filters { grid-template-columns: 1fr; }
-  .cashier-filter-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+  .cashier-filter-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cashier-filter-tabs button { white-space: normal; }
   .cashier-appointment-row { grid-template-columns: 3.25rem minmax(0, 1fr); gap: 0.5rem 0.75rem; }
   .cashier-appointment-row time { grid-column: 1; grid-row: 1 / 4; align-self: start; }
