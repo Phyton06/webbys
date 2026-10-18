@@ -95,11 +95,13 @@ function ServiceForm({
     >
       <form class="appointment-form service-form" onSubmit={submit}>
         <header class="appointment-form-heading">
-          <div>
-            <h2 id="service-form-title">{service ? 'Editar servicio' : 'Nuevo servicio'}</h2>
-            <p>Define los datos que se usarán para calcular las citas.</p>
+          <div class="view-title-row">
+            <BackLink ariaLabel="Cerrar formulario de servicio" onClick={onCancel} />
+            <div>
+              <h2 id="service-form-title">{service ? 'Editar servicio' : 'Nuevo servicio'}</h2>
+              <p>Define los datos que se usarán para calcular las citas.</p>
+            </div>
           </div>
-          <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de servicio" onClick={onCancel}>Cerrar</button>
         </header>
         <label>
           <span>Nombre del servicio</span>

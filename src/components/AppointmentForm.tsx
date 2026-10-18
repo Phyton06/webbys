@@ -9,6 +9,7 @@ import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { ClientCombobox } from './ClientCombobox';
 import { Dropdown } from './Dropdown';
+import { BackLink } from './BackLink';
 
 const BOOKING_STATUS = {
   PENDING: 'pending',
@@ -191,22 +192,26 @@ export function AppointmentForm({ state, appointment, initialClientId, now, onSa
       {view === APPOINTMENT_FORM_VIEW.SUCCESS ? (
         <section class="appointment-success-view">
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="appointment-form-title">{appointment ? 'Cambios guardados.' : 'Cita guardada.'}</h2>
-              <p>{appointment ? 'La cita se actualizó correctamente.' : 'La cita se guardó correctamente.'}</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Cerrar confirmación" onClick={onCancel} />
+              <div>
+                <h2 id="appointment-form-title">{appointment ? 'Cambios guardados.' : 'Cita guardada.'}</h2>
+                <p>{appointment ? 'La cita se actualizó correctamente.' : 'La cita se guardó correctamente.'}</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar confirmación" onClick={onCancel}>Cerrar</button>
           </header>
           {!appointment && <AppointmentRegistrationLink />}
         </section>
       ) : view === APPOINTMENT_FORM_VIEW.ADD_CLIENT ? (
         <section class="appointment-client-create">
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="appointment-form-title">Agregar cliente</h2>
-              <p>Guarda sus datos y continúa con la cita.</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Volver a la cita" onClick={() => { setView(APPOINTMENT_FORM_VIEW.BOOKING); setError(''); }} />
+              <div>
+                <h2 id="appointment-form-title">Agregar cliente</h2>
+                <p>Guarda sus datos y continúa con la cita.</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de cita" onClick={onCancel}>Cerrar</button>
           </header>
           <form class="appointment-client-form" onSubmit={handleAddClient}>
             <label class="appointment-form-control">
@@ -220,18 +225,19 @@ export function AppointmentForm({ state, appointment, initialClientId, now, onSa
             {error && <p class="availability-error" role="alert">{error}</p>}
             <div class="appointment-form-actions">
               <button class="availability-save-button" type="submit">Guardar cliente</button>
-              <button class="appointment-form-cancel" type="button" onClick={() => { setView(APPOINTMENT_FORM_VIEW.BOOKING); setError(''); }}>Volver a la cita</button>
             </div>
           </form>
         </section>
       ) : (
         <form class="appointment-form" onSubmit={handleSubmit}>
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="appointment-form-title">{appointment ? 'Reprogramar cita' : 'Nueva cita'}</h2>
-              <p>Elige los datos de la cita y confirma el horario.</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Cerrar formulario de cita" onClick={onCancel} />
+              <div>
+                <h2 id="appointment-form-title">{appointment ? 'Reprogramar cita' : 'Nueva cita'}</h2>
+                <p>Elige los datos de la cita y confirma el horario.</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de cita" onClick={onCancel}>Cerrar</button>
           </header>
 
           <div class="appointment-form-fields">

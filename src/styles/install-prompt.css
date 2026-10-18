@@ -26,22 +26,6 @@
   backdrop-filter: blur(9px);
 }
 
-.install-modal-close {
-  position: absolute;
-  top: 0.9rem;
-  right: 0.9rem;
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border: 1px solid #393a3d;
-  border-radius: 50%;
-  background: #202124;
-  color: #e8e6e2;
-  font: 400 1.5rem/1 system-ui, sans-serif;
-  cursor: pointer;
-}
-
 .install-modal-logo {
   width: 7rem;
   height: 7rem;
@@ -69,6 +53,22 @@
   letter-spacing: -0.045em;
   line-height: 1.1;
 }
+
+.install-modal-title-row {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.install-modal-title-row .view-back-link {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  color: #e8e6e2;
+}
+
+.install-modal-title-row h2 { grid-column: 2; }
 
 .install-modal-intro {
   max-width: 30ch;

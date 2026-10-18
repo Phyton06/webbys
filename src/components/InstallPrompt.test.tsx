@@ -56,7 +56,10 @@ describe('InstallPrompt', () => {
 
   it('closes the installation dialog from its close button', () => {
     render(<InstallPrompt />);
-    fireEvent.click(screen.getByRole('button', { name: 'Cerrar invitación de instalación' }));
+    const back = screen.getByRole('button', { name: 'Cerrar invitación de instalación' });
+    expect(back.classList.contains('view-back-link')).toBe(true);
+    expect(back.compareDocumentPosition(screen.getByRole('heading', { name: 'Tu barbería, siempre a mano' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fireEvent.click(back);
     expect(screen.queryByRole('dialog', { name: 'Instala Webbys' })).toBeNull();
   });
 });

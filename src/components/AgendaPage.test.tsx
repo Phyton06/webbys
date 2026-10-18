@@ -23,6 +23,14 @@ describe('AgendaPage availability settings', () => {
     fireEvent.click(screen.getByRole('option', { name: time }));
   }
 
+  function chooseAgendaDate(dateKey: string) {
+    fireEvent.click(screen.getByRole('button', { name: /Fecha de la agenda:/ }));
+    const date = new Date(`${dateKey}T12:00:00`);
+    const label = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+    const capitalizedLabel = label.charAt(0).toLocaleUpperCase('es') + label.slice(1);
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${capitalizedLabel}`) }));
+  }
+
   it('keeps availability management out of Agenda', () => {
     localStorage.setItem('webbys:demo-session', 'active');
     saveAgendaState(localStorage, createAgendaSeed(now));
@@ -52,7 +60,7 @@ describe('AgendaPage availability settings', () => {
     const weekday = new Intl.DateTimeFormat('es', { weekday: 'long' }).format(saturday);
     render(<AgendaPage />);
 
-    fireEvent.input(screen.getByLabelText('Fecha de la agenda'), { target: { value: date } });
+    chooseAgendaDate(date);
     fireEvent.click(screen.getByRole('button', { name: 'Barbero: Todos' }));
     fireEvent.click(screen.getByRole('option', { name: 'Diego' }));
     const diegoAvailability = screen.getByRole('group', { name: 'Horarios de Diego' });
@@ -71,7 +79,7 @@ describe('AgendaPage availability settings', () => {
 
     cleanup();
     render(<AgendaPage />);
-    fireEvent.input(screen.getByLabelText('Fecha de la agenda'), { target: { value: date } });
+    chooseAgendaDate(date);
     fireEvent.click(screen.getByRole('button', { name: 'Barbero: Todos' }));
     fireEvent.click(screen.getByRole('option', { name: 'Diego' }));
     const updatedAvailability = screen.getByRole('group', { name: 'Horarios de Diego' });

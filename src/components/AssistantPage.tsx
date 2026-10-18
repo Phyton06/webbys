@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
+import { CalendarDays, CreditCard, ShoppingBag, UserRound } from 'lucide-preact';
 import { createDemoData } from '../data/demo';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState } from '../services/agenda-store';
@@ -61,11 +62,11 @@ export function AssistantPage({ now = new Date() }: AssistantPageProps) {
           <article><span>Total cobrado</span><strong>{formatCurrency(summary.netSales, currency)}</strong></article>
         </section>
         <section class="assistant-quick-actions" aria-label="Accesos rápidos">
-          <a href={sitePath('/cobrar/')}>Cobrar una cita</a>
-          <a href={sitePath('/agenda/')}>Agendar cita</a>
-          <a href={sitePath('/clientes/')}>Registrar cliente</a>
-          <a href={sitePath('/agenda/')}>Consultar agenda</a>
-          <a href={`${sitePath('/cobrar/')}?quick=1`}>Venta rápida de productos</a>
+          <a href={sitePath('/cobrar/')}><CreditCard size={18} aria-hidden="true" /><span>Cobrar una cita</span></a>
+          <a href={sitePath('/agenda/')}><CalendarDays size={18} aria-hidden="true" /><span>Agendar cita</span></a>
+          <a href={sitePath('/clientes/')}><UserRound size={18} aria-hidden="true" /><span>Registrar cliente</span></a>
+          <a href={sitePath('/agenda/')}><CalendarDays size={18} aria-hidden="true" /><span>Consultar agenda</span></a>
+          <a href={`${sitePath('/cobrar/')}?quick=1`}><ShoppingBag size={18} aria-hidden="true" /><span>Venta rápida de productos</span></a>
         </section>
         <section class="assistant-upcoming" aria-labelledby="assistant-upcoming-title">
           <h2 id="assistant-upcoming-title">Próximas citas</h2>

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { saveAgendaState } from '../services/agenda-store';
@@ -52,5 +52,7 @@ describe('AssistantPage', () => {
     expect(screen.getByRole('link', { name: 'Agendar cita' }).getAttribute('href')).toBe('/agenda/');
     expect(screen.getByRole('link', { name: 'Registrar cliente' }).getAttribute('href')).toBe('/clientes/');
     expect(screen.getByRole('link', { name: 'Venta rápida de productos' }).getAttribute('href')).toBe('/cobrar/?quick=1');
+    const actions = screen.getByRole('region', { name: 'Accesos rápidos' });
+    expect(within(actions).getAllByRole('link').every((link) => Boolean(link.querySelector('svg[aria-hidden="true"]')))).toBe(true);
   });
 });

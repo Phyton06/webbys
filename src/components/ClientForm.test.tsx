@@ -10,6 +10,9 @@ describe('ClientForm', () => {
     const onSave = vi.fn((_client: ClientRecord) => true);
     render(<ClientForm onSave={onSave} onCancel={vi.fn()} />);
     const dialog = screen.getByRole('dialog', { name: 'Nuevo cliente' });
+    const back = within(dialog).getByRole('button', { name: 'Cerrar formulario de cliente' });
+    expect(back.classList.contains('view-back-link')).toBe(true);
+    expect(back.compareDocumentPosition(within(dialog).getByRole('heading', { name: 'Nuevo cliente' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(within(dialog).queryByLabelText('Correo electrónico (opcional)')).toBeNull();
 
     fireEvent.input(screen.getByLabelText('Nombre del cliente'), { target: { value: 'Nueva Persona' } });
@@ -17,6 +20,7 @@ describe('ClientForm', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cliente' }));
 
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Cliente agregado.' })).toBeTruthy());
+    expect(screen.getByRole('button', { name: 'Cerrar confirmación' }).classList.contains('view-back-link')).toBe(true);
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Nueva Persona', phone: '555-0199', active: true }));
     expect((screen.getByLabelText('Enlace de registro genérico') as HTMLInputElement).value).toBe(`${window.location.origin}/registro`);
     expect(dialog.getAttribute('open')).not.toBeNull();

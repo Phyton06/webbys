@@ -54,7 +54,7 @@ describe('ServicesPage', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo servicio' }));
 
-    expect(screen.getByRole('button', { name: 'Cerrar formulario de servicio' }).className).toContain('appointment-form-close');
+    expect(screen.getByRole('button', { name: 'Cerrar formulario de servicio' }).className).toContain('view-back-link');
     fireEvent.click(screen.getByRole('button', { name: 'Estado: Todos' }));
     expect(screen.getByRole('listbox', { name: 'Estado' })).toBeTruthy();
     expect(screen.getByRole('option', { name: 'Activos' })).toBeTruthy();

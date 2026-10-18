@@ -54,14 +54,17 @@ describe('AgendaPanel', () => {
     expect(screen.queryByText('Cliente ayer')).toBeNull();
   });
 
-  it('shows the mobile month calendar and changes the selected-day appointment list', () => {
+  it('keeps the month calendar collapsed until the date control opens it', () => {
     render(<AgendaPanel state={state} now={now} />);
+    expect(screen.queryByRole('region', { name: 'Calendario mensual' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: /Fecha de la agenda/ }));
     const calendar = screen.getByRole('region', { name: 'Calendario mensual' });
 
     fireEvent.click(within(calendar).getByRole('button', { name: 'Viernes, 16 de octubre, 1 cita' }));
 
     expect(screen.getByText('Cliente manana')).toBeTruthy();
     expect(screen.queryByText('Cliente hoy-diego')).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Calendario mensual' })).toBeNull();
   });
 
   it('switches to a week view showing seven dated days and their appointments', () => {
@@ -76,7 +79,8 @@ describe('AgendaPanel', () => {
 
   it('updates the selected date and provides navigation for the chosen day', () => {
     render(<AgendaPanel state={state} now={now} />);
-    fireEvent.input(screen.getByLabelText('Fecha de la agenda'), { target: { value: '2026-10-16' } });
+    fireEvent.click(screen.getByRole('button', { name: /Fecha de la agenda/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Viernes, 16 de octubre, 1 cita' }));
 
     expect(screen.getByText('Cliente manana')).toBeTruthy();
     expect(screen.queryByText('Cliente hoy-diego')).toBeNull();
@@ -126,6 +130,7 @@ describe('AgendaPanel', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Nueva cita' }));
     expect(screen.getByRole('heading', { name: 'Nueva cita' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cerrar formulario de cita' }).className).toContain('view-back-link');
     fireEvent.click(screen.getByRole('button', { name: 'Horario 10:00' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guardar cita' }));
 

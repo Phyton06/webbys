@@ -8,14 +8,13 @@
 .cashier-primary-button:hover:not(:disabled) { background: var(--accent-hover, #b9231e); }
 .cashier-quick-sale-button { display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; min-height: 2.9rem; padding: 0.65rem 1rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; font-weight: 700; cursor: pointer; }
 .cashier-quick-sale-button:hover { border-color: var(--accent, #e43d37); background: var(--surface-muted, #2a2c30); }
-.cashier-quick-sale-button:focus-visible, .cashier-filter-tabs button:focus-visible { outline: 2px solid var(--ink, #f4f2ef); outline-offset: 2px; }
+.cashier-quick-sale-button:focus-visible { outline: 2px solid var(--ink, #f4f2ef); outline-offset: 2px; }
 .cashier-primary-button:disabled, .cashier-secondary-button:disabled { opacity: 0.55; cursor: not-allowed; }
-.cashier-filters, .cashier-catalog-filters { display: grid; grid-template-columns: minmax(12rem, 2fr) minmax(10rem, 1fr) minmax(10rem, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.cashier-filters, .cashier-catalog-filters { display: grid; gap: 0.75rem; margin-bottom: 1rem; }
+.cashier-filters { max-width: 34rem; grid-template-columns: minmax(0, 1fr); }
+.cashier-catalog-filters { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
 .cashier-filters label, .cashier-catalog-filters label, .cashier-filter-control, .cashier-product-picker, .cashier-client-select, .cashier-promotion-select, .cashier-cash-fields label { display: grid; gap: 0.4rem; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .cashier-filters input, .cashier-filters select, .cashier-catalog-filters input, .cashier-catalog-filters select, .cashier-client-select select, .cashier-promotion-select select, .cashier-cash-fields input, .cashier-add-service select { width: 100%; min-height: 2.75rem; padding: 0.55rem 0.7rem; border: 1px solid var(--control-border, #74767a); border-radius: 0.5rem; color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; }
-.cashier-filter-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin-bottom: 1rem; }
-.cashier-filter-tabs button { min-height: 2.75rem; padding: 0.5rem 0.65rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink-muted, #b6b4b0); background: var(--surface-raised, #222428); font: inherit; font-size: var(--text-sm, 0.875rem); font-weight: 600; }
-.cashier-filter-tabs button.is-active { border-color: var(--accent, #e43d37); color: var(--ink, #f4f2ef); background: var(--surface-muted, #2a2c30); box-shadow: inset 0 -2px var(--accent, #e43d37); }
 .cashier-appointment-list { border-top: 1px solid var(--divider, #34363a); }
 .cashier-appointment-row { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr) auto auto auto; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--divider, #34363a); }
 .cashier-appointment-row time { font-variant-numeric: tabular-nums; font-weight: 700; }
@@ -91,9 +90,7 @@
 }
 @media (max-width: 620px) {
   .cashier-heading { align-items: flex-start; flex-wrap: wrap; }
-  .cashier-filters, .cashier-catalog-filters { grid-template-columns: 1fr; }
-  .cashier-filter-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cashier-filter-tabs button { white-space: normal; }
+  .cashier-catalog-filters { grid-template-columns: 1fr; }
   .cashier-appointment-row { grid-template-columns: 3.25rem minmax(0, 1fr); gap: 0.5rem 0.75rem; }
   .cashier-appointment-row time { grid-column: 1; grid-row: 1 / 4; align-self: start; }
   .cashier-appointment-info { grid-column: 2; grid-row: 1; }

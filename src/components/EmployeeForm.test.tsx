@@ -23,6 +23,9 @@ describe('EmployeeForm', () => {
   it('creates an active employee with a pending invitation using only name, phone, and role', () => {
     const onSave = vi.fn((_employee: EmployeeRecord) => true);
     render(<EmployeeForm onSave={onSave} onCancel={() => undefined} />);
+    const back = screen.getByRole('button', { name: 'Cerrar formulario de empleado' });
+    expect(back.classList.contains('view-back-link')).toBe(true);
+    expect(back.compareDocumentPosition(screen.getByRole('heading', { name: 'Nuevo empleado' })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fillRequiredFields();
     fireEvent.click(screen.getByRole('button', { name: 'Rol: Selecciona un rol' }));
     fireEvent.click(screen.getByRole('option', { name: 'Administrador' }));
@@ -37,6 +40,7 @@ describe('EmployeeForm', () => {
       invitationStatus: 'pending',
     });
     expect(screen.getByRole('heading', { name: 'Empleado agregado.' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Cerrar confirmación' }).classList.contains('view-back-link')).toBe(true);
     const link = new URL((screen.getByLabelText('Enlace de registro genérico') as HTMLInputElement).value);
     expect(link.pathname).toBe('/registro');
     expect(link.search).toBe('');

@@ -16,7 +16,8 @@
 .assistant-metrics article span, .assistant-upcoming li div span { color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .assistant-metrics strong { font-size: var(--text-lg, 1.25rem); font-variant-numeric: tabular-nums; }
 .assistant-quick-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-top: 1rem; }
-.assistant-quick-actions a { display: flex; align-items: center; min-height: 3.25rem; padding: 0.75rem 1rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font-weight: 650; line-height: 1.35; text-decoration: none; transition: border-color 140ms ease, background-color 140ms ease; }
+.assistant-quick-actions a { display: flex; align-items: center; gap: 0.7rem; min-height: 3.25rem; padding: 0.75rem 1rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font-weight: 650; line-height: 1.35; text-decoration: none; transition: border-color 140ms ease, background-color 140ms ease; }
+.assistant-quick-actions a svg { flex: 0 0 auto; }
 .assistant-quick-actions a:hover { border-color: var(--accent, #e43d37); background: var(--surface-muted, #2a2c30); }
 .assistant-quick-actions a:first-child { border-color: var(--accent-action, #c52520); color: #fff; background: var(--accent-action, #c52520); }
 .assistant-quick-actions a:first-child:hover { background: var(--accent-hover, #b9231e); }

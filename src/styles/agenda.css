@@ -3,8 +3,7 @@
   gap: var(--space-6);
 }
 
-.agenda-toolbar .agenda-view-switch,
-.agenda-toolbar .agenda-date-control {
+.agenda-toolbar .agenda-view-switch {
   display: none;
 }
 
@@ -192,19 +191,7 @@
   font-size: var(--text-xs);
 }
 
-.agenda-date-control input {
-  width: 100%;
-  min-height: 2.75rem;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-control-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-raised);
-  color: var(--color-ink);
-  color-scheme: dark;
-  font: inherit;
-}
-
-.agenda-date-control input:focus-visible,
+.agenda-date-control .appointment-date-picker-trigger:focus-visible,
 .agenda-view-switch button:focus-visible,
 .agenda-date-arrow:focus-visible,
 .agenda-week-day-heading:focus-visible,
@@ -438,7 +425,6 @@
   font-size: var(--text-sm);
 }
 
-.appointment-form-close,
 .appointment-form-cancel {
   display: inline-flex;
   align-items: center;
@@ -455,13 +441,11 @@
   transition: background-color 140ms ease, border-color 140ms ease;
 }
 
-.appointment-form-close:hover,
 .appointment-form-cancel:hover {
   border-color: var(--color-accent);
   background: var(--color-surface-muted);
 }
 
-.appointment-form-close:focus-visible,
 .appointment-form-cancel:focus-visible,
 .appointment-form-actions button:focus-visible,
 .client-form-actions button:focus-visible {

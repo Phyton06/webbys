@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { sitePath } from '../lib/site-path';
+import { BackLink } from './BackLink';
 import '../styles/install-prompt.css';
 
 interface InstallChoiceEvent extends Event {
@@ -151,10 +152,13 @@ export function InstallPrompt() {
       onCancel={(event) => { event.preventDefault(); dismiss(); }}
       onClick={(event) => { if (event.target === dialogRef.current) dismiss(); }}
     >
-      <button class="install-modal-close" type="button" aria-label="Cerrar invitación de instalación" onClick={dismiss}>×</button>
       <img class="install-modal-logo" src={sitePath('/logo.jpeg')} alt="Logotipo de Webbys" width="112" height="112" />
       <p class="install-modal-eyebrow">WEBBYS · BARBERSHOP</p>
-      <h2>Tu barbería, siempre a mano</h2>
+      <div class="install-modal-title-row">
+        <BackLink ariaLabel="Cerrar invitación de instalación" onClick={dismiss} />
+        <h2>Tu barbería, siempre a mano</h2>
+        <span aria-hidden="true" />
+      </div>
       <p class="install-modal-intro">Añade Webbys a tu pantalla de inicio para abrirlo como una app.</p>
 
       {installEvent && !showManualSteps ? (

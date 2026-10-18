@@ -65,6 +65,7 @@ describe('ProductsPage', () => {
   it('creates a product with price, optional cost, stock, category, and local image path', () => {
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nuevo producto' }));
+    expect(screen.getByRole('button', { name: 'Cerrar formulario de producto' }).classList.contains('view-back-link')).toBe(true);
     fireEvent.input(screen.getByLabelText('Nombre del producto'), { target: { value: 'Cera mate' } });
     fireEvent.input(screen.getByLabelText('Descripción'), { target: { value: 'Fijación media' } });
     fireEvent.input(screen.getByLabelText('Precio de venta'), { target: { value: '180' } });

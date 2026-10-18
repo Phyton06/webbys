@@ -19,8 +19,6 @@ interface CashierPageProps {
   now?: Date;
 }
 
-type AppointmentFilter = 'all' | 'pending' | 'completed' | 'paid';
-
 function newCheckoutKey(): string {
   return typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
@@ -124,15 +122,14 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
   const [state, setState] = useState(initial.state);
   const [requestedAppointmentId] = useState(() => {
     if (typeof window === 'undefined') return undefined;
-    const id = new URLSearchParams(window.location.search).get('appointmentId') ?? undefined;
-    return getEligibleAppointments(initial.state, now).some(({ id: eligibleId }) => eligibleId === id) ? id : undefined;
+    const appointmentId = new URLSearchParams(window.location.search).get('appointmentId') ?? undefined;
+    return getEligibleAppointments(initial.state, now).some(({ id, startsAt }) => (
+      id === appointmentId && appointmentDateKey(startsAt) === dateKey(now)
+    )) ? appointmentId : undefined;
   });
   const [storageError] = useState(initial.error);
   const [search, setSearch] = useState('');
-  const [appointmentFilter, setAppointmentFilter] = useState<AppointmentFilter>('all');
   const [appointmentPage, setAppointmentPage] = useState(0);
-  const [dateFilter, setDateFilter] = useState('');
-  const [barberFilter, setBarberFilter] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [selectedProductId, setSelectedProductId] = useState('');
@@ -157,20 +154,13 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
 
   const visibleAppointments = useMemo(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase('es');
-    const appointments = appointmentFilter === 'paid'
-      ? state.appointments.filter(({ paymentStatus }) => paymentStatus === 'paid')
-      : getEligibleAppointments(state, now);
-    return appointments
-      .filter((appointment) => appointmentFilter === 'all' || appointmentFilter === 'paid'
-        || (appointmentFilter === 'pending' ? appointment.status !== 'completed' : appointment.status === 'completed'))
-      .filter((appointment) => !dateFilter || appointmentDateKey(appointment.startsAt) === dateFilter)
-      .filter((appointment) => !barberFilter || appointment.barberId === barberFilter)
+    return getEligibleAppointments(state, now)
+      .filter((appointment) => appointmentDateKey(appointment.startsAt) === todayKey)
       .filter((appointment) => !normalizedSearch
         || appointment.clientName.toLocaleLowerCase('es').includes(normalizedSearch)
         || appointment.barberName.toLocaleLowerCase('es').includes(normalizedSearch))
-      .sort((first, second) => Number(appointmentDateKey(second.startsAt) === todayKey) - Number(appointmentDateKey(first.startsAt) === todayKey)
-        || new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime());
-  }, [appointmentFilter, barberFilter, dateFilter, now, search, state]);
+      .sort((first, second) => new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime());
+  }, [now, search, state, todayKey]);
   const appointmentPageCount = Math.ceil(visibleAppointments.length / RECORD_PAGE_SIZE);
   const pageAppointments = pageRecords(visibleAppointments, Math.min(appointmentPage, Math.max(0, appointmentPageCount - 1)));
 
@@ -308,13 +298,6 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
     setState(loadAgendaState(window.localStorage, now).state);
   }
 
-  const appointmentFilters: Array<{ value: AppointmentFilter; label: string }> = [
-    { value: 'pending', label: 'Pendientes de cobro' },
-    { value: 'completed', label: 'Completadas sin cobro' },
-    { value: 'all', label: 'Todas elegibles' },
-    { value: 'paid', label: 'Pagadas · consulta' },
-  ];
-
   return (
     <AdminGate role="assistant">
       <AssistantShell activeSection="Cobrar">
@@ -331,14 +314,9 @@ export function CashierPage({ now = new Date() }: CashierPageProps) {
             {error && <p class="cashier-error" role="alert">{error}</p>}
             {!selectedAppointment && !quickSale ? (
               <>
-                <section class="cashier-filters" aria-label="Buscar citas pendientes de cobro">
-                  <label><span>Buscar cliente o barbero</span><input type="search" value={search} onInput={(event) => { setSearch(event.currentTarget.value); setAppointmentPage(0); }} /></label>
-                  <label><span>Fecha</span><input type="date" value={dateFilter} onInput={(event) => { setDateFilter(event.currentTarget.value); setAppointmentPage(0); }} /></label>
-                  <div class="cashier-filter-control"><span>Barbero</span><Dropdown label="Barbero" value={barberFilter} options={[{ value: '', label: 'Todos' }, ...state.barbers.map(({ id, name }) => ({ value: id, label: name }))]} onChange={(value) => { setBarberFilter(value); setAppointmentPage(0); }} /></div>
+                <section class="cashier-filters" aria-label="Buscar citas de hoy para cobrar">
+                  <label><span>Buscar cliente o barbero</span><input type="search" aria-label="Buscar cliente o barbero" value={search} onInput={(event) => { setSearch(event.currentTarget.value); setAppointmentPage(0); }} /></label>
                 </section>
-                <div class="cashier-filter-tabs" role="group" aria-label="Filtrar citas por estado de atención">
-                  {appointmentFilters.map(({ value, label }) => <button class={appointmentFilter === value ? 'is-active' : ''} type="button" aria-pressed={appointmentFilter === value} onClick={() => { setAppointmentFilter(value); setAppointmentPage(0); }} key={value}>{label}</button>)}
-                </div>
                 <section class="cashier-appointment-list" aria-label="Citas pendientes de pago">
                   {visibleAppointments.length ? pageAppointments.map((appointment) => {
                     const services = appointment.serviceIds.flatMap((id) => state.services.filter((service) => service.id === id));

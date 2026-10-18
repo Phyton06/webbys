@@ -101,15 +101,35 @@ describe('CashierPage', () => {
     expect(saved.products?.find(({ id }) => id === product.id)?.stock).toBe(product.stock - 1);
   });
 
-  it('shows paid appointments for consultation without offering a second charge', () => {
+  it('excludes paid appointments because the cashier only shows unpaid work for today', () => {
     const { state, appointment } = seedAssistantState();
     state.appointments[0] = { ...appointment, paymentStatus: 'paid' };
     saveAgendaState(localStorage, state);
     render(<CashierPage now={now} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Pagadas · consulta' }));
-    expect(screen.getByText(appointment.clientName)).toBeTruthy();
-    expect(screen.getByText('Pagada · solo consulta')).toBeTruthy();
+    expect(screen.queryByText(appointment.clientName)).toBeNull();
+    expect(screen.queryByRole('button', { name: `Cobrar ${appointment.clientName}` })).toBeNull();
+    expect(screen.queryAllByRole('button', { name: /Pagadas|Completadas|Todas elegibles|Pendientes de cobro/ })).toHaveLength(0);
+  });
+
+  it('limits the queue to unpaid appointments today and searches by client or barber', () => {
+    const { state, appointment } = seedAssistantState();
+    const template = state.appointments[0]!;
+    const tomorrow = { ...template, id: 'tomorrow-unpaid', clientName: 'Tomorrow Client', startsAt: new Date(now.getTime() + 86_400_000).toISOString(), paymentStatus: 'pending' as const };
+    state.appointments = [{ ...appointment, id: 'today-unpaid', startsAt: now.toISOString(), paymentStatus: 'pending' }, tomorrow];
+    saveAgendaState(localStorage, state);
+    render(<CashierPage now={now} />);
+    const search = screen.getByRole('searchbox', { name: 'Buscar cliente o barbero' });
+
+    expect(screen.getByRole('button', { name: `Cobrar ${appointment.clientName}` })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Cobrar Tomorrow Client' })).toBeNull();
+    expect(document.querySelector('input[type="date"]')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Barbero: Todos' })).toBeNull();
+
+    fireEvent.input(search, { target: { value: appointment.barberName } });
+    expect(screen.getByRole('button', { name: `Cobrar ${appointment.clientName}` })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Cobrar Tomorrow Client' })).toBeNull();
+    fireEvent.input(search, { target: { value: 'Tomorrow Client' } });
     expect(screen.queryByRole('button', { name: `Cobrar ${appointment.clientName}` })).toBeNull();
   });
 

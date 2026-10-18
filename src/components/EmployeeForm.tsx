@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { X } from 'lucide-preact';
 import {
   EMPLOYEE_INVITATION_STATUS,
   EMPLOYEE_ROLE,
@@ -10,6 +9,7 @@ import {
 import type { DropdownOption } from './Dropdown';
 import { Dropdown } from './Dropdown';
 import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
+import { BackLink } from './BackLink';
 
 interface EmployeeFormProps {
   employee?: EmployeeRecord;
@@ -96,14 +96,13 @@ export function EmployeeForm({ employee, roleLocked = false, onSave, onCancel }:
       {view === 'created' ? (
         <section class="appointment-success-view employee-created-view">
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="employee-form-title">Empleado agregado.</h2>
-              <p>El registro se guardó en este dispositivo con el rol de {employeeRoleOptions.find((option) => option.value === role)?.label}.</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Cerrar confirmación" onClick={onCancel} />
+              <div>
+                <h2 id="employee-form-title">Empleado agregado.</h2>
+                <p>El registro se guardó en este dispositivo con el rol de {employeeRoleOptions.find((option) => option.value === role)?.label}.</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar confirmación" onClick={onCancel}>
-              <X size={16} aria-hidden="true" />
-              <span>Cerrar</span>
-            </button>
           </header>
           <p class="employee-registration-note">Este enlace es genérico y no completa el registro de la cuenta.</p>
           <AppointmentRegistrationLink />
@@ -111,14 +110,13 @@ export function EmployeeForm({ employee, roleLocked = false, onSave, onCancel }:
       ) : (
         <form class="appointment-form employee-form" onSubmit={handleSubmit}>
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="employee-form-title">{employee ? 'Editar empleado' : 'Nuevo empleado'}</h2>
-              <p>Guarda los datos de contacto y el rol del empleado.</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Cerrar formulario de empleado" onClick={onCancel} />
+              <div>
+                <h2 id="employee-form-title">{employee ? 'Editar empleado' : 'Nuevo empleado'}</h2>
+                <p>Guarda los datos de contacto y el rol del empleado.</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de empleado" onClick={onCancel}>
-              <X size={16} aria-hidden="true" />
-              <span>Cerrar</span>
-            </button>
           </header>
           <div class="appointment-form-fields">
             <label class="appointment-form-control">

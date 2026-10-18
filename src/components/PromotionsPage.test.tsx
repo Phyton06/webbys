@@ -54,6 +54,7 @@ describe('PromotionsPage', () => {
     const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
     renderPage();
     fireEvent.click(screen.getByRole('button', { name: 'Nueva promoción' }));
+    expect(screen.getByRole('button', { name: 'Cerrar formulario de promoción' }).classList.contains('view-back-link')).toBe(true);
     fireEvent.input(screen.getByLabelText('Nombre de la promoción'), { target: { value: 'Oferta en dólares' } });
     fireEvent.input(screen.getByRole('combobox', { name: 'Buscar productos y servicios' }), { target: { value: 'corte' } });
     fireEvent.click(screen.getByRole('option', { name: /Servicio: Corte · USD/ }));

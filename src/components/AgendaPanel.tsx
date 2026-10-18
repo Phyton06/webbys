@@ -186,6 +186,8 @@ function AppointmentDisclosure({
 export function AgendaPanel({ state, now = new Date(), initialClientId, onAppointmentSave, onClientSave }: AgendaPanelProps) {
   const [view, setView] = useState<(typeof AGENDA_VIEW)[keyof typeof AGENDA_VIEW]>(AGENDA_VIEW.DAY);
   const [selectedDate, setSelectedDate] = useState(() => localDateKey(now));
+  const [calendarDate, setCalendarDate] = useState(() => localDateKey(now));
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [selectedBarber, setSelectedBarber] = useState(ALL_BARBERS);
   const [appointmentFormState, setAppointmentFormState] = useState<AppointmentFormState>(() => (
     initialClientId && state.clients.some(({ id }) => id === initialClientId)
@@ -208,7 +210,16 @@ export function AgendaPanel({ state, now = new Date(), initialClientId, onAppoin
   function navigateDate(direction: -1 | 1) {
     const nextDate = new Date(selectedDateValue);
     nextDate.setDate(nextDate.getDate() + direction * (view === AGENDA_VIEW.DAY ? 1 : 7));
-    setSelectedDate(localDateKey(nextDate));
+    const nextDateKey = localDateKey(nextDate);
+    setSelectedDate(nextDateKey);
+    setCalendarDate(nextDateKey);
+    setDatePickerOpen(false);
+  }
+
+  function selectDate(date: string) {
+    setSelectedDate(date);
+    setCalendarDate(date);
+    setDatePickerOpen(false);
   }
 
   function openCreateForm() {
@@ -259,22 +270,40 @@ export function AgendaPanel({ state, now = new Date(), initialClientId, onAppoin
 
       <div class="agenda-toolbar">
         <div class="agenda-view-switch" role="group" aria-label="Vista de agenda">
-          <button type="button" aria-pressed={view === AGENDA_VIEW.DAY} onClick={() => setView(AGENDA_VIEW.DAY)}>Día</button>
-          <button type="button" aria-pressed={view === AGENDA_VIEW.WEEK} onClick={() => setView(AGENDA_VIEW.WEEK)}>Semana</button>
+          <button type="button" aria-pressed={view === AGENDA_VIEW.DAY} onClick={() => { setView(AGENDA_VIEW.DAY); setDatePickerOpen(false); }}>Día</button>
+          <button type="button" aria-pressed={view === AGENDA_VIEW.WEEK} onClick={() => { setView(AGENDA_VIEW.WEEK); setDatePickerOpen(false); }}>Semana</button>
         </div>
 
-        <label class="agenda-date-control">
+        <div class="agenda-date-control">
           <span>Fecha</span>
-          <input
-            type="date"
-            aria-label="Fecha de la agenda"
-            value={selectedDate}
-            onInput={(event) => {
-              const value = (event.currentTarget as HTMLInputElement).value;
-              if (/^\d{4}-\d{2}-\d{2}$/.test(value)) setSelectedDate(value);
-            }}
-          />
-        </label>
+          <div class="appointment-date-picker-control">
+            <button
+              class="appointment-date-picker-trigger"
+              type="button"
+              aria-label={`Fecha de la agenda: ${formatDate(selectedDateValue, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}`}
+              aria-expanded={datePickerOpen}
+              aria-controls="agenda-calendar-popover"
+              onClick={() => {
+                if (!datePickerOpen) setCalendarDate(selectedDate);
+                setDatePickerOpen((open) => !open);
+              }}
+            >
+              <span>{formatDate(selectedDateValue, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              <span aria-hidden="true">Calendario</span>
+            </button>
+            {datePickerOpen && (
+              <div id="agenda-calendar-popover" class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
+                <MobileMonthCalendar
+                  selectedDate={selectedDate}
+                  displayedMonth={calendarDate}
+                  appointments={state.appointments}
+                  onNavigateMonth={setCalendarDate}
+                  onSelectDate={selectDate}
+                />
+              </div>
+            )}
+          </div>
+        </div>
 
         <div class="agenda-barber-control">
           <span>Barbero</span>
@@ -302,7 +331,6 @@ export function AgendaPanel({ state, now = new Date(), initialClientId, onAppoin
         </button>
       </div>
 
-      <MobileMonthCalendar selectedDate={selectedDate} appointments={state.appointments} onSelectDate={setSelectedDate} />
       <section class={`agenda-day-view${view === AGENDA_VIEW.WEEK ? ' is-hidden-on-desktop' : ''}`} aria-label="Agenda diaria">
         <h2 class="agenda-mobile-day-title">{formatDayTitle(selectedDateValue)}</h2>
         {onAppointmentSave && (
@@ -336,7 +364,7 @@ export function AgendaPanel({ state, now = new Date(), initialClientId, onAppoin
                   class={`agenda-week-day-heading${dayKey === selectedDate ? ' is-selected' : ''}`}
                   type="button"
                   aria-pressed={dayKey === selectedDate}
-                  onClick={() => setSelectedDate(dayKey)}
+                  onClick={() => selectDate(dayKey)}
                 >
                   <span>{formatDate(day, { weekday: 'long' })}</span>
                   <strong>{formatDate(day, { day: 'numeric', month: 'short' })}</strong>

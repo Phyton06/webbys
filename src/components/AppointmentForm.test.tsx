@@ -17,6 +17,17 @@ function createFormState(): AgendaState {
 }
 
 describe('AppointmentForm', () => {
+  it('uses a leading back-chevron instead of a text close control', () => {
+    render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
+    const back = screen.getByRole('button', { name: 'Cerrar formulario de cita' });
+    const heading = screen.getByRole('heading', { name: 'Nueva cita' });
+
+    expect(back.classList.contains('view-back-link')).toBe(true);
+    expect(back.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+    expect(back.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(back.textContent?.trim()).toBe('');
+  });
+
   it('shows total duration and price for selected services', () => {
     render(<AppointmentForm state={createFormState()} now={now} onSave={vi.fn(() => true)} onCancel={vi.fn()} />);
     fireEvent.click(screen.getByRole('checkbox', { name: 'Servicio Barba · 30 min' }));

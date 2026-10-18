@@ -118,11 +118,13 @@ function ProductForm({
     >
       <form class="appointment-form product-form" onSubmit={submit}>
         <header class="appointment-form-heading">
-          <div>
-            <h2 id="product-form-title">{product ? 'Editar producto' : 'Nuevo producto'}</h2>
-            <p>Administra el catálogo y las existencias actuales.</p>
+          <div class="view-title-row">
+            <BackLink ariaLabel="Cerrar formulario de producto" onClick={onCancel} />
+            <div>
+              <h2 id="product-form-title">{product ? 'Editar producto' : 'Nuevo producto'}</h2>
+              <p>Administra el catálogo y las existencias actuales.</p>
+            </div>
           </div>
-          <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de producto" onClick={onCancel}>Cerrar</button>
         </header>
         <label class="appointment-form-control">
           <span>Nombre del producto</span>

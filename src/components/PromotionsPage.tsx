@@ -264,11 +264,13 @@ function PromotionForm({
     >
       <form class="appointment-form promotion-form" onSubmit={submit}>
         <header class="appointment-form-heading">
-          <div>
-            <h2 id="promotion-form-title">{promotion ? 'Editar promoción' : 'Nueva promoción'}</h2>
-            <p>Arma un paquete o aplica un descuento individual a productos y servicios.</p>
+          <div class="view-title-row">
+            <BackLink ariaLabel="Cerrar formulario de promoción" onClick={onCancel} />
+            <div>
+              <h2 id="promotion-form-title">{promotion ? 'Editar promoción' : 'Nueva promoción'}</h2>
+              <p>Arma un paquete o aplica un descuento individual a productos y servicios.</p>
+            </div>
           </div>
-          <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de promoción" onClick={onCancel}>Cerrar</button>
         </header>
         <label class="appointment-form-control">
           <span>Nombre de la promoción</span>

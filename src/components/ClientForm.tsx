@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { X } from 'lucide-preact';
 import type { ClientRecord } from '../types/agenda';
 import { AppointmentRegistrationLink } from './AppointmentRegistrationLink';
+import { BackLink } from './BackLink';
 
 interface ClientFormProps {
   client?: ClientRecord;
@@ -66,28 +66,26 @@ export function ClientForm({ client, onSave, onCancel }: ClientFormProps) {
       {view === 'created' ? (
         <section class="appointment-success-view">
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="client-form-title">Cliente agregado.</h2>
-              <p>El registro se guardó en este dispositivo.</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Cerrar confirmación" onClick={onCancel} />
+              <div>
+                <h2 id="client-form-title">Cliente agregado.</h2>
+                <p>El registro se guardó en este dispositivo.</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar confirmación" onClick={onCancel}>
-              <X size={16} aria-hidden="true" />
-              <span>Cerrar</span>
-            </button>
           </header>
           <AppointmentRegistrationLink />
         </section>
       ) : (
         <form class="appointment-form" onSubmit={handleSubmit}>
           <header class="appointment-form-heading">
-            <div>
-              <h2 id="client-form-title">{client ? 'Editar cliente' : 'Nuevo cliente'}</h2>
-              <p>Guarda los datos de contacto del cliente.</p>
+            <div class="view-title-row">
+              <BackLink ariaLabel="Cerrar formulario de cliente" onClick={onCancel} />
+              <div>
+                <h2 id="client-form-title">{client ? 'Editar cliente' : 'Nuevo cliente'}</h2>
+                <p>Guarda los datos de contacto del cliente.</p>
+              </div>
             </div>
-            <button class="appointment-form-close" type="button" aria-label="Cerrar formulario de cliente" onClick={onCancel}>
-              <X size={16} aria-hidden="true" />
-              <span>Cerrar</span>
-            </button>
           </header>
           <div class="client-form-fields">
             <label class="appointment-form-control">
