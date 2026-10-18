@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import { Eye, EyeOff } from 'lucide-preact';
 import { startDemoSession } from '../lib/demo-auth';
+import { sitePath } from '../lib/site-path';
 
 interface LoginFormProps {
   onAuthenticated?: () => void;
@@ -25,7 +26,7 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
         if (onAuthenticated) {
           onAuthenticated();
         } else {
-          window.location.assign('/admin/');
+          window.location.assign(sitePath('/admin/'));
         }
       }, 220);
     } catch {
@@ -70,8 +71,8 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
         </aside>
 
         <section class="login-content" aria-labelledby="login-title">
-          <a class="wordmark" href="/" aria-label="Webby's Barbershop, inicio">
-            <img class="wordmark-logo" src="/logo.jpeg" alt="Webby's Barbershop" />
+          <a class="wordmark" href={sitePath('/')} aria-label="Webby's Barbershop, inicio">
+            <img class="wordmark-logo" src={sitePath('/logo.jpeg')} alt="Webby's Barbershop" />
             <span>Webby's Barbershop</span>
           </a>
 

@@ -24,6 +24,12 @@ npm run check
 npm run build
 ```
 
+## Publicación
+
+El repositorio publica el sitio en GitHub Pages mediante `.github/workflows/deploy.yml` al actualizar `main`. La aplicación se sirve desde `https://phyton06.github.io/webbys/` y utiliza el icono incluido en `public/icons/`.
+
+La invitación de instalación ejecuta el diálogo nativo cuando el navegador lo ofrece después de una acción del usuario. En iPhone/iPad muestra los pasos de Safari; no es posible abrir el diálogo automáticamente al cargar la página.
+
 ## Límites de la demostración
 
 El acceso, los datos y las interacciones son locales y simulados. No se envían credenciales, no hay backend ni base de datos y no se realizan operaciones comerciales reales. Los montos y registros que se muestran son de demostración.

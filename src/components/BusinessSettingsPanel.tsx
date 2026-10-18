@@ -16,6 +16,7 @@ import {
   validateBusinessSettings,
 } from '../services/business-settings-store';
 import { TIME_OPTIONS } from '../services/time-options';
+import { sitePath } from '../lib/site-path';
 import { Dropdown, type DropdownOption } from './Dropdown';
 import '../styles/business-settings.css';
 
@@ -209,7 +210,7 @@ export function BusinessSettingsPanel({ section }: BusinessSettingsPanelProps) {
               </div>
               <figure class="business-current-logo">
                 <figcaption>Logotipo actual</figcaption>
-                <img src="/logo.jpeg" alt="Logotipo actual del negocio" />
+                <img src={sitePath('/logo.jpeg')} alt="Logotipo actual del negocio" />
               </figure>
             </div>
           )}

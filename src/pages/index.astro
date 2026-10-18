@@ -1,5 +1,6 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
+import { sitePath } from '../lib/site-path';
 ---
 
 <AppLayout title="Webbys · Administración">
@@ -10,7 +11,7 @@ import AppLayout from '../layouts/AppLayout.astro';
     </div>
     <h1>Panel de administración<br />para tu barbería.</h1>
     <p class="entry-copy">Administra Webby's Barbershop desde un solo lugar.</p>
-    <a class="entry-link" href="/login/">Iniciar sesión <span aria-hidden="true">↗</span></a>
+    <a class="entry-link" href={sitePath('/login/')}>Iniciar sesión <span aria-hidden="true">↗</span></a>
   </main>
 </AppLayout>
 

@@ -16,6 +16,7 @@ import {
 } from 'lucide-preact';
 import type { ComponentChildren } from 'preact';
 import { endDemoSession } from '../lib/demo-auth';
+import { sitePath } from '../lib/site-path';
 
 interface AdminShellProps {
   children: ComponentChildren;
@@ -47,28 +48,28 @@ function isNavigationGroup(section: NavigationSection): section is NavigationGro
 }
 
 const desktopSections: NavigationSection[] = [
-  { label: ACTIVE_ADMIN_SECTION.HOME, icon: Home, href: '/admin/' },
-  { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
-  { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
-  { label: 'Empleados', icon: UsersRound, href: '/empleados/' },
+  { label: ACTIVE_ADMIN_SECTION.HOME, icon: Home, href: sitePath('/admin/') },
+  { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: sitePath('/agenda/') },
+  { label: 'Clientes', icon: UsersRound, href: sitePath('/clientes/') },
+  { label: 'Empleados', icon: UsersRound, href: sitePath('/empleados/') },
   {
     label: 'Catálogo',
     icon: Package,
     children: [
-      { label: 'Servicios', icon: Scissors, href: '/servicios/' },
-      { label: 'Productos', icon: Package, href: '/productos/' },
+      { label: 'Servicios', icon: Scissors, href: sitePath('/servicios/') },
+      { label: 'Productos', icon: Package, href: sitePath('/productos/') },
     ],
   },
-  { label: 'Promociones', icon: Tag, href: '/promociones/' },
-  { label: 'Ventas', icon: CreditCard, href: '/ventas/' },
-  { label: 'Analíticas', icon: BarChart3, href: '/analiticas/' },
-  { label: 'Notificaciones', icon: Bell, href: '/notificaciones/' },
-  { label: 'Configuración', icon: Settings2, href: '/configuracion/' },
+  { label: 'Promociones', icon: Tag, href: sitePath('/promociones/') },
+  { label: 'Ventas', icon: CreditCard, href: sitePath('/ventas/') },
+  { label: 'Analíticas', icon: BarChart3, href: sitePath('/analiticas/') },
+  { label: 'Notificaciones', icon: Bell, href: sitePath('/notificaciones/') },
+  { label: 'Configuración', icon: Settings2, href: sitePath('/configuracion/') },
 ];
 
 const mobileQuickSections: NavigationLink[] = [
-  { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: '/agenda/' },
-  { label: 'Clientes', icon: UsersRound, href: '/clientes/' },
+  { label: ACTIVE_ADMIN_SECTION.AGENDA, icon: CalendarDays, href: sitePath('/agenda/') },
+  { label: 'Clientes', icon: UsersRound, href: sitePath('/clientes/') },
 ];
 
 const mobileMoreSections = desktopSections.filter(({ label }) => label !== 'Inicio' && label !== 'Agenda' && label !== 'Clientes');
@@ -91,7 +92,7 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
       if (onSignOut) {
         onSignOut();
       } else {
-        window.location.assign('/login/');
+        window.location.assign(sitePath('/login/'));
       }
     } catch {
       setAnnouncement('No se pudo cerrar la sesión. Revisa el almacenamiento del navegador.');
@@ -102,8 +103,8 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
     <div class="admin-app">
       <a class="skip-link" href="#main-content">Saltar al contenido</a>
       <aside class="desktop-sidebar">
-        <a class="admin-wordmark" href="/admin/" aria-label="Webby's Barbershop, inicio">
-          <img class="admin-logo" src="/logo.jpeg" alt="" />
+        <a class="admin-wordmark" href={sitePath('/admin/')} aria-label="Webby's Barbershop, inicio">
+          <img class="admin-logo" src={sitePath('/logo.jpeg')} alt="" />
           <span>Webby's Barbershop</span>
         </a>
         <p class="sidebar-caption">BARBERÍA</p>
@@ -183,8 +184,8 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
 
       <div class="admin-workspace">
         <header class="admin-topbar">
-          <a class="mobile-wordmark" href="/admin/" aria-label="Webby's Barbershop, inicio">
-            <img class="admin-logo" src="/logo.jpeg" alt="" />
+          <a class="mobile-wordmark" href={sitePath('/admin/')} aria-label="Webby's Barbershop, inicio">
+            <img class="admin-logo" src={sitePath('/logo.jpeg')} alt="" />
             <span>Webby's Barbershop</span>
           </a>
           <div class="topbar-spacer" />
@@ -261,7 +262,7 @@ export function AdminShell({ children, activeSection = ACTIVE_ADMIN_SECTION.HOME
       <nav class="mobile-navigation" aria-label="Navegación móvil">
         <a
           class={`mobile-nav-item${activeSection === ACTIVE_ADMIN_SECTION.HOME ? ' is-active' : ''}`}
-          href="/admin/"
+          href={sitePath('/admin/')}
           aria-current={activeSection === ACTIVE_ADMIN_SECTION.HOME ? 'page' : undefined}
         >
           <Home size={19} aria-hidden="true" />

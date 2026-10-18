@@ -23,6 +23,7 @@ import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { NotificationRecipientPicker } from './NotificationRecipientPicker';
 import '../styles/notifications.css';
+import { sitePath } from '../lib/site-path';
 
 interface NotificationsPageProps {
   now?: Date;
@@ -112,7 +113,7 @@ function localDeviceTestMessage(result: LocalNotificationTestResult): string {
 }
 
 async function showOnDevice(title: string, body: string): Promise<void> {
-  const registration = await navigator.serviceWorker.register('/notification-test-sw.js');
+  const registration = await navigator.serviceWorker.register(sitePath('/notification-test-sw.js'));
   const readyRegistration = await navigator.serviceWorker.ready;
   const worker = registration.active ?? readyRegistration.active;
   if (!worker) throw new Error('The local notification service worker is not active.');

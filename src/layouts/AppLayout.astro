@@ -1,5 +1,7 @@
 ---
 import '../styles/tokens.css';
+import { InstallPrompt } from '../components/InstallPrompt';
+import { sitePath } from '../lib/site-path';
 
 interface Props {
   title: string;
@@ -20,12 +22,13 @@ const {
     <meta name="theme-color" content="#101113" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content={description} />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="icon" type="image/svg+xml" href="/icons/webbys.svg" />
-    <link rel="apple-touch-icon" href="/icons/webbys-192.png" />
+    <link rel="manifest" href={sitePath('/manifest.webmanifest')} />
+    <link rel="icon" type="image/svg+xml" href={sitePath('/icons/webbys.svg')} />
+    <link rel="apple-touch-icon" href={sitePath('/icons/webbys-192.png')} />
     <title>{title}</title>
   </head>
   <body>
     <slot />
+    <InstallPrompt client:load />
   </body>
 </html>
