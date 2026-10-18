@@ -2,6 +2,7 @@ import { useMemo, useState } from 'preact/hooks';
 import { CalendarDays } from 'lucide-preact';
 import { createDemoData } from '../data/demo';
 import { loadAgendaState } from '../services/agenda-store';
+import { getSalesRecords } from '../services/cashier';
 import { getEmployeePerformance, getItemRanking, getPeriodComparison, getPromotionAnalytics } from '../services/analytics';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { filterSales } from '../services/sales';
@@ -49,7 +50,10 @@ function deltaLabel(absolute: number, percent: number | null, format: (value: nu
 }
 
 export function AnalyticsPage({ now = new Date() }: AnalyticsPageProps) {
-  const [sales] = useState(() => createDemoData(now).sales);
+  const [sales] = useState(() => {
+    try { return getSalesRecords(loadAgendaState(window.localStorage, now).state, now); }
+    catch { return createDemoData(now).sales; }
+  });
   const [currency] = useState(getCurrentBusinessCurrency);
   const [promotions] = useState(() => readPromotions(now));
   const [range, setRange] = useState(() => ({ startDate: dateKey(addDays(now, -29)), endDate: dateKey(now) }));

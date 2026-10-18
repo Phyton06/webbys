@@ -24,7 +24,7 @@ Checks: focused tests for changed behavior and `npm run build`.
 
 ## Tasks
 - T1 — S1 — inline — implemented; `d0a1e9d`; focused verification passed
-- T2 — S2 — inline — implemented; focused checks pass — awaiting work-unit commit
+- T2 — S2 — inline — implemented; `74842a6`; focused verification passed
 - T3 — S3 — implemented; independent test coverage mapped; manual visual review accepted — awaiting work-unit commit
 
 ## Log
@@ -59,3 +59,5 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 - Receipt-driven development is globally off, so no native review lifecycle applies. The independent verifier mapped S1–S3 assertions to tests/source and found no unmet behavior in the scoped automated probes; it passed 18 test files/150 tests and the build in a scratch copy. Baseline comparison was not run. The dedicated visual finish-reviewer agent was unavailable; the user accepted manual mobile/desktop preview inspection as the fallback, not an independent finish verdict.
 - The feature exceeds 400 authored changed lines. User selected `stacked-to-main`; planned slice order is T1 assistant access/shell → T2 cashier transaction/UI → T3 shared agenda/client/admin integration. No PR or push has been authorized or created. Local work-unit commits are authorized.
 - T1 work-unit commit `d0a1e9d` (`feat(assistant): add role-based operations dashboard`) contains login, role gates, assistant dashboard/shell/profile, and shared operational access. Focused verification passed 11 files/89 tests; the staged whitespace check passed.
+- T2 work-unit commit `74842a6` (`feat(cashier): add appointment-first checkout`) contains the POS transaction service, shared sales/inventory/payment storage, cashier UI, receipts, and surface brief. Focused verification passed 3 files/37 tests; staged whitespace check passed.
+- The user selected `stacked-to-main`; no PR or push was authorized. T1 and T2 local commits exceed the 400-line PR budget, so any future PR must be further sliced or receive an explicit size exception.

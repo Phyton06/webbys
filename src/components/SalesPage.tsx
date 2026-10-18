@@ -2,11 +2,12 @@ import { useMemo, useState } from 'preact/hooks';
 import { CalendarDays } from 'lucide-preact';
 import { createDemoData } from '../data/demo';
 import { loadAgendaState } from '../services/agenda-store';
+import { getSalesRecords } from '../services/cashier';
 import { filterSales, getPromotionSalesInsights, getSalesBreakdown, summarizeSales, type SalesFilters } from '../services/sales';
 import type { PromotionRecord } from '../types/agenda';
 import type { SalePaymentMethod } from '../types/domain';
 import { AdminGate } from './AdminGate';
-import { AdminShell } from './AdminShell';
+import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
@@ -47,7 +48,10 @@ function readPromotions(now: Date): PromotionRecord[] {
 }
 
 export function SalesPage({ now = new Date() }: SalesPageProps) {
-  const [sales] = useState(() => createDemoData(now).sales);
+  const [sales] = useState(() => {
+    try { return getSalesRecords(loadAgendaState(window.localStorage, now).state, now); }
+    catch { return createDemoData(now).sales; }
+  });
   const [currency] = useState(getCurrentBusinessCurrency);
   const [promotions] = useState(() => readPromotions(now));
   const [filters, setFilters] = useState<SalesFilters>({
@@ -119,8 +123,8 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
         : 'Todas las fechas';
 
   return (
-    <AdminGate>
-      <AdminShell activeSection="Ventas">
+    <AdminGate role="any">
+      <RoleShell activeSection="Historial de ventas">
         <section class="sales-page" aria-labelledby="sales-page-title">
           <header class="agenda-heading sales-heading">
             <div>
@@ -278,7 +282,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
             </>
           )}
         </section>
-      </AdminShell>
+      </RoleShell>
     </AdminGate>
   );
 }

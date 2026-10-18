@@ -54,6 +54,22 @@ describe('SalesPage', () => {
     expect(screen.queryByRole('button', { name: /registrar|nueva venta|guardar venta/i })).toBeNull();
   });
 
+  it('shows a cashier sale persisted in the shared agenda state', () => {
+    const state = createAgendaSeed(now);
+    state.sales = [{
+      id: 'sale-shared-history', occurredAt: now.toISOString(),
+      items: [{ kind: 'product', catalogItemId: 'product-shampoo', name: 'Shampoo', quantity: 1, unitPrice: 160 }],
+      clientName: 'Lucía Torres', employeeName: 'Asistente', paymentMethod: 'card', status: 'completed',
+      grossTotal: 160, discountTotal: 0, netTotal: 160,
+    }];
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, state);
+    render(<SalesPage now={now} />);
+
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).textContent).toContain('sale-shared-history');
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).textContent).toContain('Shampoo');
+  });
+
   it('searches sale, employee, product, service, and promotion snapshots', () => {
     renderPage();
     showAllDates();

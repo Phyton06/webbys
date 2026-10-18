@@ -34,6 +34,22 @@ describe('AnalyticsPage', () => {
     expect(summary.textContent).toContain('%');
   });
 
+  it('calculates administrator analytics from shared cashier sales when present', () => {
+    const state = createAgendaSeed(now);
+    state.sales = [{
+      id: 'sale-shared-analytics', occurredAt: now.toISOString(),
+      items: [{ kind: 'service', catalogItemId: 'service-1', name: 'Corte', quantity: 1, unitPrice: 320 }],
+      employeeId: 'assistant-demo', employeeName: 'Asistente', paymentMethod: 'transfer', status: 'completed',
+      grossTotal: 320, discountTotal: 0, netTotal: 320,
+    }];
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, state);
+    render(<AnalyticsPage now={now} />);
+
+    expect(screen.getByRole('region', { name: 'Resumen comparativo' }).textContent).toContain('$320.00');
+    expect(screen.getByRole('list', { name: 'Rendimiento por empleado' }).textContent).toContain('Asistente');
+  });
+
   it('renders daily evolution, product and service rankings, and employee performance', () => {
     renderPage();
 

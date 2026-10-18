@@ -22,6 +22,7 @@ export function AdminPage() {
   });
   const data = {
     ...createDemoData(initial.now),
+    sales: initial.agenda.state.sales ?? createDemoData(initial.now).sales,
     appointments: initial.agenda.state.appointments,
   };
 
