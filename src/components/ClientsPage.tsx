@@ -11,6 +11,7 @@ import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { ClientForm } from './ClientForm';
 import { Dropdown } from './Dropdown';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
 import '../styles/clients.css';
 
 const clientStatusOptions = [
@@ -66,6 +67,9 @@ export function ClientsPage() {
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ClientStatusFilter>('all');
   const [sort, setSort] = useState<ClientSort>('name-asc');
+  const [directoryPage, setDirectoryPage] = useState(0);
+  const [appointmentHistoryPage, setAppointmentHistoryPage] = useState(0);
+  const [purchaseHistoryPage, setPurchaseHistoryPage] = useState(0);
   const [selectedClientId, setSelectedClientId] = useState<string>();
   const [editingClient, setEditingClient] = useState<ClientRecord>();
   const [formOpen, setFormOpen] = useState(false);
@@ -89,6 +93,15 @@ export function ClientsPage() {
     return filtered.sort((first, second) => direction * first.name.localeCompare(second.name, 'es', { sensitivity: 'base' })
       || first.id.localeCompare(second.id));
   }, [query, sort, state.clients, statusFilter]);
+  const directoryPageCount = Math.ceil(visibleClients.length / RECORD_PAGE_SIZE);
+  const pageClients = pageRecords(visibleClients, Math.min(directoryPage, Math.max(0, directoryPageCount - 1)));
+
+  function openProfile(clientId: string) {
+    setSelectedClientId(clientId);
+    setAppointmentHistoryPage(0);
+    setPurchaseHistoryPage(0);
+    setAnnouncement('');
+  }
 
   function persistState(next: AgendaState): boolean {
     try {
@@ -152,7 +165,7 @@ export function ClientsPage() {
           <span class={`client-status${active ? ' is-active' : ' is-inactive'}`}>{active ? 'Activo' : 'Inactivo'}</span>
           <span class="client-appointment-count">{appointmentCount} {appointmentCount === 1 ? 'cita' : 'citas'}</span>
           <div class="client-row-actions">
-            <button class="client-text-action" type="button" aria-label={`Ver perfil de ${client.name}`} onClick={() => { setSelectedClientId(client.id); setAnnouncement(''); }}>
+            <button class="client-text-action" type="button" aria-label={`Ver perfil de ${client.name}`} onClick={() => openProfile(client.id)}>
               Ver perfil
             </button>
             <button class="client-text-action" type="button" aria-label={`Editar cliente ${client.name}`} onClick={() => beginEdit(client)}>
@@ -180,6 +193,10 @@ export function ClientsPage() {
     const appointments = sortAppointments(state.appointments.filter(({ clientId }) => clientId === client.id));
     const purchases = (state.sales ?? []).filter(({ clientId }) => clientId === client.id)
       .sort((first, second) => second.occurredAt.localeCompare(first.occurredAt));
+    const appointmentPageCount = Math.ceil(appointments.length / RECORD_PAGE_SIZE);
+    const purchasePageCount = Math.ceil(purchases.length / RECORD_PAGE_SIZE);
+    const pageAppointments = pageRecords(appointments, Math.min(appointmentHistoryPage, Math.max(0, appointmentPageCount - 1)));
+    const pagePurchases = pageRecords(purchases, Math.min(purchaseHistoryPage, Math.max(0, purchasePageCount - 1)));
     const currency = getCurrentBusinessCurrency();
     let isAssistant = false;
     try {
@@ -229,8 +246,9 @@ export function ClientsPage() {
         <section class="client-history-section" aria-label="Historial de citas">
           <header><h2>Historial de citas</h2><span>{appointments.length}</span></header>
           {appointments.length > 0 ? (
-            <ol class="client-appointment-history">
-              {appointments.map((appointment) => (
+            <>
+              <ol class="client-appointment-history">
+                {pageAppointments.map((appointment) => (
                 <li key={appointment.id}>
                   <time dateTime={appointment.startsAt}>{formatAppointmentDate(appointment.startsAt)}</time>
                   <div class="client-appointment-summary">
@@ -242,8 +260,10 @@ export function ClientsPage() {
                   </div>
                   <span class={`client-history-status status-${appointment.status}`}>{appointmentStatusLabels[appointment.status]}</span>
                 </li>
-              ))}
-            </ol>
+                ))}
+              </ol>
+              <RecordPagination page={Math.min(appointmentHistoryPage, Math.max(0, appointmentPageCount - 1))} pageCount={appointmentPageCount} label="Paginación del historial de citas" onPageChange={setAppointmentHistoryPage} />
+            </>
           ) : (
             <p class="agenda-empty">Este cliente aún no tiene citas.</p>
           )}
@@ -251,13 +271,16 @@ export function ClientsPage() {
 
         <section class="client-history-section" aria-label="Historial de compras">
           <header><h2>Historial de compras</h2></header>
-          {purchases.length ? <ul class="client-purchase-history">{purchases.map((sale) => (
+          {purchases.length ? <>
+            <ul class="client-purchase-history">{pagePurchases.map((sale) => (
             <li key={sale.id}>
               <div><time dateTime={sale.occurredAt}>{formatAppointmentDate(sale.occurredAt)}</time><strong>Folio {sale.id}</strong></div>
               <span>{sale.items.map(({ quantity, name }) => `${quantity} × ${name}`).join(', ')}</span>
               <strong>{formatCurrency(sale.netTotal, currency)}</strong>
             </li>
-          ))}</ul> : <p class="agenda-empty">Este cliente aún no tiene compras registradas.</p>}
+            ))}</ul>
+            <RecordPagination page={Math.min(purchaseHistoryPage, Math.max(0, purchasePageCount - 1))} pageCount={purchasePageCount} label="Paginación del historial de compras" onPageChange={setPurchaseHistoryPage} />
+          </> : <p class="agenda-empty">Este cliente aún no tiene compras registradas.</p>}
         </section>
       </section>
     );
@@ -295,22 +318,25 @@ export function ClientsPage() {
               <div class="clients-toolbar">
                 <label class="appointment-form-control clients-search-control">
                   <span>Buscar</span>
-                  <input type="search" aria-label="Buscar clientes" placeholder="Nombre, teléfono o correo" value={query} onInput={(event) => setQuery((event.currentTarget as HTMLInputElement).value)} />
+                  <input type="search" aria-label="Buscar clientes" placeholder="Nombre, teléfono o correo" value={query} onInput={(event) => { setQuery((event.currentTarget as HTMLInputElement).value); setDirectoryPage(0); }} />
                 </label>
                 <div class="clients-filter-control">
                   <span>Estado</span>
-                  <Dropdown label="Estado" value={statusFilter} options={clientStatusOptions} onChange={(value) => setStatusFilter(value as ClientStatusFilter)} />
+                  <Dropdown label="Estado" value={statusFilter} options={clientStatusOptions} onChange={(value) => { setStatusFilter(value as ClientStatusFilter); setDirectoryPage(0); }} />
                 </div>
                 <div class="clients-filter-control">
                   <span>Ordenar</span>
-                  <Dropdown label="Orden" value={sort} options={clientSortOptions} onChange={(value) => setSort(value as ClientSort)} />
+                  <Dropdown label="Orden" value={sort} options={clientSortOptions} onChange={(value) => { setSort(value as ClientSort); setDirectoryPage(0); }} />
                 </div>
               </div>
               <p class="clients-result-count" role="status">{visibleClients.length} {visibleClients.length === 1 ? 'cliente' : 'clientes'}</p>
               {visibleClients.length > 0 ? (
-                <ul class="client-list" aria-label="Lista de clientes">
-                  {visibleClients.map(renderClientRow)}
-                </ul>
+                <>
+                  <ul class="client-list" aria-label="Lista de clientes">
+                    {pageClients.map(renderClientRow)}
+                  </ul>
+                  <RecordPagination page={Math.min(directoryPage, Math.max(0, directoryPageCount - 1))} pageCount={directoryPageCount} label="Paginación de clientes" onPageChange={setDirectoryPage} />
+                </>
               ) : (
                 <p class="agenda-empty clients-empty-state">{state.clients.length === 0 ? 'Aún no hay clientes registrados.' : 'No hay clientes que coincidan con estos filtros.'}</p>
               )}

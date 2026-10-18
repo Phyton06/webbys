@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/preact';
+import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { saveAgendaState } from '../services/agenda-store';
@@ -12,6 +12,28 @@ afterEach(() => {
 });
 
 describe('AssistantPage', () => {
+  it('paginates upcoming appointments five at a time', () => {
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    const state = createAgendaSeed(now);
+    const template = state.appointments[0]!;
+    state.appointments = Array.from({ length: 12 }, (_, index) => ({
+      ...template,
+      id: `upcoming-${index}`,
+      clientName: `Upcoming client ${index}`,
+      startsAt: new Date(now.getTime() + (index + 1) * 60_000).toISOString(),
+      status: 'confirmed' as const,
+    }));
+    saveAgendaState(localStorage, state);
+    render(<AssistantPage now={now} />);
+    const rows = () => [...document.querySelectorAll('.assistant-upcoming li')];
+
+    expect(rows()).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 3')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(rows()).toHaveLength(5);
+    expect(screen.getByText('Página 2 de 3')).toBeTruthy();
+  });
+
   it('shows unpaid appointments and the quick operational actions from shared state', () => {
     localStorage.setItem('webbys:demo-session', 'assistant');
     const state = createAgendaSeed(now);

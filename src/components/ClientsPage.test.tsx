@@ -36,6 +36,20 @@ describe('ClientsPage', () => {
     }
   });
 
+  it('paginates the client directory five at a time and resets after searching', () => {
+    saveAgendaState(localStorage, createAgendaSeed(now));
+    render(<ClientsPage />);
+    const rows = () => [...document.querySelectorAll('.client-list > li')];
+
+    expect(rows()).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 2')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(rows()).toHaveLength(4);
+    fireEvent.input(screen.getByRole('searchbox', { name: 'Buscar clientes' }), { target: { value: 'Lucía' } });
+    expect(rows()).toHaveLength(1);
+    expect(screen.queryByRole('navigation', { name: 'Paginación de clientes' })).toBeNull();
+  });
+
   it('filters and sorts clients using accessible controls', () => {
     const state = createAgendaSeed(now);
     const inactiveClient = state.clients[0];
@@ -53,9 +67,12 @@ describe('ClientsPage', () => {
     fireEvent.click(screen.getByRole('option', { name: 'Todos' }));
     fireEvent.click(screen.getByRole('button', { name: 'Orden: Nombre A-Z' }));
     fireEvent.click(screen.getByRole('option', { name: 'Nombre Z-A' }));
-    const rows = screen.getAllByRole('button', { name: /Ver perfil de/ });
     const expectedNames = state.clients.map(({ name }) => name).sort((first, second) => second.localeCompare(first, 'es', { sensitivity: 'base' }));
-    expect(rows.map((row) => row.getAttribute('aria-label'))).toEqual(expectedNames.map((name) => `Ver perfil de ${name}`));
+    const pageLabels = () => screen.getAllByRole('button', { name: /Ver perfil de/ }).map((row) => row.getAttribute('aria-label'));
+    const firstPage = pageLabels();
+    expect(firstPage).toHaveLength(5);
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect([...firstPage, ...pageLabels()]).toEqual(expectedNames.map((name) => `Ver perfil de ${name}`));
   });
 
   it('creates a client with required name and phone and the fixed registration link', async () => {
@@ -184,6 +201,42 @@ describe('ClientsPage', () => {
       new Date(2026, 9, 15, 9).toISOString(),
       new Date(2026, 9, 17, 12).toISOString(),
     ]);
+  });
+
+  it('paginates client appointment and purchase histories in groups of five', () => {
+    const state = createAgendaSeed(now);
+    const client = state.clients[0]!;
+    const template = state.appointments.find(({ clientId }) => clientId === client.id)!;
+    state.appointments = Array.from({ length: 7 }, (_, index) => ({
+      ...template,
+      id: `client-page-appointment-${index}`,
+      clientName: client.name,
+      startsAt: new Date(now.getTime() + index * 60_000).toISOString(),
+    }));
+    state.sales = Array.from({ length: 7 }, (_, index) => ({
+      id: `client-page-sale-${index}`,
+      occurredAt: new Date(now.getTime() + index * 60_000).toISOString(),
+      clientId: client.id,
+      clientName: client.name,
+      items: [{ kind: 'product' as const, name: 'Shampoo', quantity: 1, unitPrice: 160 }],
+      paymentMethod: 'card' as const,
+      status: 'completed' as const,
+      grossTotal: 160,
+      discountTotal: 0,
+      netTotal: 160,
+    }));
+    saveAgendaState(localStorage, state);
+    render(<ClientsPage />);
+    fireEvent.click(screen.getByRole('button', { name: `Ver perfil de ${client.name}` }));
+    const appointments = screen.getByRole('region', { name: 'Historial de citas' });
+    const purchases = screen.getByRole('region', { name: 'Historial de compras' });
+
+    expect(within(appointments).getAllByRole('listitem')).toHaveLength(5);
+    expect(within(purchases).getAllByRole('listitem')).toHaveLength(5);
+    fireEvent.click(within(appointments).getByRole('button', { name: 'Página siguiente' }));
+    fireEvent.click(within(purchases).getByRole('button', { name: 'Página siguiente' }));
+    expect(within(appointments).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(purchases).getAllByRole('listitem')).toHaveLength(2);
   });
 
   it('replaces the directory header with the selected client profile header', () => {

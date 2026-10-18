@@ -6,6 +6,7 @@ import { AdminGate } from './AdminGate';
 import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/services.css';
 
@@ -133,6 +134,7 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
   const [currency] = useState(getCurrentBusinessCurrency);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<ServiceFilter>(SERVICE_FILTER.ALL);
+  const [page, setPage] = useState(0);
   const [selectedId, setSelectedId] = useState<string>();
   const [editingService, setEditingService] = useState<ServiceRecord>();
   const [formOpen, setFormOpen] = useState(false);
@@ -149,6 +151,8 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
         || (description ?? '').toLocaleLowerCase('es').includes(search))
       .sort((first, second) => first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
   }, [query, state.services, statusFilter]);
+  const pageCount = Math.ceil(visibleServices.length / RECORD_PAGE_SIZE);
+  const pageServices = pageRecords(visibleServices, Math.min(page, Math.max(0, pageCount - 1)));
 
   function persist(services: ServiceRecord[]): boolean {
     const next: AgendaState = { ...state, services };
@@ -226,15 +230,15 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
               <div class="services-toolbar">
                 <label>
                   <span>Buscar</span>
-                  <input type="search" aria-label="Buscar servicios" placeholder="Nombre o descripción" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+                  <input type="search" aria-label="Buscar servicios" placeholder="Nombre o descripción" value={query} onInput={(event) => { setQuery(event.currentTarget.value); setPage(0); }} />
                 </label>
                 <div class="services-filter-control">
                   <span>Estado</span>
-                  <Dropdown label="Estado" value={statusFilter} options={serviceStatusOptions} onChange={setStatusFilter} />
+                  <Dropdown label="Estado" value={statusFilter} options={serviceStatusOptions} onChange={(value) => { setStatusFilter(value); setPage(0); }} />
                 </div>
               </div>
               <ul class="service-list" aria-label="Lista de servicios">
-                {visibleServices.map((service) => (
+                {pageServices.map((service) => (
                   <li key={service.id}>
                     <article class="service-row" aria-label={`Servicio ${service.name}`}>
                       <button class="service-row-open" type="button" onClick={() => setSelectedId(service.id)}>
@@ -254,6 +258,7 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
                   </li>
                 ))}
               </ul>
+              <RecordPagination page={Math.min(page, Math.max(0, pageCount - 1))} pageCount={pageCount} label="Paginación de servicios" onPageChange={setPage} />
               {visibleServices.length === 0 && <p class="agenda-empty">No hay servicios que coincidan con la búsqueda.</p>}
             </>
           )}

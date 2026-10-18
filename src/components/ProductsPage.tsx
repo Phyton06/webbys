@@ -6,6 +6,7 @@ import { AdminGate } from './AdminGate';
 import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/products.css';
 
@@ -170,6 +171,7 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [status, setStatus] = useState<ProductStatus>(PRODUCT_STATUS.ALL);
+  const [page, setPage] = useState(0);
   const [selectedId, setSelectedId] = useState<string>();
   const [editingProduct, setEditingProduct] = useState<ProductRecord>();
   const [formOpen, setFormOpen] = useState(false);
@@ -200,6 +202,8 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
       ))
       .sort((first, second) => first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
   }, [category, products, query, status]);
+  const pageCount = Math.ceil(visibleProducts.length / RECORD_PAGE_SIZE);
+  const pageProducts = pageRecords(visibleProducts, Math.min(page, Math.max(0, pageCount - 1)));
 
   function persist(nextProducts: ProductRecord[]): boolean {
     const nextState: AgendaState = { ...state, products: nextProducts };
@@ -283,20 +287,21 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
               <div class="products-toolbar">
                 <label>
                   <span>Buscar</span>
-                  <input type="search" aria-label="Buscar productos" placeholder="Nombre, descripción o categoría" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+                  <input type="search" aria-label="Buscar productos" placeholder="Nombre, descripción o categoría" value={query} onInput={(event) => { setQuery(event.currentTarget.value); setPage(0); }} />
                 </label>
                 <div class="products-filter-control">
                   <span>Categoría</span>
-                  <Dropdown label="Filtrar por categoría" value={category} options={categoryOptions} onChange={setCategory} />
+                  <Dropdown label="Filtrar por categoría" value={category} options={categoryOptions} onChange={(value) => { setCategory(value); setPage(0); }} />
                 </div>
                 <div class="products-filter-control">
                   <span>Estado</span>
-                  <Dropdown label="Estado de productos" value={status} options={statusOptions} onChange={setStatus} />
+                  <Dropdown label="Estado de productos" value={status} options={statusOptions} onChange={(value) => { setStatus(value as ProductStatus); setPage(0); }} />
                 </div>
               </div>
               {visibleProducts.length ? (
-                <ul class="product-list" aria-label="Lista de productos">
-                  {visibleProducts.map((product) => (
+                <>
+                  <ul class="product-list" aria-label="Lista de productos">
+                    {pageProducts.map((product) => (
                     <li key={product.id}>
                       <article class="product-row" aria-label={`Producto ${product.name}`}>
                         <button class="product-row-open" type="button" onClick={() => setSelectedId(product.id)}>
@@ -314,8 +319,10 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
                         </div>
                       </article>
                     </li>
-                  ))}
-                </ul>
+                    ))}
+                  </ul>
+                  <RecordPagination page={Math.min(page, Math.max(0, pageCount - 1))} pageCount={pageCount} label="Paginación de productos" onPageChange={setPage} />
+                </>
               ) : (
                 <p class="agenda-empty">No hay productos que coincidan con estos filtros.</p>
               )}

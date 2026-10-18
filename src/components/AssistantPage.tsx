@@ -1,4 +1,4 @@
-import { useMemo } from 'preact/hooks';
+import { useMemo, useState } from 'preact/hooks';
 import { createDemoData } from '../data/demo';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState } from '../services/agenda-store';
@@ -7,12 +7,14 @@ import { sitePath } from '../lib/site-path';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { AssistantShell } from './AssistantShell';
 import { AdminGate } from './AdminGate';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
 
 interface AssistantPageProps {
   now?: Date;
 }
 
 export function AssistantPage({ now = new Date() }: AssistantPageProps) {
+  const [upcomingPage, setUpcomingPage] = useState(0);
   const data = useMemo(() => {
     const demo = createDemoData(now);
     let appointments = createAgendaSeed(now).appointments;
@@ -28,7 +30,9 @@ export function AssistantPage({ now = new Date() }: AssistantPageProps) {
   }, []);
   const summary = getDashboardSummary(data.sales, data.appointments, 'day', now);
   const currency = getCurrentBusinessCurrency();
-  const upcoming = getUpcomingAppointments(data.appointments, now, 5);
+  const upcomingAppointments = getUpcomingAppointments(data.appointments, now, data.appointments.length);
+  const upcomingPageCount = Math.ceil(upcomingAppointments.length / RECORD_PAGE_SIZE);
+  const upcoming = pageRecords(upcomingAppointments, upcomingPage);
   const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const appointmentsToday = data.appointments.filter((appointment) => {
     const startsAt = new Date(appointment.startsAt);
@@ -72,6 +76,7 @@ export function AssistantPage({ now = new Date() }: AssistantPageProps) {
               <span class={`assistant-status assistant-status-${appointment.status}`}>{appointment.status === 'pending' ? 'Pendiente' : appointment.status === 'confirmed' ? 'Confirmada' : appointment.status === 'completed' ? 'Completada' : 'Cancelada'}</span>
             </li>
           ))}</ul> : <p>No hay próximas citas.</p>}
+          <RecordPagination page={Math.min(upcomingPage, Math.max(0, upcomingPageCount - 1))} pageCount={upcomingPageCount} label="Paginación de próximas citas" onPageChange={setUpcomingPage} />
         </section>
       </main>
       </AssistantShell>

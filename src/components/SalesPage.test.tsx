@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
+import { createDemoData } from '../data/demo';
 import { saveAgendaState } from '../services/agenda-store';
 import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import { SalesPage } from './SalesPage';
@@ -52,6 +53,26 @@ describe('SalesPage', () => {
     expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(3);
     expect(screen.getByRole('img', { name: 'Ventas netas por día' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: /registrar|nueva venta|guardar venta/i })).toBeNull();
+  });
+
+  it('shows five newest sales per page and resets pagination when filters change', () => {
+    renderPage();
+    showAllDates();
+    const expected = [...createDemoData(now).sales]
+      .sort((first, second) => second.occurredAt.localeCompare(first.occurredAt));
+    const getRows = () => [...screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')];
+    const rowIds = () => getRows().map((row) => row.textContent?.match(/demo-sale-\d+/)?.[0]);
+
+    expect(getRows()).toHaveLength(5);
+    expect(rowIds()).toEqual(expected.slice(0, 5).map(({ id }) => id));
+    expect(screen.getByText(`Página 1 de ${Math.ceil(expected.length / 5)}`)).toBeTruthy();
+    expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain(String(expected.length));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(rowIds()).toEqual(expected.slice(5, 10).map(({ id }) => id));
+    fireEvent.input(screen.getByRole('searchbox', { name: 'Buscar ventas' }), { target: { value: 'demo-sale-01' } });
+    expect(getRows()).toHaveLength(1);
+    expect(screen.queryByRole('navigation', { name: 'Paginación del historial de ventas' })).toBeNull();
   });
 
   it('shows a cashier sale persisted in the shared agenda state', () => {
@@ -126,15 +147,17 @@ describe('SalesPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lunes, 5 de octubre' }));
     expect(screen.getByText('Rango seleccionado · 1 de octubre de 2026 – 5 de octubre de 2026')).toBeTruthy();
     expect(screen.getByRole('region', { name: 'Resumen de ventas filtradas' }).textContent).toContain('11');
-    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(11);
+    expect(screen.getByRole('list', { name: 'Registros de ventas' }).querySelectorAll('li')).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 3')).toBeTruthy();
   });
 
   it('opens a read-only sale detail and returns to the filtered list', () => {
     renderPage();
     showAllDates();
-    fireEvent.click(screen.getByRole('button', { name: 'Ver venta demo-sale-01' }));
+    const firstVisibleSale = screen.getByRole('list', { name: 'Registros de ventas' }).querySelector('button')?.getAttribute('aria-label')?.replace('Ver venta ', '');
+    fireEvent.click(screen.getByRole('button', { name: `Ver venta ${firstVisibleSale}` }));
 
-    expect(screen.getByRole('heading', { name: 'Venta demo-sale-01' })).toBeTruthy();
+    expect(screen.getByRole('heading', { name: `Venta ${firstVisibleSale}` })).toBeTruthy();
     expect(screen.getByText('Método de pago')).toBeTruthy();
     expect(screen.queryByRole('button', { name: /editar|cancelar venta|reembolsar/i })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Volver a Ventas' }));
@@ -146,7 +169,8 @@ describe('SalesPage', () => {
     showAllDates();
     const before = localStorage.getItem('webbys:agenda:v1');
     fireEvent.input(screen.getByRole('searchbox', { name: 'Buscar ventas' }), { target: { value: 'Cera' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Ver venta demo-sale-31' }));
+    const firstCeraSale = screen.getByRole('list', { name: 'Registros de ventas' }).querySelector('button')?.getAttribute('aria-label');
+    fireEvent.click(screen.getByRole('button', { name: firstCeraSale ?? '' }));
 
     expect(localStorage.getItem('webbys:agenda:v1')).toBe(before);
   });

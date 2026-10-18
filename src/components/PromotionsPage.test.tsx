@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createAgendaSeed } from '../data/agenda-demo';
+import { PROMOTION_DISCOUNT_TYPE, PROMOTION_MANUAL_STATUS } from '../types/agenda';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { createDefaultBusinessSettings, saveBusinessSettings } from '../services/business-settings-store';
 import { PromotionsPage } from './PromotionsPage';
@@ -19,6 +20,33 @@ function renderPage() {
 }
 
 describe('PromotionsPage', () => {
+  it('paginates promotion records five at a time', () => {
+    const state = createAgendaSeed(now);
+    state.promotions = Array.from({ length: 7 }, (_, index) => ({
+      id: `promotion-page-${index}`,
+      name: `Oferta ${index}`,
+      description: '',
+      targets: [
+        { kind: 'service', id: 'service-1', name: 'Corte', price: 300 },
+        { kind: 'product', id: 'product-shampoo', name: 'Shampoo', price: 160 },
+      ],
+      discountType: PROMOTION_DISCOUNT_TYPE.PERCENTAGE,
+      originalPrice: 460,
+      discountValue: 10,
+      startsOn: '2026-10-01',
+      endsOn: '2026-11-01',
+      manualStatus: PROMOTION_MANUAL_STATUS.PUBLISHED,
+    }));
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, state);
+    render(<PromotionsPage now={now} />);
+
+    expect(screen.getAllByRole('article', { name: /^Promoción Oferta/ })).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 2')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(screen.getAllByRole('article', { name: /^Promoción Oferta/ })).toHaveLength(2);
+  });
+
   it('formats promotion targets and previews in the selected currency without converting catalog prices', () => {
     const settings = createDefaultBusinessSettings();
     settings.currency = 'USD';

@@ -25,6 +25,7 @@ describe('ProductsPage', () => {
     saveBusinessSettings(localStorage, settings);
     const settingsBytes = localStorage.getItem('webbys:business-settings:v1');
     renderPage();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
     const product = loadAgendaState(localStorage, now).state.products?.find(({ name }) => name === 'Shampoo');
 
     expect(screen.getByRole('article', { name: 'Producto Shampoo' }).textContent).toContain('USD');
@@ -32,13 +33,16 @@ describe('ProductsPage', () => {
     expect(localStorage.getItem('webbys:business-settings:v1')).toBe(settingsBytes);
   });
 
-  it('starts with seven demo products in the saved catalog', () => {
+  it('shows seven demo products across five-item pages', () => {
     renderPage();
 
-    expect(screen.getAllByRole('article')).toHaveLength(7);
+    expect(screen.getAllByRole('article')).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 2')).toBeTruthy();
     expect(screen.getByRole('article', { name: 'Producto Cera para peinar' })).toBeTruthy();
     expect(screen.getByRole('article', { name: 'Producto Acondicionador' })).toBeTruthy();
     expect(screen.getByRole('article', { name: 'Producto Bálsamo para barba' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(screen.getAllByRole('article')).toHaveLength(2);
     expect(screen.getByRole('article', { name: 'Producto Peine de madera' })).toBeTruthy();
   });
 
@@ -104,6 +108,7 @@ describe('ProductsPage', () => {
 
   it('deactivates without deleting the product record', () => {
     renderPage();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
     fireEvent.click(screen.getByRole('button', { name: 'Desactivar producto Shampoo' }));
 
     expect(loadAgendaState(localStorage, now).state.products?.find(({ name }) => name === 'Shampoo')?.active).toBe(false);
@@ -112,6 +117,7 @@ describe('ProductsPage', () => {
   it('uses the shared minimal back link for the return control', () => {
     renderPage();
     const createButton = screen.getByRole('button', { name: 'Nuevo producto' });
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
     const shampoo = screen.getByRole('article', { name: 'Producto Shampoo' });
     fireEvent.click(within(shampoo).getByRole('button', { name: 'ShampooLimpieza diaria para cabello.' }));
     const backButton = screen.getByRole('button', { name: 'Volver a Productos' });

@@ -23,6 +23,7 @@ import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { PromotionTargetCombobox } from './PromotionTargetCombobox';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/promotions.css';
 
@@ -422,6 +423,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   const [currency] = useState(getCurrentBusinessCurrency);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<PromotionFilter>(PROMOTION_FILTER.ALL);
+  const [page, setPage] = useState(0);
   const [selectedId, setSelectedId] = useState<string>();
   const [editingPromotion, setEditingPromotion] = useState<PromotionRecord>();
   const [formOpen, setFormOpen] = useState(false);
@@ -442,6 +444,8 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
       .sort((first, second) => first.startsOn.localeCompare(second.startsOn)
         || first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
   }, [isAssistant, promotions, query, statusFilter, today]);
+  const pageCount = Math.ceil(visiblePromotions.length / RECORD_PAGE_SIZE);
+  const pagePromotions = pageRecords(visiblePromotions, Math.min(page, Math.max(0, pageCount - 1)));
 
   function persist(nextPromotions: PromotionRecord[]): boolean {
     try {
@@ -566,16 +570,17 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
               <div class="promotions-toolbar">
                 <label>
                   <span>Buscar</span>
-                  <input type="search" aria-label="Buscar promociones" placeholder="Nombre, descripción o producto" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
+                  <input type="search" aria-label="Buscar promociones" placeholder="Nombre, descripción o producto" value={query} onInput={(event) => { setQuery(event.currentTarget.value); setPage(0); }} />
                 </label>
                 {!isAssistant && <div class="promotions-filter-control">
                   <span>Estado</span>
-                  <Dropdown label="Estado de promociones" value={statusFilter} options={promotionStatusOptions} onChange={setStatusFilter} />
+                  <Dropdown label="Estado de promociones" value={statusFilter} options={promotionStatusOptions} onChange={(value) => { setStatusFilter(value as PromotionFilter); setPage(0); }} />
                 </div>}
               </div>
               {visiblePromotions.length > 0 ? (
+                <>
                 <ul class="promotion-list" aria-label="Lista de promociones">
-                  {visiblePromotions.map((promotion) => (
+                  {pagePromotions.map((promotion) => (
                     <li key={promotion.id}>
                       <article class="promotion-row" aria-label={`Promoción ${promotion.name}`}>
                         <button class="promotion-row-open" type="button" onClick={() => setSelectedId(promotion.id)}>
@@ -600,6 +605,8 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                     </li>
                   ))}
                 </ul>
+                <RecordPagination page={Math.min(page, Math.max(0, pageCount - 1))} pageCount={pageCount} label="Paginación de promociones" onPageChange={setPage} />
+                </>
               ) : (
                 <p class="agenda-empty">No hay promociones que coincidan con estos filtros.</p>
               )}

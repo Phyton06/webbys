@@ -19,6 +19,25 @@ function renderPage() {
 }
 
 describe('ServicesPage', () => {
+  it('paginates service records five at a time', () => {
+    const state = createAgendaSeed(now);
+    const template = state.services[0]!;
+    state.services = [...state.services, ...Array.from({ length: 4 }, (_, index) => ({
+      ...template,
+      id: `service-page-${index}`,
+      name: `Extra service ${index}`,
+    }))];
+    localStorage.setItem('webbys:demo-session', 'active');
+    saveAgendaState(localStorage, state);
+    render(<ServicesPage now={now} />);
+
+    expect(document.querySelectorAll('.service-list > li')).toHaveLength(5);
+    expect(screen.getByText('Página 1 de 2')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Página siguiente' }));
+    expect(document.querySelectorAll('.service-list > li')).toHaveLength(2);
+    expect(screen.getByText('Página 2 de 2')).toBeTruthy();
+  });
+
   it('formats service prices in the saved currency without changing stored prices', () => {
     const settings = createDefaultBusinessSettings();
     settings.currency = 'USD';

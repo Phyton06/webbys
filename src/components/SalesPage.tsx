@@ -12,6 +12,7 @@ import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { SalesTrend } from './SalesTrend';
+import { pageRecords, RecordPagination, RECORD_PAGE_SIZE } from './RecordPagination';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import '../styles/sales.css';
 
@@ -58,6 +59,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
     query: '', startDate: dateKey(now), endDate: dateKey(now), employeeId: '', productId: '', serviceId: '', promotionId: '',
   });
   const [selectedSaleId, setSelectedSaleId] = useState<string>();
+  const [salesPage, setSalesPage] = useState(0);
   const [dateField, setDateField] = useState<'start' | 'end'>('start');
   const [calendarDate, setCalendarDate] = useState(dateKey(now));
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -84,6 +86,8 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
 
   const visibleSales = useMemo(() => filterSales(sales, filters)
     .sort((first, second) => second.occurredAt.localeCompare(first.occurredAt)), [filters, sales]);
+  const pageCount = Math.ceil(visibleSales.length / RECORD_PAGE_SIZE);
+  const pageSales = pageRecords(visibleSales, Math.min(salesPage, Math.max(0, pageCount - 1)));
   const summary = useMemo(() => summarizeSales(visibleSales), [visibleSales]);
   const breakdown = useMemo(() => getSalesBreakdown(visibleSales), [visibleSales]);
   const salesForPromotionAnalysis = useMemo(
@@ -98,6 +102,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
 
   function updateFilter<Key extends keyof SalesFilters>(key: Key, value: SalesFilters[Key]) {
     setFilters((current) => ({ ...current, [key]: value }));
+    setSalesPage(0);
   }
 
   function chooseDate(value: string) {
@@ -106,6 +111,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
     } else {
       setFilters((current) => ({ ...current, endDate: value, ...(current.startDate && current.startDate > value ? { startDate: value } : {}) }));
     }
+    setSalesPage(0);
     setCalendarDate(value);
     setDatePickerOpen(false);
   }
@@ -148,7 +154,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                 <button type="button" class="appointment-form-cancel" aria-label={endLabel} aria-pressed={dateField === 'end'} onClick={() => { setDateField('end'); setCalendarDate(filters.endDate || dateKey(now)); setDatePickerOpen(true); }}>
                   <CalendarDays size={17} aria-hidden="true" />{endLabel}
                 </button>
-                {(filters.startDate || filters.endDate) && <button type="button" class="sales-clear-dates" onClick={() => setFilters((current) => ({ ...current, startDate: '', endDate: '' }))}>Limpiar fechas</button>}
+                {(filters.startDate || filters.endDate) && <button type="button" class="sales-clear-dates" onClick={() => { setFilters((current) => ({ ...current, startDate: '', endDate: '' })); setSalesPage(0); }}>Limpiar fechas</button>}
                 {datePickerOpen && (
                   <div class="appointment-date-picker-popover" onClick={(event) => event.stopPropagation()}>
                     <MobileMonthCalendar
@@ -261,7 +267,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                 <div class="sales-section-heading"><div><h2 id="sales-register-title">Registros de ventas</h2><p>{summary.saleCount} {summary.saleCount === 1 ? 'registro' : 'registros'} con los filtros actuales.</p></div></div>
                 {visibleSales.length ? (
                   <ul class="sales-record-list" aria-label="Registros de ventas">
-                    {visibleSales.map((sale) => (
+                     {pageSales.map((sale) => (
                       <li key={sale.id}>
                         <article class="sales-record-row" aria-label={`Venta ${sale.id}`}>
                           <button type="button" class="sales-record-open" aria-label={`Ver venta ${sale.id}`} onClick={() => setSelectedSaleId(sale.id)}>
@@ -278,6 +284,7 @@ export function SalesPage({ now = new Date() }: SalesPageProps) {
                     ))}
                   </ul>
                 ) : <p class="sales-empty-state">No hay ventas que coincidan con estos filtros.</p>}
+                <RecordPagination page={Math.min(salesPage, Math.max(0, pageCount - 1))} pageCount={pageCount} label="Paginación del historial de ventas" onPageChange={setSalesPage} />
               </section>
             </>
           )}
