@@ -8,6 +8,17 @@ afterEach(() => {
 });
 
 describe('AssistantShell', () => {
+  it('places the assistant avatar between the brand and sign-out action', () => {
+    render(<AssistantShell><p>Operación</p></AssistantShell>);
+    const topbar = screen.getByRole('banner');
+    const avatar = within(topbar).getByLabelText('Perfil de asistente');
+    const signOut = within(topbar).getByRole('button', { name: 'Cerrar sesión' });
+
+    expect(topbar.querySelector('.assistant-topbar-spacer')).toBeTruthy();
+    expect(avatar.classList.contains('assistant-avatar')).toBe(true);
+    expect(avatar.nextElementSibling).toBe(signOut);
+  });
+
   it('provides the required mobile destinations and operational More menu', () => {
     render(<AssistantShell><p>Operación</p></AssistantShell>);
     const navigation = screen.getByRole('navigation', { name: 'Navegación del asistente' });

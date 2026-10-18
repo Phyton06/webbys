@@ -4,8 +4,13 @@
 .assistant-topbar { height: 4rem; display: flex; align-items: center; gap: 1rem; padding: 0 1rem; border-bottom: 1px solid var(--divider, #34363a); background: var(--shell, #151619); }
 .assistant-mobile-brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; text-decoration: none; color: inherit; }
 .assistant-mobile-brand img { width: 2rem; height: 2rem; border-radius: var(--radius-sm, 0.5rem); object-fit: cover; }
-.assistant-account { margin-left: auto; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
-.assistant-topbar button, .assistant-sidebar-signout { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem; color: var(--ink-muted, #b6b4b0); border: 1px solid var(--divider, #34363a); border-radius: 0.5rem; background: transparent; cursor: pointer; }
+.assistant-topbar-spacer { flex: 1 1 auto; }
+.assistant-account { color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.assistant-avatar { display: grid; width: 2.25rem; flex: 0 0 auto; aspect-ratio: 1; place-items: center; border: 1px solid var(--divider, #34363a); border-radius: 50%; background: var(--surface-raised, #222428); color: var(--ink, #f4f2ef); font-size: var(--text-sm, 0.875rem); font-weight: 700; }
+.assistant-topbar button { display: inline-flex; min-width: 2.75rem; min-height: 2.75rem; flex: 0 0 auto; align-items: center; justify-content: center; gap: 0.5rem; padding: 0; border: 0; border-radius: var(--radius-sm, 0.5rem); color: var(--ink-muted, #b6b4b0); background: transparent; cursor: pointer; }
+.assistant-topbar button:hover { color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); }
+.assistant-topbar button:focus-visible { outline: 2px solid var(--accent, #e43d37); outline-offset: 2px; }
+.assistant-sidebar-signout { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem; color: var(--ink-muted, #b6b4b0); border: 1px solid var(--divider, #34363a); border-radius: 0.5rem; background: transparent; cursor: pointer; }
 .assistant-topbar button span { display: none; }
 .assistant-content { width: min(100%, 90rem); margin-inline: auto; padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 4vw, 2rem) var(--space-8, 2rem); }
 .assistant-skip-link { position: fixed; left: 0.5rem; top: -4rem; z-index: 10; padding: 0.75rem; background: var(--surface-raised, #222428); color: var(--ink, #f4f2ef); }

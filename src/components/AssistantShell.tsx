@@ -51,7 +51,9 @@ export function AssistantShell({ children, activeSection = 'Inicio', onSignOut }
       <div class="assistant-workspace">
         <header class="assistant-topbar">
           <a href={sitePath('/asistente/')} class="assistant-mobile-brand"><img src={sitePath('/logo.jpeg')} alt="" />Webby's Barbershop</a>
+          <div class="assistant-topbar-spacer" />
           <span class="assistant-account">Perfil de asistente</span>
+          <span class="assistant-avatar" aria-label="Perfil de asistente">A</span>
           <button type="button" aria-label="Cerrar sesión" onClick={signOut}><LogOut size={17} aria-hidden="true" /><span>Cerrar sesión</span></button>
         </header>
         <main id="assistant-main" class="assistant-content" tabIndex={-1}>{children}</main>
