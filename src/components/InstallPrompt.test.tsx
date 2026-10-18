@@ -15,14 +15,26 @@ describe('InstallPrompt', () => {
     });
   });
 
-  it('shows iPhone installation instructions when native install is unavailable', async () => {
+  it('opens a centered dialog with illustrated iPhone installation steps', () => {
     vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('iPhone');
     render(<InstallPrompt />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Cómo instalar' }));
+    const dialog = screen.getByRole('dialog', { name: 'Instala Webbys' });
+    expect(dialog.classList.contains('install-modal')).toBe(true);
+    expect(screen.getByRole('img', { name: 'Logotipo de Webbys' })).toBeTruthy();
+    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    expect(screen.getByText(/Compartir/)).toBeTruthy();
+    expect(screen.getByText('Añadir a pantalla de inicio', { exact: true })).toBeTruthy();
+  });
 
-    expect(screen.getByRole('status').textContent).toContain('Compartir');
-    expect(screen.getByRole('img', { hidden: true })).toBeTruthy();
+  it('shows simple browser-menu steps when automatic install is unavailable on Android', () => {
+    vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Android');
+    render(<InstallPrompt />);
+
+    expect(screen.getByRole('dialog', { name: 'Instala Webbys' })).toBeTruthy();
+    expect(screen.getAllByRole('listitem')).toHaveLength(3);
+    expect(screen.getByText(/menú/)).toBeTruthy();
+    expect(screen.getByText(/Instalar aplicación/)).toBeTruthy();
   });
 
   it('uses the native install prompt after the user taps install', async () => {
@@ -36,9 +48,15 @@ describe('InstallPrompt', () => {
     render(<InstallPrompt />);
     window.dispatchEvent(event);
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Instalar' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Instalar Webbys' }));
 
     expect(prompt).toHaveBeenCalledOnce();
     await waitFor(() => expect(screen.queryByLabelText('Instala Webbys')).toBeNull());
+  });
+
+  it('closes the installation dialog from its close button', () => {
+    render(<InstallPrompt />);
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar invitación de instalación' }));
+    expect(screen.queryByRole('dialog', { name: 'Instala Webbys' })).toBeNull();
   });
 });

@@ -28,7 +28,7 @@ npm run build
 
 El repositorio publica el sitio en GitHub Pages mediante `.github/workflows/deploy.yml` al actualizar `main`. La aplicación se sirve desde `https://phyton06.github.io/webbys/` y utiliza el icono incluido en `public/icons/`.
 
-La invitación de instalación ejecuta el diálogo nativo cuando el navegador lo ofrece después de una acción del usuario. En iPhone/iPad muestra los pasos de Safari; no es posible abrir el diálogo automáticamente al cargar la página.
+Al abrir el sitio aparece un diálogo centrado con el logotipo de Webbys. Si el navegador ofrece la instalación nativa, el botón la abre tras tocarlo; en los demás casos se muestran pasos ilustrados para Safari en iPhone/iPad o el menú del navegador en Android. El navegador no permite abrir automáticamente su diálogo nativo al cargar la página.
 
 ## Límites de la demostración
 

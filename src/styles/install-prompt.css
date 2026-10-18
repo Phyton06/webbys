@@ -1,69 +1,241 @@
-.install-prompt {
+.install-modal {
   position: fixed;
-  z-index: 1000;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  left: max(1rem, env(safe-area-inset-left));
-  display: flex;
-  max-width: 34rem;
-  align-items: center;
-  gap: 0.85rem;
-  margin-inline: auto;
-  padding: 0.85rem;
-  border: 1px solid #35373b;
-  border-radius: 0.9rem;
-  background: #17181b;
-  color: #f5f4f1;
-  box-shadow: 0 12px 36px #0008;
-  font: 500 0.875rem/1.4 system-ui, sans-serif;
-}
-
-.install-prompt > img {
-  flex: 0 0 auto;
-  border-radius: 0.65rem;
-}
-
-.install-prompt-copy {
+  inset: 0;
   display: grid;
-  flex: 1;
-  gap: 0.15rem;
+  width: min(100% - 2rem, 30rem);
+  max-height: min(48rem, calc(100dvh - 2rem));
+  gap: 0;
+  overflow-y: auto;
+  margin: auto;
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+  border: 1px solid #393a3d;
+  border-radius: 1.5rem;
+  background: #141517;
+  color: #f7f5f2;
+  box-shadow: 0 2rem 7rem #000a;
+  text-align: center;
+  font: 500 0.95rem/1.5 system-ui, sans-serif;
 }
 
-.install-prompt-copy span,
-.install-prompt-copy p {
-  margin: 0;
-  color: #c4c3c0;
-  font-size: 0.78rem;
+.install-modal[open] {
+  animation: install-modal-enter 220ms ease-out both;
 }
 
-.install-prompt button {
-  min-height: 2.6rem;
-  padding: 0.45rem 0.8rem;
-  border: 0;
-  border-radius: 0.55rem;
-  background: #c89b61;
-  color: #151515;
-  font: inherit;
-  font-weight: 700;
+.install-modal::backdrop {
+  background: rgb(7 8 10 / 78%);
+  backdrop-filter: blur(9px);
+}
+
+.install-modal-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid #393a3d;
+  border-radius: 50%;
+  background: #202124;
+  color: #e8e6e2;
+  font: 400 1.5rem/1 system-ui, sans-serif;
   cursor: pointer;
 }
 
-.install-prompt .install-prompt-dismiss {
-  min-width: 2rem;
-  min-height: 2rem;
-  align-self: flex-start;
-  padding: 0;
-  background: transparent;
-  color: #c4c3c0;
-  font-size: 1.25rem;
+.install-modal-logo {
+  width: 7rem;
+  height: 7rem;
+  justify-self: center;
+  object-fit: cover;
+  border: 1px solid #36373a;
+  border-radius: 1.2rem;
+  background: #050505;
+  box-shadow: 0 0 0 0.45rem #ffffff08;
 }
 
-@media (max-width: 28rem) {
-  .install-prompt {
-    flex-wrap: wrap;
+.install-modal-eyebrow {
+  margin: 1.25rem 0 0.35rem;
+  color: #f3423e;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.17em;
+}
+
+.install-modal h2 {
+  max-width: 15ch;
+  margin: 0 auto;
+  font-size: clamp(1.55rem, 6vw, 2rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.install-modal-intro {
+  max-width: 30ch;
+  margin: 0.7rem auto 1.45rem;
+  color: #b9b8b5;
+  font-size: 0.9rem;
+}
+
+.install-modal-actions {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.5rem;
+}
+
+.install-modal-primary,
+.install-modal-secondary,
+.install-modal-later {
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 0.75rem;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.install-modal-primary {
+  background: #ed3434;
+  color: #fff;
+  box-shadow: 0 0.5rem 1.5rem #ed343430;
+}
+
+.install-modal-primary:hover {
+  background: #ff4643;
+}
+
+.install-modal-secondary,
+.install-modal-later {
+  background: transparent;
+  color: #d4d2ce;
+}
+
+.install-modal-secondary:hover,
+.install-modal-later:hover {
+  background: #ffffff0c;
+}
+
+.install-manual {
+  margin-top: 1.25rem;
+  text-align: left;
+}
+
+.install-steps {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.install-step {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  border: 1px solid #303135;
+  border-radius: 0.9rem;
+  background: #1b1c1f;
+}
+
+.install-step-icon {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: #ed34341a;
+  color: #ff625d;
+}
+
+.install-step-icon svg {
+  width: 1.65rem;
+  height: 1.65rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.install-step-copy {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.install-step-copy strong {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #f5f3ef;
+  font-size: 0.86rem;
+}
+
+.install-step-copy > span {
+  color: #aaa9a6;
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.install-step-number {
+  display: inline-grid;
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #ed3434;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.install-modal-error {
+  margin: 0 0 0.75rem;
+  color: #ff7772;
+  font-size: 0.82rem;
+}
+
+.install-modal-later {
+  min-height: 2.7rem;
+  margin-top: 0.55rem;
+  font-size: 0.86rem;
+}
+
+@keyframes install-modal-enter {
+  from { opacity: 0; transform: translateY(0.6rem) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 24rem) {
+  .install-modal {
+    width: min(100% - 1.25rem, 30rem);
+    max-height: calc(100dvh - 1.25rem);
+    padding: 1.2rem;
+    border-radius: 1.2rem;
   }
 
-  .install-prompt-copy {
-    min-width: calc(100% - 4rem);
+  .install-modal-logo {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+
+  .install-step {
+    grid-template-columns: 2.65rem minmax(0, 1fr);
+    gap: 0.6rem;
+    padding: 0.65rem;
+  }
+
+  .install-step-icon {
+    width: 2.65rem;
+    height: 2.65rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-modal[open] {
+    animation: none;
   }
 }
