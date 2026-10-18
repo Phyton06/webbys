@@ -1,0 +1,121 @@
+.cashier-page { --cashier-title-size: clamp(1.8rem, 5vw, 2.5rem); width: min(100%, 84rem); margin: 0 auto; padding: clamp(1rem, 4vw, 2rem); }
+.cashier-heading, .cashier-section-heading, .cashier-customer-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.cashier-heading { margin-bottom: 1.25rem; }
+.cashier-heading h1, .cashier-customer-heading h2 { margin: 0; font-size: var(--cashier-title-size); }
+.cashier-heading p, .cashier-customer-heading p { margin: 0.35rem 0 0; color: var(--ink-muted, #b6b4b0); }
+.cashier-secondary-button, .cashier-primary-button { display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0.65rem 0.9rem; border: 1px solid var(--control-border, #74767a); border-radius: 0.5rem; color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; font-weight: 650; text-decoration: none; cursor: pointer; }
+.cashier-primary-button { min-height: 3.25rem; border-color: var(--accent-action, #c52520); color: #fff; background: var(--accent-action, #c52520); }
+.cashier-primary-button:hover:not(:disabled) { background: var(--accent-hover, #b9231e); }
+.cashier-primary-button:disabled, .cashier-secondary-button:disabled { opacity: 0.55; cursor: not-allowed; }
+.cashier-filters, .cashier-catalog-filters { display: grid; grid-template-columns: minmax(12rem, 2fr) minmax(10rem, 1fr) minmax(10rem, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+.cashier-filters label, .cashier-catalog-filters label, .cashier-client-select, .cashier-promotion-select, .cashier-cash-fields label { display: grid; gap: 0.4rem; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-filters input, .cashier-filters select, .cashier-catalog-filters input, .cashier-catalog-filters select, .cashier-client-select select, .cashier-promotion-select select, .cashier-cash-fields input, .cashier-add-service select { width: 100%; min-height: 2.75rem; padding: 0.55rem 0.7rem; border: 1px solid var(--control-border, #74767a); border-radius: 0.5rem; color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font: inherit; }
+.cashier-filter-tabs { display: flex; gap: 0.5rem; overflow-x: auto; margin-bottom: 0.75rem; }
+.cashier-filter-tabs button { min-height: 2.5rem; padding: 0.5rem 0.75rem; border: 1px solid var(--divider, #34363a); border-radius: 999px; color: var(--ink-muted, #b6b4b0); background: transparent; white-space: nowrap; }
+.cashier-filter-tabs button.is-active { border-color: var(--accent, #e43d37); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); }
+.cashier-appointment-list { border-top: 1px solid var(--divider, #34363a); }
+.cashier-appointment-row { display: grid; grid-template-columns: 4.25rem minmax(0, 1fr) auto auto auto; align-items: center; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--divider, #34363a); }
+.cashier-appointment-row time { font-variant-numeric: tabular-nums; font-weight: 700; }
+.cashier-appointment-info { display: grid; gap: 0.25rem; }
+.cashier-appointment-info span, .cashier-product-list li div span, .cashier-cart li div span { color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-appointment-total { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cashier-attention-status { display: inline-flex; align-items: center; justify-content: center; width: fit-content; min-height: 1.6rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: var(--surface-raised, #222428); font-size: 0.75rem; white-space: nowrap; }
+.cashier-attention-status.status-completed { color: var(--success, #69c28c); }
+.cashier-attention-status.status-confirmed { color: var(--warning, #efb85b); }
+.cashier-attention-status.status-pending { color: var(--ink-muted, #b6b4b0); }
+.cashier-empty-state { padding: 1.25rem 0; color: var(--ink-muted, #b6b4b0); }
+.cashier-checkout-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(18rem, 0.8fr); align-items: start; gap: 1.25rem; }
+.cashier-checkout-main { min-width: 0; }
+.cashier-back-link { min-height: 2.5rem; margin-bottom: 0.75rem; padding: 0.4rem 0; border: 0; color: var(--ink-muted, #b6b4b0); background: transparent; font: inherit; cursor: pointer; }
+.cashier-customer-heading { justify-content: flex-start; flex-wrap: wrap; margin-bottom: 1rem; }
+.cashier-appointment-reference { color: var(--ink-subtle, #8c8b89); font-family: var(--font-data, monospace); font-size: var(--text-xs, 0.75rem); }
+.cashier-cart, .cashier-catalog { margin-top: 1rem; padding: 1rem; border: 1px solid var(--divider, #34363a); border-radius: 0.75rem; background: var(--surface, #191a1d); }
+.cashier-cart h3, .cashier-section-heading h3 { margin: 0; font-size: var(--text-lg, 1.25rem); }
+.cashier-cart > p { color: var(--ink-muted, #b6b4b0); }
+.cashier-cart ul, .cashier-product-list, .cashier-ticket-items { list-style: none; padding: 0; margin: 0; }
+.cashier-cart li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.75rem; padding: 0.8rem 0; border-top: 1px solid var(--divider, #34363a); }
+.cashier-cart li div:first-child, .cashier-product-list li div { display: grid; gap: 0.2rem; }
+.cashier-quantity-controls { display: inline-flex; align-items: center; gap: 0.5rem; font-variant-numeric: tabular-nums; }
+.cashier-quantity-controls button { width: 2.25rem; height: 2.25rem; border: 1px solid var(--control-border, #74767a); border-radius: var(--radius-sm, 0.5rem); color: var(--ink, #f4f2ef); background: var(--surface-raised, #222428); font-size: var(--text-lg, 1.25rem); }
+.cashier-quantity-controls button:disabled { opacity: 0.45; }
+.cashier-remove-item { grid-column: 2 / 4; justify-self: end; border: 0; color: var(--ink-muted, #b6b4b0); background: transparent; text-decoration: underline; text-underline-offset: 0.15em; }
+.cashier-remove-item:disabled { display: none; }
+.cashier-section-heading { margin-bottom: 0.75rem; }
+.cashier-section-heading > span { color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-catalog-filters { grid-template-columns: 1.5fr 1fr; }
+.cashier-product-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.75rem; min-height: 4rem; border-top: 1px solid var(--divider, #34363a); }
+.cashier-add-service { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.75rem; margin-top: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--divider, #34363a); }
+.cashier-add-service summary { grid-column: 1 / -1; color: var(--ink, #f4f2ef); font-weight: 700; cursor: pointer; }
+.cashier-add-service p { grid-column: 1 / -1; margin: 0; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-add-service label:not(.cashier-service-performed) { display: grid; gap: 0.35rem; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-add-service .cashier-service-performed { grid-column: 1 / -1; display: flex; align-items: center; gap: 0.6rem; min-height: 2.5rem; color: var(--ink-muted, #b6b4b0); }
+.cashier-add-service .cashier-service-performed input { width: 1rem; height: 1rem; accent-color: var(--accent, #e43d37); }
+.cashier-payment-panel { position: sticky; top: 5rem; padding: 1rem; border: 1px solid var(--divider, #34363a); border-radius: 0.75rem; background: var(--surface, #191a1d); }
+.cashier-payment-panel h2 { margin: 0 0 1rem; font-size: var(--text-lg, 1.25rem); }
+.cashier-totals { display: grid; gap: 0.65rem; margin: 1rem 0; }
+.cashier-totals div { display: flex; justify-content: space-between; gap: 1rem; }
+.cashier-totals dt { color: var(--ink-muted, #b6b4b0); }
+.cashier-totals dd { margin: 0; font-variant-numeric: tabular-nums; }
+.cashier-totals .cashier-grand-total { padding-top: 0.75rem; border-top: 1px solid var(--divider, #34363a); color: var(--ink, #f4f2ef); font-size: var(--text-lg, 1.25rem); font-weight: 700; }
+.cashier-payment-method { display: grid; gap: 0.5rem; padding: 0; border: 0; }
+.cashier-payment-method legend { margin-bottom: 0.5rem; font-weight: 700; }
+.cashier-payment-method label { display: flex; align-items: center; gap: 0.65rem; min-height: 2.75rem; color: var(--ink-muted, #b6b4b0); }
+.cashier-payment-method input { accent-color: var(--accent, #e43d37); }
+.cashier-cash-fields { margin: 0.75rem 0; }
+.cashier-cash-fields p { display: flex; justify-content: space-between; color: var(--ink-muted, #b6b4b0); }
+.cashier-cash-fields p strong { color: var(--ink, #f4f2ef); }
+.cashier-confirm-button { width: 100%; margin-top: 0.75rem; }
+.cashier-demo-note { margin: 0.75rem 0 0; color: var(--ink-muted, #b6b4b0); font-size: var(--text-xs, 0.75rem); }
+.cashier-error { padding: 0.8rem; border: 1px solid var(--danger, #f0716b); border-radius: 0.5rem; color: var(--error-ink, #ff9a94); background: var(--surface, #191a1d); }
+.cashier-receipt { width: min(100%, 44rem); margin: 0 auto; padding: 1.25rem; }
+.cashier-receipt-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.cashier-ticket { width: min(100%, 28rem); margin: 0 auto; padding: 1.5rem; border: 1px solid var(--divider, #34363a); border-radius: 0.75rem; background: var(--surface, #191a1d); }
+.cashier-ticket-brand { margin: 0; text-align: center; font-weight: 700; }
+.cashier-ticket h1 { margin: 0.5rem 0 1rem; font-size: var(--text-xl, 1.625rem); text-align: center; }
+.cashier-ticket dl { display: grid; gap: 0.4rem; }
+.cashier-ticket dl div, .cashier-ticket-items li { display: flex; justify-content: space-between; gap: 1rem; }
+.cashier-ticket dt { color: var(--ink-muted, #b6b4b0); }
+.cashier-ticket dd { margin: 0; text-align: right; }
+.cashier-ticket-items { margin: 1rem 0; padding: 0.75rem 0; border-top: 1px dashed var(--control-border, #74767a); border-bottom: 1px dashed var(--control-border, #74767a); }
+.cashier-ticket-items li { padding: 0.25rem 0; }
+.cashier-ticket-totals .cashier-ticket-total { padding-top: 0.5rem; border-top: 1px solid var(--divider, #34363a); font-weight: 700; }
+.cashier-ticket-note { margin: 1.25rem 0 0; color: var(--ink-muted, #b6b4b0); font-size: var(--text-xs, 0.75rem); text-align: center; }
+@media (max-width: 900px) {
+  .cashier-checkout-layout { grid-template-columns: 1fr; }
+  .cashier-payment-panel { position: static; }
+}
+@media (max-width: 620px) {
+  .cashier-page { padding: 1rem 0.85rem 1.5rem; }
+  .cashier-heading { align-items: flex-start; }
+  .cashier-filters, .cashier-catalog-filters { grid-template-columns: 1fr; }
+  .cashier-filter-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+  .cashier-filter-tabs button { white-space: normal; }
+  .cashier-appointment-row { grid-template-columns: 3.25rem minmax(0, 1fr); gap: 0.5rem 0.75rem; }
+  .cashier-appointment-row time { grid-column: 1; grid-row: 1 / 4; align-self: start; }
+  .cashier-appointment-info { grid-column: 2; grid-row: 1; }
+  .cashier-appointment-total { grid-column: 2; grid-row: 2; justify-self: start; }
+  .cashier-attention-status { grid-column: 2; grid-row: 3; }
+  .cashier-appointment-row > .cashier-primary-button, .cashier-appointment-row > .cashier-secondary-button { grid-column: 2; grid-row: 4; width: 100%; min-height: 2.5rem; padding-inline: 0.6rem; }
+  .cashier-cart, .cashier-catalog, .cashier-payment-panel { padding: 0.85rem; }
+  .cashier-cart li { grid-template-columns: minmax(0, 1fr) auto; }
+  .cashier-cart li > strong { grid-column: 2; grid-row: 1; }
+  .cashier-quantity-controls { grid-column: 1; }
+  .cashier-remove-item { grid-column: 2; }
+  .cashier-product-list li { grid-template-columns: minmax(0, 1fr) auto; padding: 0.65rem 0; }
+  .cashier-product-list li > strong { grid-column: 2; grid-row: 1; }
+  .cashier-product-list li > button { grid-column: 2; grid-row: 2; }
+}
+@media print {
+  @page { size: 80mm auto; margin: 4mm; }
+  body { background: #fff !important; color: #111 !important; }
+  .assistant-sidebar, .assistant-topbar, .assistant-mobile-navigation, .assistant-more-menu,
+  .assistant-skip-link, .assistant-announcement, .cashier-receipt-actions { display: none !important; }
+  .assistant-app, .assistant-workspace, .assistant-content, .cashier-page, .cashier-receipt, .cashier-ticket {
+    width: 100% !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important;
+    border: 0 !important; border-radius: 0 !important; color: #111 !important; background: #fff !important;
+    box-shadow: none !important;
+  }
+  .cashier-ticket { font: 10pt/1.35 monospace; }
+  .cashier-ticket h1 { font-size: 13pt; }
+  .cashier-ticket dl, .cashier-ticket-items { border-color: currentColor !important; }
+}

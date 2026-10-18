@@ -1,4 +1,4 @@
-import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
+import type { AppointmentRecord, AppointmentStatus, SaleRecord } from '../types/domain';
 import { AGENDA_LOAD_STATUS, EMPLOYEE_INVITATION_STATUS, EMPLOYEE_ROLE, type AgendaLoadResult, type AgendaState, type AvailabilityException, type BarberSchedule, type ClientRecord, type EmployeeRecord, type ProductRecord, type PromotionRecord, type ServiceRecord, type TimeInterval } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { validateScheduleIntervals } from './availability';
@@ -143,10 +143,45 @@ function isAppointment(value: unknown): value is AppointmentRecord {
     && value.serviceIds.length > 0
     && isString(value.serviceName)
     && isAppointmentStatus(value.status)
+    && (value.paymentStatus === undefined || value.paymentStatus === 'pending' || value.paymentStatus === 'paid')
     && typeof value.durationMinutes === 'number'
     && Number.isInteger(value.durationMinutes)
     && value.durationMinutes > 0
     && (value.notes === undefined || isString(value.notes));
+}
+
+function isSaleRecord(value: unknown): value is SaleRecord {
+  if (!isRecord(value)
+    || !isString(value.id) || value.id.trim().length === 0
+    || !isString(value.occurredAt) || !Number.isFinite(new Date(value.occurredAt).getTime())
+    || !Array.isArray(value.items) || value.items.length === 0
+    || !value.items.every((item) => isRecord(item)
+      && (item.kind === undefined || item.kind === 'product' || item.kind === 'service')
+      && (item.catalogItemId === undefined || isString(item.catalogItemId))
+      && (item.barberId === undefined || isString(item.barberId))
+      && (item.barberName === undefined || isString(item.barberName))
+      && (item.servicePerformed === undefined || typeof item.servicePerformed === 'boolean')
+      && isString(item.name) && item.name.trim().length > 0
+      && typeof item.quantity === 'number' && Number.isInteger(item.quantity) && item.quantity > 0
+      && typeof item.unitPrice === 'number' && Number.isFinite(item.unitPrice) && item.unitPrice >= 0)
+    || typeof value.grossTotal !== 'number' || !Number.isFinite(value.grossTotal) || value.grossTotal < 0
+    || typeof value.discountTotal !== 'number' || !Number.isFinite(value.discountTotal) || value.discountTotal < 0
+    || typeof value.netTotal !== 'number' || !Number.isFinite(value.netTotal) || value.netTotal < 0
+    || Math.abs(value.netTotal - (value.grossTotal - value.discountTotal)) > 0.01) return false;
+
+  return (value.idempotencyKey === undefined || (isString(value.idempotencyKey) && value.idempotencyKey.trim().length > 0))
+    && (value.appointmentId === undefined || isString(value.appointmentId))
+    && (value.clientId === undefined || isString(value.clientId))
+    && (value.clientName === undefined || isString(value.clientName))
+    && (value.barberName === undefined || isString(value.barberName))
+    && (value.employeeId === undefined || isString(value.employeeId))
+    && (value.employeeName === undefined || isString(value.employeeName))
+    && (value.paymentMethod === undefined || value.paymentMethod === 'cash' || value.paymentMethod === 'card' || value.paymentMethod === 'transfer')
+    && (value.status === undefined || value.status === 'completed')
+    && (value.promotionId === undefined || isString(value.promotionId))
+    && (value.promotionName === undefined || isString(value.promotionName))
+    && (value.cashReceived === undefined || (typeof value.cashReceived === 'number' && Number.isFinite(value.cashReceived) && value.cashReceived >= 0))
+    && (value.changeDue === undefined || (typeof value.changeDue === 'number' && Number.isFinite(value.changeDue) && value.changeDue >= 0));
 }
 
 function hasUniqueIds(records: Array<{ id: string }>): boolean {
@@ -159,6 +194,7 @@ function isAgendaState(value: unknown): value is AgendaState {
     || (value.employees !== undefined && !Array.isArray(value.employees))
     || (value.products !== undefined && !Array.isArray(value.products))
     || (value.promotions !== undefined && !Array.isArray(value.promotions))
+    || (value.sales !== undefined && !Array.isArray(value.sales))
     || !Array.isArray(value.clients)
     || !Array.isArray(value.services)
     || !Array.isArray(value.schedules)
@@ -169,6 +205,7 @@ function isAgendaState(value: unknown): value is AgendaState {
     || (value.employees !== undefined && !value.employees.every(isEmployee))
     || (value.products !== undefined && !value.products.every(isProduct))
     || (value.promotions !== undefined && !value.promotions.every(isPromotion))
+    || (value.sales !== undefined && !value.sales.every(isSaleRecord))
     || !value.clients.every(isClient)
     || !value.services.every(isService)
     || !value.schedules.every(isBarberSchedule)
@@ -179,12 +216,17 @@ function isAgendaState(value: unknown): value is AgendaState {
   const employees = (value.employees ?? []) as EmployeeRecord[];
   const products = (value.products ?? []) as ProductRecord[];
   const promotions = (value.promotions ?? []) as PromotionRecord[];
+  const sales = (value.sales ?? []) as SaleRecord[];
+  const appointments = value.appointments as AppointmentRecord[];
   const clientIds = new Set(value.clients.map(({ id }) => id));
   const serviceIds = new Set(value.services.map(({ id }) => id));
   return hasUniqueIds(value.barbers)
     && hasUniqueIds(employees)
     && hasUniqueIds(products)
     && hasUniqueIds(promotions)
+    && hasUniqueIds(sales)
+    && new Set(sales.flatMap(({ idempotencyKey }) => idempotencyKey ? [idempotencyKey] : [])).size
+      === sales.filter(({ idempotencyKey }) => idempotencyKey !== undefined).length
     && employees.every((employee) => employee.role !== EMPLOYEE_ROLE.BARBER || barberIds.has(employee.id))
     && hasUniqueIds(value.clients)
     && hasUniqueIds(value.services)
@@ -193,10 +235,18 @@ function isAgendaState(value: unknown): value is AgendaState {
     && value.exceptions.every(({ barberId }) => barberIds.has(barberId))
     && value.appointments.every((appointment) => barberIds.has(appointment.barberId)
       && clientIds.has(appointment.clientId)
-      && appointment.serviceIds.every((id) => serviceIds.has(id)));
+      && appointment.serviceIds.every((id) => serviceIds.has(id)))
+    && sales.every((sale) => sale.appointmentId === undefined || appointments.some(({ id }) => id === sale.appointmentId));
 }
 
 export function saveAgendaState(storage: Pick<Storage, 'setItem'>, state: AgendaState): void {
+  if ((state.sales !== undefined && (!Array.isArray(state.sales)
+    || !state.sales.every(isSaleRecord)
+    || hasDuplicateIdempotencyKeys(state.sales)))
+    || state.appointments.some(({ paymentStatus }) => paymentStatus !== undefined
+      && paymentStatus !== 'pending' && paymentStatus !== 'paid')) {
+    throw new Error('Cannot save invalid sale or appointment payment data.');
+  }
   if (state.promotions !== undefined
     && (!Array.isArray(state.promotions)
       || !state.promotions.every((promotion) => validatePromotion(promotion).valid)
@@ -211,6 +261,11 @@ export function saveAgendaState(storage: Pick<Storage, 'setItem'>, state: Agenda
   };
   const envelope: AgendaStorageEnvelope = { version: AGENDA_STORAGE_VERSION, state: normalizedState };
   storage.setItem(AGENDA_STORAGE_KEY, JSON.stringify(envelope));
+}
+
+function hasDuplicateIdempotencyKeys(sales: SaleRecord[]): boolean {
+  const keys = sales.flatMap(({ idempotencyKey }) => idempotencyKey ? [idempotencyKey] : []);
+  return new Set(keys).size !== keys.length;
 }
 
 export function loadAgendaState(

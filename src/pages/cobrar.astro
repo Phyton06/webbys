@@ -1,0 +1,9 @@
+---
+import { CashierPage } from '../components/CashierPage';
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/cashier.css';
+---
+
+<AppLayout title="Cobrar · Webbys" description="Punto de venta de demostración de Webbys Barbershop.">
+  <CashierPage client:load />
+</AppLayout>
