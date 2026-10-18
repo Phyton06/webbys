@@ -31,7 +31,7 @@ Checks: focused tests for changed behavior and `npm run build`.
 
 ## Tasks
 - T1 — S1 — inline — complete for L8 — follow-up commit `265f985`
-- T2 — S2 — inline — complete for L8 — follow-up commit `265f985`
+- T2 — S2 — inline — complete for L8 — follow-up commits `265f985`, `b0052ce`
 - T3 — S3 — inline — complete for L8 — follow-up commit `265f985`
 
 ## Log
@@ -83,8 +83,8 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 - L7 pagination: sales history, cashier appointments, upcoming assistant appointments, client directory and client appointment/purchase histories, and product, service, and promotion lists use five records per page with accessible previous/next chevrons. Counts and reporting summaries continue to use the full filtered record set; search/status/category changes reset affected page indices.
 - Follow-up work-unit commits: `b6caf64` aligns dashboard actions and shared gutters; `4533534` polishes cashier controls and appointment pagination; `ba2e8a1` paginates the remaining shared record lists.
 - Essential verification: seven changed-page test files passed (57 tests); `npm run build` passed with 0 errors, warnings, and hints and built 16 routes; the final Impeccable detector returned no findings; mobile screenshots inspected the assistant dashboard and quick-sale flow. `git diff --check` passed before committing.
-- Full-suite result: 366 passed and one test failed at `src/components/LoginForm.test.tsx:15` (`allows sign-in with no credentials and enters the admin panel`: expected the email input to be enabled, received disabled). LoginForm source and test are unchanged by this work. Needs your decision: should I expand scope to investigate this separate login failure?
+- Prior full-suite result (before L8): 366 passed and one test failed at `src/components/LoginForm.test.tsx:15` (`allows sign-in with no credentials and enters the admin panel`: expected the email input to be enabled, received disabled). LoginForm source and test are unchanged by this work; the full suite was not rerun for L8. Needs your decision: should I expand scope to investigate this separate login failure?
 - Risk: none — the changes paginate requested record lists without changing stored data, sales calculations, access rules, or public contracts.
 - L8 implementation: AgendaPanel now reveals its month calendar from the date control in both roles; modal/form dismissals use the shared leading back-chevron before titles (including the installation prompt); assistant quick actions carry accessible Lucide icons; cashier queue is restricted to unpaid appointments today and one client/barber search field, including appointment deep links.
-- L8 verification: 11 focused test files passed (84 tests); `npm run build` passed with zero errors, warnings, or hints and produced 16 routes; screenshots inspected the collapsed/open calendar, modal chevron, assistant actions, and mobile cashier queue. The final detector reported existing palette/type advisories in legacy `agenda.css` and `install-prompt.css`; no new declarations were flagged. `git diff --check` passed.
-- L8 follow-up work-unit commit: `265f985` (`feat(assistant): simplify agenda and cashier flows`). No push or PR was authorized.
+- L8 verification: 11 focused test files passed (85 tests); `npm run build` passed with zero errors, warnings, or hints and produced 16 routes; screenshots inspected the collapsed/open calendar, modal chevron, assistant actions, and mobile cashier queue. The final detector reported existing palette/type advisories in legacy `agenda.css` and `install-prompt.css`; no new declarations were flagged. `git diff --check` passed.
+- L8 follow-up work-unit commits: `265f985` (`feat(assistant): simplify agenda and cashier flows`) and `b0052ce` (`test(cashier): cover today-only appointment links`). No push or PR was authorized.
