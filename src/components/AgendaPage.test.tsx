@@ -10,6 +10,7 @@ const now = new Date(2026, 9, 15, 8, 0);
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  window.history.replaceState({}, '', '/');
 });
 
 beforeEach(() => {
@@ -29,6 +30,16 @@ describe('AgendaPage availability settings', () => {
 
     expect(screen.queryByRole('button', { name: 'Disponibilidad' })).toBeNull();
     expect(screen.queryByRole('heading', { name: 'Horarios de trabajo' })).toBeNull();
+  });
+
+  it('opens appointment creation with the client selected from a profile link', () => {
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    saveAgendaState(localStorage, createAgendaSeed(now));
+    window.history.replaceState({}, '', '/agenda/?clientId=client-1');
+    render(<AgendaPage />);
+
+    expect(screen.getByRole('heading', { name: 'Nueva cita' })).toBeTruthy();
+    expect(screen.getByLabelText('Cliente')).toBeTruthy();
   });
 
   it('recomputes open starts in Citas after a saved weekly schedule change', async () => {

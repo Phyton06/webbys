@@ -40,6 +40,7 @@ const bookingFailureCopy: Record<BookingFailure, string> = {
 interface AppointmentFormProps {
   state: AgendaState;
   appointment?: AppointmentRecord;
+  initialClientId?: string;
   now: Date;
   onSave: (appointment: AppointmentRecord) => boolean;
   onClientSave?: (client: ClientRecord) => boolean;
@@ -54,13 +55,14 @@ function resolveValidationError(result: BookingValidation): string | undefined {
   return result.valid ? undefined : bookingFailureCopy[result.reason];
 }
 
-export function AppointmentForm({ state, appointment, now, onSave, onClientSave, onCancel }: AppointmentFormProps) {
+export function AppointmentForm({ state, appointment, initialClientId, now, onSave, onClientSave, onCancel }: AppointmentFormProps) {
   const [currency] = useState(getCurrentBusinessCurrency);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const bookableBarbers = getBookableBarbers(state.employees, state.barbers, appointment?.barberId);
   const selectableServices = state.services.filter((service) => service.active !== false
     || appointment?.serviceIds.includes(service.id));
-  const [clientId, setClientId] = useState(appointment?.clientId ?? state.clients[0]?.id ?? '');
+  const initialClient = initialClientId && state.clients.some(({ id }) => id === initialClientId) ? initialClientId : state.clients[0]?.id ?? '';
+  const [clientId, setClientId] = useState(appointment?.clientId ?? initialClient);
   const [barberId, setBarberId] = useState(appointment?.barberId ?? getBookableBarbers(state.employees, state.barbers)[0]?.id ?? '');
   const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>(appointment?.serviceIds ?? (selectableServices[0] ? [selectableServices[0].id] : []));
   const [date, setDate] = useState(() => localDateKey(appointment ? new Date(appointment.startsAt) : now));

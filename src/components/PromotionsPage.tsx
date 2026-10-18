@@ -16,8 +16,9 @@ import {
 import { createAgendaSeed } from '../data/agenda-demo';
 import { getPromotionPrice, getPromotionStatus, getPromotionTargetPrice, type PromotionStatus, validatePromotion } from '../services/promotions';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { getDemoSessionRole } from '../lib/demo-auth';
 import { AdminGate } from './AdminGate';
-import { AdminShell } from './AdminShell';
+import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
@@ -415,6 +416,9 @@ function PromotionForm({
 
 export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   const [state, setState] = useState(() => loadInitialState(now));
+  const [isAssistant] = useState(() => {
+    try { return getDemoSessionRole(window.localStorage) === 'assistant'; } catch { return false; }
+  });
   const [currency] = useState(getCurrentBusinessCurrency);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<PromotionFilter>(PROMOTION_FILTER.ALL);
@@ -428,15 +432,16 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   const visiblePromotions = useMemo(() => {
     const search = query.trim().toLocaleLowerCase('es');
     return promotions
-      .filter((promotion) => statusFilter === PROMOTION_FILTER.ALL
-        || getPromotionStatus(promotion, today) === statusFilter)
+      .filter((promotion) => isAssistant
+        ? getPromotionStatus(promotion, today) === PROMOTION_FILTER.ACTIVE
+        : statusFilter === PROMOTION_FILTER.ALL || getPromotionStatus(promotion, today) === statusFilter)
       .filter(({ name, description, targets }) => !search
         || name.toLocaleLowerCase('es').includes(search)
         || description.toLocaleLowerCase('es').includes(search)
         || targets.some(({ name: targetName }) => targetName.toLocaleLowerCase('es').includes(search)))
       .sort((first, second) => first.startsOn.localeCompare(second.startsOn)
         || first.name.localeCompare(second.name, 'es', { sensitivity: 'base' }));
-  }, [promotions, query, statusFilter, today]);
+  }, [isAssistant, promotions, query, statusFilter, today]);
 
   function persist(nextPromotions: PromotionRecord[]): boolean {
     try {
@@ -452,6 +457,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   }
 
   function savePromotion(promotion: PromotionRecord): boolean {
+    if (isAssistant) return false;
     const exists = promotions.some(({ id }) => id === promotion.id);
     const next = exists
       ? promotions.map((current) => current.id === promotion.id ? promotion : current)
@@ -464,6 +470,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   }
 
   function setManualStatus(promotion: PromotionRecord, manualStatus: PromotionManualStatus) {
+    if (isAssistant) return;
     persist(promotions.map((current) => current.id === promotion.id ? { ...current, manualStatus } : current));
   }
 
@@ -475,8 +482,8 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
   const statusLabel = (promotion: PromotionRecord) => promotionStatusLabels[getPromotionStatus(promotion, today)];
 
   return (
-    <AdminGate>
-      <AdminShell activeSection="Promociones">
+    <AdminGate role="any">
+      <RoleShell activeSection="Promociones">
         <section class="promotions-page" aria-labelledby="promotions-title">
           <header class="agenda-heading promotions-heading">
             <div>
@@ -484,9 +491,9 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                 {selectedPromotion && <BackLink ariaLabel="Volver a Promociones" onClick={() => setSelectedId(undefined)} />}
                 <h1 id="promotions-title">Promociones</h1>
               </div>
-              <p>Administra descuentos y precios especiales para productos y servicios.</p>
+              <p>{isAssistant ? 'Consulta promociones vigentes para productos y servicios.' : 'Administra descuentos y precios especiales para productos y servicios.'}</p>
             </div>
-            <button class="availability-save-button" type="button" onClick={() => { setEditingPromotion(undefined); setFormOpen(true); }}>Nueva promoción</button>
+            {!isAssistant && <button class="availability-save-button" type="button" onClick={() => { setEditingPromotion(undefined); setFormOpen(true); }}>Nueva promoción</button>}
           </header>
           {error && <p class="availability-error" role="alert">{error}</p>}
 
@@ -497,14 +504,14 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                   <h2 id="promotion-detail-title">{selectedPromotion.name}</h2>
                   <span class={`promotion-status status-${getPromotionStatus(selectedPromotion, today)}`}>{statusLabel(selectedPromotion)}</span>
                 </div>
-                <div class="promotion-actions">
+                {!isAssistant && <div class="promotion-actions">
                   <button class="appointment-form-cancel" type="button" onClick={() => { setEditingPromotion(selectedPromotion); setFormOpen(true); }}>Editar</button>
                   {selectedPromotion.manualStatus === PROMOTION_MANUAL_STATUS.DISABLED
                     ? <button class="appointment-form-cancel" type="button" aria-label={`Publicar promoción ${selectedPromotion.name}`} onClick={() => setManualStatus(selectedPromotion, PROMOTION_MANUAL_STATUS.PUBLISHED)}>Publicar</button>
                     : selectedPromotion.manualStatus === PROMOTION_MANUAL_STATUS.PUBLISHED
                       ? <button class="appointment-form-cancel" type="button" aria-label={`Desactivar promoción ${selectedPromotion.name}`} onClick={() => setManualStatus(selectedPromotion, PROMOTION_MANUAL_STATUS.DISABLED)}>Desactivar</button>
                       : <button class="appointment-form-cancel" type="button" aria-label={`Publicar promoción ${selectedPromotion.name}`} onClick={() => setManualStatus(selectedPromotion, PROMOTION_MANUAL_STATUS.PUBLISHED)}>Publicar</button>}
-                </div>
+                </div>}
               </header>
               <p>{selectedPromotion.description || 'Sin descripción.'}</p>
               <dl>
@@ -561,10 +568,10 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                   <span>Buscar</span>
                   <input type="search" aria-label="Buscar promociones" placeholder="Nombre, descripción o producto" value={query} onInput={(event) => setQuery(event.currentTarget.value)} />
                 </label>
-                <div class="promotions-filter-control">
+                {!isAssistant && <div class="promotions-filter-control">
                   <span>Estado</span>
                   <Dropdown label="Estado de promociones" value={statusFilter} options={promotionStatusOptions} onChange={setStatusFilter} />
-                </div>
+                </div>}
               </div>
               {visiblePromotions.length > 0 ? (
                 <ul class="promotion-list" aria-label="Lista de promociones">
@@ -582,12 +589,12 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
                           : formatCurrency(getPromotionPrice(promotion), currency)}</strong>
                         <div class="promotion-actions">
                           <button class="appointment-form-cancel" type="button" aria-label={`Ver promoción ${promotion.name}`} onClick={() => setSelectedId(promotion.id)}>Ver</button>
-                          <button class="appointment-form-cancel" type="button" aria-label={`Editar promoción ${promotion.name}`} onClick={() => { setEditingPromotion(promotion); setFormOpen(true); }}>Editar</button>
-                          {promotion.manualStatus === PROMOTION_MANUAL_STATUS.DISABLED
+                          {!isAssistant && <button class="appointment-form-cancel" type="button" aria-label={`Editar promoción ${promotion.name}`} onClick={() => { setEditingPromotion(promotion); setFormOpen(true); }}>Editar</button>}
+                          {!isAssistant && (promotion.manualStatus === PROMOTION_MANUAL_STATUS.DISABLED
                             ? <button class="appointment-form-cancel" type="button" aria-label={`Publicar promoción ${promotion.name}`} onClick={() => setManualStatus(promotion, PROMOTION_MANUAL_STATUS.PUBLISHED)}>Publicar</button>
                             : promotion.manualStatus === PROMOTION_MANUAL_STATUS.PUBLISHED
                               ? <button class="appointment-form-cancel" type="button" aria-label={`Desactivar promoción ${promotion.name}`} onClick={() => setManualStatus(promotion, PROMOTION_MANUAL_STATUS.DISABLED)}>Desactivar</button>
-                              : <button class="appointment-form-cancel" type="button" aria-label={`Publicar promoción ${promotion.name}`} onClick={() => setManualStatus(promotion, PROMOTION_MANUAL_STATUS.PUBLISHED)}>Publicar</button>}
+                              : <button class="appointment-form-cancel" type="button" aria-label={`Publicar promoción ${promotion.name}`} onClick={() => setManualStatus(promotion, PROMOTION_MANUAL_STATUS.PUBLISHED)}>Publicar</button>)}
                         </div>
                       </article>
                     </li>
@@ -598,7 +605,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
               )}
             </>
           )}
-          {formOpen && (
+          {formOpen && !isAssistant && (
             <PromotionForm
               promotion={editingPromotion}
               products={state.products ?? []}
@@ -609,7 +616,7 @@ export function PromotionsPage({ now = new Date() }: PromotionsPageProps) {
             />
           )}
         </section>
-      </AdminShell>
+      </RoleShell>
     </AdminGate>
   );
 }

@@ -3,7 +3,7 @@ import { createAgendaSeed } from '../data/agenda-demo';
 import { AGENDA_LOAD_STATUS, type AgendaLoadResult, type AgendaState, type ClientRecord } from '../types/agenda';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
-import { AdminShell } from './AdminShell';
+import { RoleShell } from './RoleShell';
 import { AgendaPanel } from './AgendaPanel';
 
 function loadInitialAgenda(now: Date): AgendaLoadResult {
@@ -21,6 +21,14 @@ export function AgendaPage() {
   });
   const [state, setState] = useState(initial.agenda.state);
   const [storageWarning, setStorageWarning] = useState(initial.agenda.status === AGENDA_LOAD_STATUS.INVALID);
+  const [initialClientId] = useState(() => {
+    try {
+      const clientId = new URLSearchParams(window.location.search).get('clientId') ?? undefined;
+      return clientId && initial.agenda.state.clients.some(({ id }) => id === clientId) ? clientId : undefined;
+    } catch {
+      return undefined;
+    }
+  });
 
   function persistState(next: AgendaState): boolean {
     try {
@@ -46,15 +54,15 @@ export function AgendaPage() {
   }
 
   return (
-    <AdminGate>
-      <AdminShell activeSection="Agenda">
+    <AdminGate role="any">
+      <RoleShell activeSection="Agenda">
         {storageWarning && (
           <p class="admin-store-warning" role="status">
             No se pudieron leer los datos guardados. Revisa el almacenamiento del navegador.
           </p>
         )}
-        <AgendaPanel state={state} now={initial.now} onAppointmentSave={saveAppointment} onClientSave={saveClient} />
-      </AdminShell>
+        <AgendaPanel state={state} now={initial.now} initialClientId={initialClientId} onAppointmentSave={saveAppointment} onClientSave={saveClient} />
+      </RoleShell>
     </AdminGate>
   );
 }

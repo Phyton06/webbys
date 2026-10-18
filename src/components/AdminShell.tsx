@@ -20,7 +20,7 @@ import { sitePath } from '../lib/site-path';
 
 interface AdminShellProps {
   children: ComponentChildren;
-  activeSection?: (typeof ACTIVE_ADMIN_SECTION)[keyof typeof ACTIVE_ADMIN_SECTION] | 'Clientes' | 'Empleados' | 'Servicios' | 'Productos' | 'Promociones' | 'Ventas' | 'Analíticas' | 'Notificaciones' | 'Configuración';
+  activeSection?: string;
   onSignOut?: () => void;
 }
 

@@ -108,6 +108,51 @@ describe('ClientsPage', () => {
     expect(saved.appointments).toEqual(state.appointments);
   });
 
+  it('offers the shared appointment checkout from an assistant client profile', () => {
+    const state = createAgendaSeed(now);
+    const client = state.clients[0]!;
+    const appointment = state.appointments.find(({ clientId }) => clientId === client.id)!;
+    state.appointments = state.appointments.map((current) => current.id === appointment.id
+      ? { ...current, paymentStatus: 'pending' }
+      : current);
+    saveAgendaState(localStorage, state);
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    render(<ClientsPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: `Ver perfil de ${client.name}` }));
+    expect(screen.getByText('Pendiente de cobro')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Cobrar cita' }).getAttribute('href')).toBe(`/cobrar/?appointmentId=${appointment.id}`);
+  });
+
+  it('shows shared sales linked to the client in purchase history', () => {
+    const state = createAgendaSeed(now);
+    const client = state.clients[0]!;
+    state.sales = [{
+      id: 'sale-client-history', occurredAt: now.toISOString(), clientId: client.id, clientName: client.name,
+      items: [{ kind: 'product', catalogItemId: 'product-shampoo', name: 'Shampoo', quantity: 1, unitPrice: 160 }],
+      paymentMethod: 'card', status: 'completed', grossTotal: 160, discountTotal: 0, netTotal: 160,
+    }];
+    saveAgendaState(localStorage, state);
+    expect(loadAgendaState(localStorage, now).state.sales).toHaveLength(1);
+    render(<ClientsPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: `Ver perfil de ${client.name}` }));
+    expect(screen.getByText('Folio sale-client-history')).toBeTruthy();
+    expect(screen.getByText('1 × Shampoo')).toBeTruthy();
+    expect(screen.getByText('$160.00')).toBeTruthy();
+  });
+
+  it('starts a new appointment from the assistant client profile with that client selected', () => {
+    const state = createAgendaSeed(now);
+    const client = state.clients[0]!;
+    saveAgendaState(localStorage, state);
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    render(<ClientsPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: `Ver perfil de ${client.name}` }));
+    expect(screen.getByRole('link', { name: 'Agendar cita' }).getAttribute('href')).toBe(`/agenda/?clientId=${client.id}`);
+  });
+
   it('opens the selected client profile and shows appointment and purchase history states', () => {
     saveAgendaState(localStorage, createAgendaSeed(now));
     render(<ClientsPage />);
@@ -116,7 +161,7 @@ describe('ClientsPage', () => {
     expect(screen.getByRole('heading', { name: 'Lucía Torres' })).toBeTruthy();
     expect(within(screen.getByRole('region', { name: 'Historial de citas' })).getAllByRole('listitem').length).toBeGreaterThan(0);
     expect(screen.getByRole('region', { name: 'Historial de compras' })).toBeTruthy();
-    expect(screen.getByText('Las ventas aún no están vinculadas a clientes.')).toBeTruthy();
+    expect(screen.getByText('Este cliente aún no tiene compras registradas.')).toBeTruthy();
   });
 
   it('shows only the selected client appointments in chronological order', () => {

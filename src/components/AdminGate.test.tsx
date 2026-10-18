@@ -34,4 +34,31 @@ describe('AdminGate', () => {
     expect(screen.getByRole('alert').textContent).toContain('Debes iniciar sesión para acceder al panel.');
     expect(screen.getByRole('alert').textContent?.toLocaleLowerCase('es')).not.toMatch(/demo|demostración|demostracion/);
   });
+
+  it('withholds administrator content from an assistant session', async () => {
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    const onUnauthenticated = vi.fn();
+
+    render(
+      <AdminGate onUnauthenticated={onUnauthenticated}>
+        <p>Contenido administrativo</p>
+      </AdminGate>,
+    );
+
+    await waitFor(() => expect(onUnauthenticated).toHaveBeenCalledOnce());
+    expect(screen.queryByText('Contenido administrativo')).toBeNull();
+    expect(screen.getByRole('alert').textContent).toContain('administrador');
+  });
+
+  it('allows assistant sessions into shared operational modules', async () => {
+    localStorage.setItem('webbys:demo-session', 'assistant');
+
+    render(
+      <AdminGate role="any">
+        <p>Agenda compartida</p>
+      </AdminGate>,
+    );
+
+    expect(await screen.findByText('Agenda compartida')).toBeTruthy();
+  });
 });

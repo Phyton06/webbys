@@ -4,7 +4,10 @@ import type { AgendaState } from '../types/agenda';
 import type { AppointmentRecord } from '../types/domain';
 import { AgendaPanel } from './AgendaPanel';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 
 const now = new Date(2026, 9, 15, 10, 0);
 
@@ -233,6 +236,31 @@ describe('AgendaPanel', () => {
     fireEvent.click(within(details).getByRole('button', { name: `Confirmar cita de ${pending.clientName}` }));
 
     expect(screen.getByRole('status').textContent).toContain('Estado actualizado: Confirmada.');
+  });
+
+  it('links unpaid assistant appointments to the shared cashier and labels paid appointments', () => {
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    const stateWithPayments: AgendaState = {
+      ...state,
+      appointments: [
+        { ...state.appointments[0]!, paymentStatus: 'pending' },
+        { ...state.appointments[1]!, paymentStatus: 'paid' },
+        ...state.appointments.slice(2),
+      ],
+    };
+    render(<AgendaPanel state={stateWithPayments} now={now} />);
+
+    const unpaid = screen.getByText('Cliente hoy-diego').closest('details');
+    if (!unpaid) throw new Error('Expected appointment disclosure');
+    fireEvent.click(within(unpaid).getByText('Cliente hoy-diego'));
+    expect(within(unpaid).getByText('Pendiente de cobro')).toBeTruthy();
+    expect(within(unpaid).getByRole('link', { name: 'Cobrar cita' }).getAttribute('href')).toBe('/cobrar/?appointmentId=hoy-diego');
+
+    const paid = screen.getByText('Cliente hoy-raul').closest('details');
+    if (!paid) throw new Error('Expected paid appointment disclosure');
+    fireEvent.click(within(paid).getByText('Cliente hoy-raul'));
+    expect(within(paid).getByText('Pagada')).toBeTruthy();
+    expect(within(paid).queryByRole('link', { name: 'Cobrar cita' })).toBeNull();
   });
 
 });

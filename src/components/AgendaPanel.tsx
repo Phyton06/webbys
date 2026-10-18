@@ -6,6 +6,8 @@ import { ALL_BARBERS, AgendaAvailabilityPanel } from './AgendaAvailabilityPanel'
 import { AppointmentForm } from './AppointmentForm';
 import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
+import { getDemoSessionRole } from '../lib/demo-auth';
+import { sitePath } from '../lib/site-path';
 import '../styles/agenda.css';
 
 const AGENDA_VIEW = {
@@ -36,6 +38,7 @@ const APPOINTMENT_STATUS_ACTIONS: Record<AppointmentStatus, Array<{ status: Appo
 interface AgendaPanelProps {
   state: AgendaState;
   now?: Date;
+  initialClientId?: string;
   onAppointmentSave?: (appointment: AppointmentRecord) => boolean;
   onClientSave?: (client: ClientRecord) => boolean;
 }
@@ -115,6 +118,13 @@ function AppointmentDisclosure({
   onStatusChange?: (status: AppointmentStatus) => void;
 }) {
   const statusLabel = appointmentStatusLabels[appointment.status];
+  let isAssistant = false;
+  try {
+    isAssistant = typeof window !== 'undefined' && getDemoSessionRole(window.localStorage) === 'assistant';
+  } catch {
+    isAssistant = false;
+  }
+  const isPaid = appointment.paymentStatus === 'paid';
 
   return (
     <li class={`agenda-appointment status-${appointment.status}`}>
@@ -137,7 +147,16 @@ function AppointmentDisclosure({
             <dt>Duración</dt>
             <dd>{appointment.durationMinutes} min</dd>
           </div>
+          <div>
+            <dt>Pago</dt>
+            <dd>{isPaid ? 'Pagada' : 'Pendiente de cobro'}</dd>
+          </div>
         </dl>
+        {isAssistant && !isPaid && appointment.status !== 'cancelled' && (
+          <a class="agenda-charge-link" href={`${sitePath('/cobrar/')}?appointmentId=${encodeURIComponent(appointment.id)}`}>
+            Cobrar cita
+          </a>
+        )}
         {onReschedule && (appointment.status === 'pending' || appointment.status === 'confirmed') && (
           <button
             class="agenda-reschedule-button"
@@ -164,11 +183,15 @@ function AppointmentDisclosure({
   );
 }
 
-export function AgendaPanel({ state, now = new Date(), onAppointmentSave, onClientSave }: AgendaPanelProps) {
+export function AgendaPanel({ state, now = new Date(), initialClientId, onAppointmentSave, onClientSave }: AgendaPanelProps) {
   const [view, setView] = useState<(typeof AGENDA_VIEW)[keyof typeof AGENDA_VIEW]>(AGENDA_VIEW.DAY);
   const [selectedDate, setSelectedDate] = useState(() => localDateKey(now));
   const [selectedBarber, setSelectedBarber] = useState(ALL_BARBERS);
-  const [appointmentFormState, setAppointmentFormState] = useState<AppointmentFormState>(APPOINTMENT_FORM_STATE.CLOSED);
+  const [appointmentFormState, setAppointmentFormState] = useState<AppointmentFormState>(() => (
+    initialClientId && state.clients.some(({ id }) => id === initialClientId)
+      ? APPOINTMENT_FORM_STATE.CREATE
+      : APPOINTMENT_FORM_STATE.CLOSED
+  ));
   const [editingAppointment, setEditingAppointment] = useState<AppointmentRecord | undefined>();
   const [formAnnouncement, setFormAnnouncement] = useState('');
   const [announcementIsError, setAnnouncementIsError] = useState(false);
@@ -344,6 +367,7 @@ export function AgendaPanel({ state, now = new Date(), onAppointmentSave, onClie
         <AppointmentForm
           state={state}
           appointment={editingAppointment}
+          initialClientId={initialClientId}
           now={now}
           onSave={saveAppointment}
           onClientSave={onClientSave}

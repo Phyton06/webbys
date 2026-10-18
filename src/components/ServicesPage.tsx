@@ -3,7 +3,7 @@ import type { AgendaState, ServiceRecord } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
-import { AdminShell } from './AdminShell';
+import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
@@ -185,8 +185,8 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
   }
 
   return (
-    <AdminGate>
-      <AdminShell activeSection="Servicios">
+    <AdminGate role="any">
+      <RoleShell activeSection="Servicios">
         <section class="services-page" aria-labelledby="services-title">
           <header class="agenda-heading services-heading">
             <div>
@@ -259,7 +259,7 @@ export function ServicesPage({ now = new Date() }: ServicesPageProps) {
           )}
           {formOpen && <ServiceForm service={editingService} onSave={saveService} onCancel={closeForm} />}
         </section>
-      </AdminShell>
+      </RoleShell>
     </AdminGate>
   );
 }

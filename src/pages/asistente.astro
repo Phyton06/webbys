@@ -1,0 +1,9 @@
+---
+import { AssistantPage } from '../components/AssistantPage';
+import AppLayout from '../layouts/AppLayout.astro';
+import '../styles/assistant.css';
+---
+
+<AppLayout title="Asistente · Webbys" description="Operación diaria de Webbys Barbershop.">
+  <AssistantPage client:load />
+</AppLayout>

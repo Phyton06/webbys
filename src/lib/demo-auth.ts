@@ -1,5 +1,12 @@
 const demoSessionKey = 'webbys:demo-session';
 
+export type DemoRole = 'administrator' | 'assistant';
+
+const DEMO_USERS: Record<string, { password: string; role: DemoRole }> = {
+  'admin@barber.com': { password: 'admin', role: 'administrator' },
+  'asistente@barber.com': { password: 'asistente', role: 'assistant' },
+};
+
 export interface Credentials {
   email: string;
   password: string;
@@ -8,6 +15,11 @@ export interface Credentials {
 export interface CredentialErrors {
   email?: string;
   password?: string;
+}
+
+export function authenticateDemoUser({ email, password }: Credentials): DemoRole | null {
+  const user = DEMO_USERS[email.trim().toLocaleLowerCase('en')];
+  return user?.password === password ? user.role : null;
 }
 
 export function validateCredentials({ email, password }: Credentials): CredentialErrors {
@@ -25,12 +37,18 @@ export function validateCredentials({ email, password }: Credentials): Credentia
   return errors;
 }
 
-export function startDemoSession(storage: Pick<Storage, 'setItem'>): void {
-  storage.setItem(demoSessionKey, 'active');
+export function startDemoSession(storage: Pick<Storage, 'setItem'>, role: DemoRole = 'administrator'): void {
+  storage.setItem(demoSessionKey, role);
 }
 
 export function hasDemoSession(storage: Pick<Storage, 'getItem'>): boolean {
-  return storage.getItem(demoSessionKey) === 'active';
+  return getDemoSessionRole(storage) !== null;
+}
+
+export function getDemoSessionRole(storage: Pick<Storage, 'getItem'>): DemoRole | null {
+  const role = storage.getItem(demoSessionKey);
+  if (role === 'administrator' || role === 'assistant') return role;
+  return role === 'active' ? 'administrator' : null;
 }
 
 export function endDemoSession(storage: Pick<Storage, 'removeItem'>): void {

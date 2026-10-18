@@ -3,8 +3,11 @@ import { createAgendaSeed } from '../data/agenda-demo';
 import { AGENDA_LOAD_STATUS, type AgendaLoadResult, type AgendaState, type ClientRecord } from '../types/agenda';
 import type { AppointmentRecord, AppointmentStatus } from '../types/domain';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
+import { getDemoSessionRole } from '../lib/demo-auth';
+import { sitePath } from '../lib/site-path';
+import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { AdminGate } from './AdminGate';
-import { AdminShell } from './AdminShell';
+import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { ClientForm } from './ClientForm';
 import { Dropdown } from './Dropdown';
@@ -175,6 +178,15 @@ export function ClientsPage() {
 
   function renderProfile(client: ClientRecord) {
     const appointments = sortAppointments(state.appointments.filter(({ clientId }) => clientId === client.id));
+    const purchases = (state.sales ?? []).filter(({ clientId }) => clientId === client.id)
+      .sort((first, second) => second.occurredAt.localeCompare(first.occurredAt));
+    const currency = getCurrentBusinessCurrency();
+    let isAssistant = false;
+    try {
+      isAssistant = getDemoSessionRole(window.localStorage) === 'assistant';
+    } catch {
+      isAssistant = false;
+    }
     return (
       <section class="client-profile" aria-labelledby="client-profile-title">
         <header class="agenda-heading client-profile-heading">
@@ -187,6 +199,7 @@ export function ClientsPage() {
               </div>
             </div>
             <div class="client-profile-actions">
+              {isAssistant && <a class="client-text-action client-booking-link" href={`${sitePath('/agenda/')}?clientId=${encodeURIComponent(client.id)}`}>Agendar cita</a>}
               <button class="appointment-form-cancel" type="button" onClick={() => beginEdit(client)}>Editar cliente</button>
               <button class="client-text-action" type="button" onClick={() => isActive(client) ? setPendingDeactivationId(client.id) : setClientActive(client, true)}>
                 {isActive(client) ? 'Desactivar cliente' : 'Reactivar cliente'}
@@ -220,7 +233,13 @@ export function ClientsPage() {
               {appointments.map((appointment) => (
                 <li key={appointment.id}>
                   <time dateTime={appointment.startsAt}>{formatAppointmentDate(appointment.startsAt)}</time>
-                  <span>{appointment.serviceName} · {appointment.barberName}</span>
+                  <div class="client-appointment-summary">
+                    <span>{appointment.serviceName} · {appointment.barberName}</span>
+                    <span class="client-payment-status">{appointment.paymentStatus === 'paid' ? 'Pagada' : 'Pendiente de cobro'}</span>
+                    {isAssistant && appointment.paymentStatus !== 'paid' && appointment.status !== 'cancelled' && (
+                      <a class="client-charge-link" href={`${sitePath('/cobrar/')}?appointmentId=${encodeURIComponent(appointment.id)}`}>Cobrar cita</a>
+                    )}
+                  </div>
                   <span class={`client-history-status status-${appointment.status}`}>{appointmentStatusLabels[appointment.status]}</span>
                 </li>
               ))}
@@ -232,7 +251,13 @@ export function ClientsPage() {
 
         <section class="client-history-section" aria-label="Historial de compras">
           <header><h2>Historial de compras</h2></header>
-          <p class="agenda-empty">Las ventas aún no están vinculadas a clientes.</p>
+          {purchases.length ? <ul class="client-purchase-history">{purchases.map((sale) => (
+            <li key={sale.id}>
+              <div><time dateTime={sale.occurredAt}>{formatAppointmentDate(sale.occurredAt)}</time><strong>Folio {sale.id}</strong></div>
+              <span>{sale.items.map(({ quantity, name }) => `${quantity} × ${name}`).join(', ')}</span>
+              <strong>{formatCurrency(sale.netTotal, currency)}</strong>
+            </li>
+          ))}</ul> : <p class="agenda-empty">Este cliente aún no tiene compras registradas.</p>}
         </section>
       </section>
     );
@@ -251,8 +276,8 @@ export function ClientsPage() {
   }
 
   return (
-    <AdminGate>
-      <AdminShell activeSection="Clientes">
+    <AdminGate role="any">
+      <RoleShell activeSection="Clientes">
         <section class="clients-page" aria-labelledby="clients-title">
           {storageWarning && <p class="admin-store-warning" role="status">No se pudieron leer los datos guardados. Revisa el almacenamiento del navegador.</p>}
           {!selectedClient && (
@@ -295,7 +320,7 @@ export function ClientsPage() {
           {announcement && <p class={announcementIsError ? 'availability-error' : 'availability-announcement'} role={announcementIsError ? 'alert' : 'status'} aria-live={announcementIsError ? 'assertive' : 'polite'}>{announcement}</p>}
         </section>
           {formOpen && <ClientForm client={editingClient} onSave={handleCreateEdit} onCancel={closeForm} />}
-      </AdminShell>
+      </RoleShell>
     </AdminGate>
   );
 }

@@ -185,4 +185,34 @@ describe('PromotionsPage', () => {
     expect(updated?.targets[0]).toMatchObject({ id: 'service-1', name: 'Corte', price: 300 });
     expect(loadAgendaState(localStorage, now).state.services.find(({ id }) => id === 'service-1')?.price).toBe(450);
   });
+
+  it('limits assistant promotion access to active read-only consultation', () => {
+    localStorage.setItem('webbys:demo-session', 'assistant');
+    const seed = createAgendaSeed(now);
+    const shared = {
+      description: 'Promoción compartida',
+      mode: 'bundle' as const,
+      targets: [{ kind: 'product' as const, id: 'product-shampoo', name: 'Shampoo', price: 160 }],
+      discountType: 'percentage' as const,
+      originalPrice: 160,
+      discountValue: 20,
+      startsOn: '2026-10-01',
+      endsOn: '2026-10-30',
+      manualStatus: 'published' as const,
+    };
+    saveAgendaState(localStorage, {
+      ...seed,
+      promotions: [
+        { ...shared, id: 'active-offer', name: 'Oferta activa' },
+        { ...shared, id: 'disabled-offer', name: 'Oferta desactivada', manualStatus: 'disabled' },
+      ],
+    });
+    render(<PromotionsPage now={now} />);
+
+    expect(screen.getByText('Oferta activa')).toBeTruthy();
+    expect(screen.queryByText('Oferta desactivada')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Nueva promoción' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Editar promoción Oferta activa' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Desactivar promoción Oferta activa' })).toBeNull();
+  });
 });

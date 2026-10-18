@@ -1,4 +1,4 @@
-import type { AppointmentRecord } from './domain';
+import type { AppointmentRecord, SaleRecord } from './domain';
 
 export interface BarberRecord {
   id: string;
@@ -118,6 +118,7 @@ export interface AgendaState {
   services: ServiceRecord[];
   products?: ProductRecord[];
   promotions?: PromotionRecord[];
+  sales?: SaleRecord[];
   schedules: BarberSchedule[];
   exceptions: AvailabilityException[];
   appointments: AppointmentRecord[];

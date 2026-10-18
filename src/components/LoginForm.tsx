@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { Eye, EyeOff } from 'lucide-preact';
-import { startDemoSession } from '../lib/demo-auth';
+import { authenticateDemoUser, startDemoSession } from '../lib/demo-auth';
 import { sitePath } from '../lib/site-path';
 
 interface LoginFormProps {
@@ -16,9 +16,15 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
     setMessage(`${provider} estará disponible próximamente.`);
   }
 
-  function beginSession() {
+  function beginSession(email: string, password: string) {
+    const role = authenticateDemoUser({ email, password });
+    if (!role) {
+      setMessage('El correo electrónico o la contraseña son incorrectos.');
+      return;
+    }
+
     try {
-      startDemoSession(window.localStorage);
+      startDemoSession(window.localStorage, role);
       setIsSubmitting(true);
       setMessage('Iniciando sesión…');
 
@@ -26,7 +32,7 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
         if (onAuthenticated) {
           onAuthenticated();
         } else {
-          window.location.assign(sitePath('/admin/'));
+          window.location.assign(sitePath(role === 'administrator' ? '/admin/' : '/asistente/'));
         }
       }, 220);
     } catch {
@@ -38,7 +44,8 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
   function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     setMessage('');
-    beginSession();
+    const form = new FormData(event.currentTarget as HTMLFormElement);
+    beginSession(String(form.get('email') ?? ''), String(form.get('password') ?? ''));
   }
 
   return (
@@ -78,7 +85,7 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
 
           <div class="login-heading">
             <h1 id="login-title">Qué bueno verte.</h1>
-            <p class="login-subtitle">Acceso de administrador a Webby's Barbershop.</p>
+            <p class="login-subtitle">Acceso al equipo de Webby's Barbershop.</p>
           </div>
 
           <form class="login-form" noValidate onSubmit={handleSubmit}>
@@ -88,6 +95,7 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
                 id="email"
                 name="email"
                 type="email"
+                required
                 autoComplete="email"
                 placeholder="nombre@correo.com"
               />
@@ -100,6 +108,7 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
                   id="password"
                   name="password"
                   type={passwordVisible ? 'text' : 'password'}
+                  required
                   autoComplete="current-password"
                   placeholder="Ingresa tu contraseña"
                 />

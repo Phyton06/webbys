@@ -3,7 +3,7 @@ import type { AgendaState, ProductRecord } from '../types/agenda';
 import { createAgendaSeed } from '../data/agenda-demo';
 import { loadAgendaState, saveAgendaState } from '../services/agenda-store';
 import { AdminGate } from './AdminGate';
-import { AdminShell } from './AdminShell';
+import { RoleShell } from './RoleShell';
 import { BackLink } from './BackLink';
 import { Dropdown } from './Dropdown';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
@@ -236,8 +236,8 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
   }
 
   return (
-    <AdminGate>
-      <AdminShell activeSection="Productos">
+    <AdminGate role="any">
+      <RoleShell activeSection="Productos">
         <section class="products-page" aria-labelledby="products-title">
           <header class="agenda-heading products-heading">
             <div>
@@ -323,7 +323,7 @@ export function ProductsPage({ now = new Date() }: ProductsPageProps) {
           )}
           {formOpen && <ProductForm product={editingProduct} onSave={saveProduct} onCancel={closeForm} />}
         </section>
-      </AdminShell>
+      </RoleShell>
     </AdminGate>
   );
 }

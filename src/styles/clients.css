@@ -142,6 +142,7 @@
 .client-text-action:hover {
   background: var(--color-surface-raised);
 }
+.client-booking-link { display: inline-flex; align-items: center; text-decoration: none; }
 
 .clients-empty-state {
   padding-block: var(--space-8);
@@ -267,11 +268,21 @@
   font-size: var(--text-sm);
 }
 
+.client-appointment-summary { display: grid; gap: 0.2rem; }
+.client-payment-status { color: var(--color-ink-subtle); font-size: var(--text-xs); }
+.client-charge-link { width: fit-content; color: var(--color-accent); font-size: var(--text-sm); font-weight: 650; text-underline-offset: 0.15em; }
+
 .client-history-status {
   color: var(--color-ink);
   font-size: var(--text-xs);
   font-weight: 650;
 }
+
+.client-purchase-history { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.client-purchase-history li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem 1rem; padding: var(--space-3) var(--space-2); border-bottom: 1px solid var(--color-line); }
+.client-purchase-history li > div { display: grid; gap: 0.2rem; }
+.client-purchase-history time, .client-purchase-history li > span { color: var(--color-ink-muted); font-size: var(--text-sm); }
+.client-purchase-history li > strong:last-child { grid-column: 2; grid-row: 1 / 3; align-self: center; font-variant-numeric: tabular-nums; }
 
 .client-form-fields {
   display: grid;

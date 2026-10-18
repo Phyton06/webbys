@@ -353,7 +353,8 @@
 }
 
 .agenda-reschedule-button,
-.agenda-status-action {
+.agenda-status-action,
+.agenda-charge-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -365,17 +366,24 @@
   background: var(--color-surface-raised);
   color: var(--color-ink);
   font: inherit;
+  text-decoration: none;
   cursor: pointer;
 }
 
 .agenda-reschedule-button:hover,
-.agenda-status-action:hover {
+.agenda-status-action:hover,
+.agenda-charge-link:hover {
   border-color: var(--color-accent);
 }
 
 .agenda-reschedule-button {
   margin-left: calc(3.5rem + var(--space-4));
 }
+
+.agenda-charge-link {
+  margin-left: calc(3.5rem + var(--space-4));
+}
+
 
 .appointment-modal {
   position: fixed;
