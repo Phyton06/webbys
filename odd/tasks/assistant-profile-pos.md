@@ -11,6 +11,7 @@ Acceptance: both demo roles reach their intended panels; assistant access to res
 Additional requirement from L6: “la pagina de inicio los botones ahi se ven todos desorganizados, hay que darle mejor disenio [Image 1]”. Acceptance: arrange the existing quick actions into a clear, consistent group without changing their destinations or behavior.
 Checks: focused auth/permission tests; `npm run build`.
 Additional requirement from L8: “en la agenda quiero que el calendario este oculto y sea desplegable como en los demas modulos, tambien aplicalo en el de administrador, igual en todas las pantallas y modales sustituye el boton de cerrar [Image 1] por solo una flecha < antes del titulo de donde estan, asi como en notificaciones [Image 2], igual aplica esto para todo incluido en administrador, ademas aqui [Image 3] hay que poner iconos en los botones de accion y ademas al cobrar siempre debe ser las citas del dia y ya, solo el filtro para buscar por barbero o cliente, pero los botones y lo demas no por que para ver las pagadas y esas pues ya esta en la seccion de historial de ventas, esto debe ser solo para cobrar y ya debe mantenerse simple”. Acceptance: use a collapsed date-picker disclosure in both agenda roles; replace modal close buttons with the existing back-chevron pattern before each modal title, including administrator screens; put meaningful icons on dashboard action buttons; keep cashier focused on unpaid appointments today with only client/barber search.
+Additional requirement from L9: “solo un cambio leve [Image 1] aqui en el panel admin arriba aparece el nombre del usuario el icono y el boton para cerrar sesion a la izquierda, en asistente [Image 2] esta mal acomodalo igual y despues ya haz commit y push a main mediante la cuenta que tengo en cli, verifica que esto si quede desplegado en github pages”. Acceptance: match the assistant topbar’s brand, account/avatar and sign-out alignment to the administrator header without changing navigation or sign-out behavior.
 
 ### S2 — Appointment-centered point of sale
 Source: `task 2.md`, sections 7–11 and Stage 3 (lines 225–493, 818–828).
@@ -30,7 +31,7 @@ Additional requirement from L8: “en la agenda quiero que el calendario este oc
 Checks: focused tests for changed behavior and `npm run build`.
 
 ## Tasks
-- T1 — S1 — inline — complete for L8 — follow-up commit `265f985`
+- T1 — S1 — inline — implementation complete for L9; commit `53e7301`; deployment verification pending
 - T2 — S2 — inline — complete for L8 — follow-up commits `265f985`, `b0052ce`
 - T3 — S3 — inline — complete for L8 — follow-up commit `265f985`
 
@@ -61,6 +62,9 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 ### L8 — Agenda, modal headers, action icons, and cashier scope (2026-10-18)
 "en la agenda quiero que el calendario este oculto y sea desplegable como en los demas modulos, tambien aplicalo en el de administrador, igual en todas las pantallas y modales sustituye el boton de cerrar [Image 1]  por solo una flecha < antes del titulo de donde estan, asi como en notificaciones [Image 2], igual aplica esto para todo incluido en administrador, ademas aqui [Image 3]  hay que poner iconos en los botones de accion y ademas al cobrar siempre debe ser las citas del dia y ya, solo el filtro para buscar por barbero o cliente, pero los botones y lo demas no por que para ver las pagadas y esas pues ya esta en la seccion de historial de ventas, esto debe ser solo para cobrar y ya debe mantenerse simple"
 
+### L9 — Assistant topbar alignment and deployment request (2026-10-18)
+"solo un cambio leve [Image 1] aqui en el panel admin arriba aparece el nombre del usuario el icono y el boton para cerrar sesion a la izquierda, en asistente [Image 2] esta mal acomodalo igual y despues ya haz commit y push a main mediante la cuenta que tengo en cli, verifica que esto si quede desplegado en github pages"
+
 ### Progress
 - `task 2.md` is the user-owned phase specification and remains untracked; preserve it.
 - Baseline: the administrator PWA already had shared agenda, client, catalog, promotion, and sales modules; assistant credentials and role-specific navigation were absent.
@@ -88,3 +92,6 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 - L8 implementation: AgendaPanel now reveals its month calendar from the date control in both roles; modal/form dismissals use the shared leading back-chevron before titles (including the installation prompt); assistant quick actions carry accessible Lucide icons; cashier queue is restricted to unpaid appointments today and one client/barber search field, including appointment deep links.
 - L8 verification: 11 focused test files passed (85 tests); `npm run build` passed with zero errors, warnings, or hints and produced 16 routes; screenshots inspected the collapsed/open calendar, modal chevron, assistant actions, and mobile cashier queue. The final detector reported existing palette/type advisories in legacy `agenda.css` and `install-prompt.css`; no new declarations were flagged. `git diff --check` passed.
 - L8 follow-up work-unit commits: `265f985` (`feat(assistant): simplify agenda and cashier flows`) and `b0052ce` (`test(cashier): cover today-only appointment links`). No push or PR was authorized.
+- L9 implementation: `AssistantShell` now aligns the assistant account avatar and sign-out action with `AdminShell`; the account text is retained on wide layouts and the mobile header preserves the brand at left with avatar/sign-out grouped right. Commit: `53e7301` (`fix(assistant): align topbar with admin header`). Focused shell tests passed (3 tests), and `npm run build` passed. Requested push and Pages verification remain pending.
+- L9 implementation: `AssistantShell` now places the account avatar between the brand and sign-out control and uses the administrator topbar spacing and transparent sign-out button style.
+- L9 verification: `npm test -- src/components/AssistantShell.test.tsx` passed (3 tests); `npm run build` passed with zero errors, warnings, or hints and produced 16 routes; a mobile browser screenshot shows the assistant brand, avatar and sign-out aligned like the administrator. Commit: `53e7301`; the requested push and GitHub Pages deployment verification are pending.
