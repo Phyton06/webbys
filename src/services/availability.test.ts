@@ -141,6 +141,12 @@ describe('validateBooking', () => {
     expect(validateBooking(booking(10, 15), [barberSchedule()], [], [appointment(10, 30, 'cancelled')], now)).toEqual({ valid: true });
   });
 
+  it('does not reserve time for an appointment already paid and completed', () => {
+    expect(validateBooking(booking(10, 15), [barberSchedule()], [], [{
+      ...appointment(10, 30), paymentStatus: 'paid',
+    }], now)).toEqual({ valid: true });
+  });
+
   it('allows bookings whose boundary exactly touches an existing appointment', () => {
     expect(validateBooking(booking(10, 30), [barberSchedule()], [], [appointment(10, 0)], now)).toEqual({ valid: true });
   });

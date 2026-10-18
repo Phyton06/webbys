@@ -3,6 +3,7 @@ import { Dropdown } from './Dropdown';
 import { formatCurrency, getCurrentBusinessCurrency } from '../services/currency';
 import { Activity, ArrowUpRight, CalendarDays, Clock3 } from 'lucide-preact';
 import type { AppointmentRecord, DemoData } from '../types/domain';
+import { getEffectiveAppointmentStatus } from '../services/appointment-lifecycle';
 import {
   getDashboardSummary,
   getSalesSeries,
@@ -64,13 +65,16 @@ function getRecentActivity(data: DemoData, now: Date) {
     }));
   const appointments = data.appointments
     .filter(({ startsAt }) => new Date(startsAt).getTime() <= now.getTime())
-    .map((appointment) => ({
-      id: appointment.id,
-      title: `Cita ${statusLabels[appointment.status].toLocaleLowerCase('es')}`,
-      detail: appointment.clientName,
-      time: appointment.startsAt,
-      amount: null,
-    }));
+    .map((appointment) => {
+      const status = getEffectiveAppointmentStatus(appointment, now);
+      return {
+        id: appointment.id,
+        title: `Cita ${statusLabels[status].toLocaleLowerCase('es')}`,
+        detail: appointment.clientName,
+        time: appointment.startsAt,
+        amount: null,
+      };
+    });
 
   return [...sales, ...appointments]
     .sort((first, second) => new Date(second.time).getTime() - new Date(first.time).getTime())

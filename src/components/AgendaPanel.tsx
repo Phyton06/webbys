@@ -8,6 +8,7 @@ import { Dropdown } from './Dropdown';
 import { MobileMonthCalendar } from './MobileMonthCalendar';
 import { getDemoSessionRole } from '../lib/demo-auth';
 import { sitePath } from '../lib/site-path';
+import { getEffectiveAppointmentStatus } from '../services/appointment-lifecycle';
 import '../styles/agenda.css';
 
 const AGENDA_VIEW = {
@@ -110,14 +111,17 @@ function appointmentsForDate(
 
 function AppointmentDisclosure({
   appointment,
+  now,
   onReschedule,
   onStatusChange,
 }: {
   appointment: AppointmentRecord;
+  now: Date;
   onReschedule?: () => void;
   onStatusChange?: (status: AppointmentStatus) => void;
 }) {
-  const statusLabel = appointmentStatusLabels[appointment.status];
+  const effectiveStatus = getEffectiveAppointmentStatus(appointment, now);
+  const statusLabel = appointmentStatusLabels[effectiveStatus];
   let isAssistant = false;
   try {
     isAssistant = typeof window !== 'undefined' && getDemoSessionRole(window.localStorage) === 'assistant';
@@ -127,7 +131,7 @@ function AppointmentDisclosure({
   const isPaid = appointment.paymentStatus === 'paid';
 
   return (
-    <li class={`agenda-appointment status-${appointment.status}`}>
+    <li class={`agenda-appointment status-${effectiveStatus}`}>
       <details>
         <summary>
           <time dateTime={appointment.startsAt}>{formatTime(appointment.startsAt)}</time>
@@ -157,7 +161,7 @@ function AppointmentDisclosure({
             Cobrar cita
           </a>
         )}
-        {onReschedule && (appointment.status === 'pending' || appointment.status === 'confirmed') && (
+        {onReschedule && (effectiveStatus === 'pending' || effectiveStatus === 'confirmed') && (
           <button
             class="agenda-reschedule-button"
             type="button"
@@ -167,7 +171,7 @@ function AppointmentDisclosure({
             Reprogramar cita
           </button>
         )}
-        {onStatusChange && APPOINTMENT_STATUS_ACTIONS[appointment.status].map(({ status, label }) => (
+        {onStatusChange && APPOINTMENT_STATUS_ACTIONS[effectiveStatus].map(({ status, label }) => (
           <button
             class="agenda-status-action"
             type="button"
@@ -341,6 +345,7 @@ export function AgendaPanel({ state, now = new Date(), initialClientId, onAppoin
             {dayAppointments.map((appointment) => (
               <AppointmentDisclosure
                 appointment={appointment}
+                now={now}
                 onReschedule={onAppointmentSave ? () => openEditForm(appointment) : undefined}
                 onStatusChange={onAppointmentSave ? (status) => updateAppointmentStatus(appointment, status) : undefined}
                 key={appointment.id}
@@ -375,6 +380,7 @@ export function AgendaPanel({ state, now = new Date(), initialClientId, onAppoin
                     {appointments.map((appointment) => (
                       <AppointmentDisclosure
                         appointment={appointment}
+                        now={now}
                         onReschedule={onAppointmentSave ? () => openEditForm(appointment) : undefined}
                         onStatusChange={onAppointmentSave ? (status) => updateAppointmentStatus(appointment, status) : undefined}
                         key={appointment.id}

@@ -129,6 +129,15 @@ describe('getDashboardSummary', () => {
     expect(week.appointmentCount).toBe(4);
     expect(month.appointmentCount).toBe(4);
   });
+
+  it('counts appointments as completed once their full service duration has elapsed', () => {
+    const summary = getDashboardSummary(sales, appointments, 'day', new Date(2026, 9, 14, 14, 0));
+
+    expect(summary.pendingCount).toBe(0);
+    expect(summary.confirmedCount).toBe(0);
+    expect(summary.completedCount).toBe(3);
+    expect(summary.cancelledCount).toBe(1);
+  });
 });
 
 describe('getSalesSeries', () => {
@@ -160,6 +169,14 @@ describe('getUpcomingAppointments', () => {
       'appointment-confirmed',
       'appointment-tomorrow',
     ]);
+  });
+
+  it('does not include paid future appointments as upcoming', () => {
+    const result = getUpcomingAppointments(appointments.map((appointment) => appointment.id === 'appointment-tomorrow'
+      ? { ...appointment, paymentStatus: 'paid' }
+      : appointment), now);
+
+    expect(result.map(({ id }) => id)).not.toContain('appointment-tomorrow');
   });
 });
 

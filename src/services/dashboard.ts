@@ -1,4 +1,5 @@
 import type { AppointmentRecord, SaleRecord } from '../types/domain';
+import { getEffectiveAppointmentStatus } from './appointment-lifecycle';
 
 export type DashboardRange = 'day' | 'week' | 'month';
 
@@ -76,6 +77,7 @@ export function getDashboardSummary(
   const today = { start: startOfDay(now), end: new Date(startOfDay(now)) };
   today.end.setDate(today.end.getDate() + 1);
   const todayAppointments = appointments.filter((appointment) => isWithin(appointment.startsAt, today));
+  const statuses = todayAppointments.map((appointment) => getEffectiveAppointmentStatus(appointment, now));
 
   return {
     grossSales: periodSales.reduce((total, sale) => total + sale.grossTotal, 0),
@@ -83,10 +85,10 @@ export function getDashboardSummary(
     netSales: periodSales.reduce((total, sale) => total + sale.netTotal, 0),
     saleCount: periodSales.length,
     appointmentCount: todayAppointments.length,
-    pendingCount: todayAppointments.filter(({ status }) => status === 'pending').length,
-    confirmedCount: todayAppointments.filter(({ status }) => status === 'confirmed').length,
-    completedCount: todayAppointments.filter(({ status }) => status === 'completed').length,
-    cancelledCount: todayAppointments.filter(({ status }) => status === 'cancelled').length,
+    pendingCount: statuses.filter((status) => status === 'pending').length,
+    confirmedCount: statuses.filter((status) => status === 'confirmed').length,
+    completedCount: statuses.filter((status) => status === 'completed').length,
+    cancelledCount: statuses.filter((status) => status === 'cancelled').length,
   };
 }
 
@@ -171,7 +173,8 @@ export function getUpcomingAppointments(
   return appointments
     .filter((appointment) => {
       const startsAt = new Date(appointment.startsAt).getTime();
-      return startsAt >= now.getTime() && appointment.status !== 'cancelled' && appointment.status !== 'completed';
+      return startsAt >= now.getTime() && getEffectiveAppointmentStatus(appointment, now) !== 'cancelled'
+        && getEffectiveAppointmentStatus(appointment, now) !== 'completed';
     })
     .sort((first, second) => new Date(first.startsAt).getTime() - new Date(second.startsAt).getTime())
     .slice(0, Math.max(0, limit));

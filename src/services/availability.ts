@@ -9,6 +9,7 @@ import {
   type TimeInterval,
 } from '../types/agenda';
 import type { AppointmentRecord } from '../types/domain';
+import { getEffectiveAppointmentStatus } from './appointment-lifecycle';
 
 const localTimePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 const localDatePattern = /^(\d{4})-(\d{2})-(\d{2})$/;
@@ -131,7 +132,8 @@ export function validateBooking(
   const candidateEnd = startsAt.getTime() + candidate.durationMinutes * 60_000;
   const hasConflict = appointments.some((appointment) => {
     if (appointment.id === candidate.id || appointment.barberId !== candidate.barberId) return false;
-    if (appointment.status !== 'pending' && appointment.status !== 'confirmed') return false;
+    const status = getEffectiveAppointmentStatus(appointment, now);
+    if (status !== 'pending' && status !== 'confirmed') return false;
     const appointmentStart = new Date(appointment.startsAt).getTime();
     if (!Number.isFinite(appointmentStart)) return true;
     const appointmentEnd = appointmentStart + appointment.durationMinutes * 60_000;
