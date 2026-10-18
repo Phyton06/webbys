@@ -1,10 +1,11 @@
 const demoSessionKey = 'webbys:demo-session';
 
-export type DemoRole = 'administrator' | 'assistant';
+export type DemoRole = 'administrator' | 'assistant' | 'barber';
 
 const DEMO_USERS: Record<string, { password: string; role: DemoRole }> = {
   'admin@barber.com': { password: 'admin', role: 'administrator' },
   'asistente@barber.com': { password: 'asistente', role: 'assistant' },
+  'barbero@barber.com': { password: 'barber', role: 'barber' },
 };
 
 export interface Credentials {
@@ -47,7 +48,7 @@ export function hasDemoSession(storage: Pick<Storage, 'getItem'>): boolean {
 
 export function getDemoSessionRole(storage: Pick<Storage, 'getItem'>): DemoRole | null {
   const role = storage.getItem(demoSessionKey);
-  if (role === 'administrator' || role === 'assistant') return role;
+  if (role === 'administrator' || role === 'assistant' || role === 'barber') return role;
   return role === 'active' ? 'administrator' : null;
 }
 

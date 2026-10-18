@@ -32,7 +32,7 @@ export function LoginForm({ onAuthenticated }: LoginFormProps) {
         if (onAuthenticated) {
           onAuthenticated();
         } else {
-          window.location.assign(sitePath(role === 'administrator' ? '/admin/' : '/asistente/'));
+          window.location.assign(sitePath(role === 'administrator' ? '/admin/' : role === 'barber' ? '/barbero/' : '/asistente/'));
         }
       }, 220);
     } catch {

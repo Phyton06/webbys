@@ -23,11 +23,23 @@ function pickExceptionDate() {
 }
 
 function pickTime(triggerLabel: RegExp, time: string) {
+  const specialHours = screen.getByText('Horario especial').closest('details');
+  if (specialHours && !specialHours.open) fireEvent.click(screen.getByText('Horario especial'));
   fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
   fireEvent.click(screen.getByRole('option', { name: time }));
 }
 
 describe('AvailabilityExceptionEditor', () => {
+  it('keeps special-hour fields collapsed until expanded and omits an irrelevant barber selector', () => {
+    render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[]} onSave={() => true} />);
+
+    expect(screen.queryByRole('button', { name: /Barbero de excepción/ })).toBeNull();
+    const specialHours = screen.getByText('Horario especial').closest('details');
+    expect(specialHours?.open).toBe(false);
+    fireEvent.click(screen.getByText('Horario especial'));
+    expect(specialHours?.open).toBe(true);
+  });
+
   it('saves a day-off override that closes otherwise available slots', () => {
     const onSave = vi.fn((_next: AvailabilityException[]) => true);
     render(<AvailabilityExceptionEditor barbers={barbers} exceptions={[]} onSave={onSave} />);

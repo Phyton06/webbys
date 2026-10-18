@@ -16,7 +16,21 @@ const schedules: BarberSchedule[] = [{
 }];
 
 describe('BarberAvailabilityPanel', () => {
+  it('keeps each workday compact until the user expands it', () => {
+    render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={() => true} />);
+
+    expect(screen.getByText('lunes')).toBeTruthy();
+    const day = screen.getByText('lunes').closest('details');
+    expect(day?.open).toBe(false);
+
+    fireEvent.click(screen.getByText('lunes'));
+
+    expect(day?.open).toBe(true);
+    expect(screen.getByRole('button', { name: 'Fin del horario lunes 1: 17:00' })).toBeTruthy();
+  });
+
   function pickTime(triggerLabel: RegExp, time: string) {
+    if (!screen.queryByRole('button', { name: triggerLabel })) fireEvent.click(screen.getByText('lunes'));
     fireEvent.click(screen.getByRole('button', { name: triggerLabel }));
     fireEvent.click(screen.getByRole('option', { name: time }));
   }
@@ -25,9 +39,11 @@ describe('BarberAvailabilityPanel', () => {
     const onSave = vi.fn((_next: BarberSchedule[]) => true);
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
 
+    fireEvent.click(screen.getByText('lunes'));
     const monday = screen.getByLabelText('Día laborable · lunes') as HTMLInputElement;
     expect(monday.checked).toBe(true);
     fireEvent.click(monday);
+    fireEvent.click(screen.getByText('domingo'));
     fireEvent.click(screen.getByLabelText('Día laborable · domingo'));
 
     expect(onSave).not.toHaveBeenCalled();
@@ -52,6 +68,7 @@ describe('BarberAvailabilityPanel', () => {
     const onSave = vi.fn((_next: BarberSchedule[]) => true);
     render(<BarberAvailabilityPanel barbers={barbers} schedules={schedules} onSave={onSave} />);
 
+    fireEvent.click(screen.getByText('lunes'));
     fireEvent.click(screen.getByRole('button', { name: 'Agregar horario lunes' }));
     expect(screen.getByRole('button', { name: 'Inicio del horario lunes 2: 09:00' })).toBeTruthy();
     pickTime(/^Inicio del horario lunes 2:/, '17:00');

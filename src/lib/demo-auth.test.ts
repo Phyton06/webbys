@@ -68,6 +68,7 @@ describe('authenticateDemoUser', () => {
   it.each([
     ['admin@barber.com', 'admin', 'administrator'],
     ['asistente@barber.com', 'asistente', 'assistant'],
+    ['barbero@barber.com', 'barber', 'barber'],
   ] as const)('authenticates %s with the %s demo credential', (email, password, role) => {
     expect(authenticateDemoUser({ email, password })).toBe(role);
   });

@@ -37,6 +37,11 @@ export function Dropdown<Value extends string>({ label, value, options, onChange
     rootRef.current?.querySelector<HTMLElement>(`#${listboxId}-option-${activeIndex}`)?.scrollIntoView?.({ block: 'nearest' });
   }, [open]);
 
+  useEffect(() => {
+    setOpen(false);
+    setActiveIndex(Math.max(0, options.findIndex((option) => option.value === value)));
+  }, [value]);
+
   function handleKeyDown(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       setOpen(false);

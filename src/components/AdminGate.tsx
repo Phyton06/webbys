@@ -52,7 +52,7 @@ export function AdminGate({ children, onUnauthenticated, storage, role = 'admini
   if (state === 'denied' || state === 'wrong-role') {
     return (
       <main class="admin-gate-status">
-        <p role="alert">{state === 'wrong-role' ? 'Este módulo está reservado al perfil de administrador.' : 'Debes iniciar sesión para acceder al panel.'}</p>
+        <p role="alert">{state === 'wrong-role' ? `Este módulo está reservado al perfil de ${role === 'administrator' ? 'administrador' : role === 'assistant' ? 'asistente' : 'barbero'}.` : 'Debes iniciar sesión para acceder al panel.'}</p>
         <BackLink href={sitePath('/login/')} label="Acceso" ariaLabel="Volver al acceso" />
       </main>
     );

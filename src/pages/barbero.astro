@@ -1,0 +1,8 @@
+---
+import { BarberPage } from '../components/BarberPage';
+import AppLayout from '../layouts/AppLayout.astro';
+---
+
+<AppLayout title="Mi agenda · Webbys" description="Agenda personal del barbero.">
+  <BarberPage client:load />
+</AppLayout>

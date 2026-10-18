@@ -58,6 +58,7 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
   const [announcement, setAnnouncement] = useState('');
   const barberOptions = barbers.map(({ id, name }) => ({ value: id, label: name }));
   const currentException = selectedException(draftExceptions, selectedBarberId, selectedDate);
+  const specialHoursSummary = `${working.map(({ start, end }) => `${start}–${end}`).join(', ')} · ${breaks.length ? `${breaks.length} ${breaks.length === 1 ? 'descanso' : 'descansos'}` : 'Sin descansos'}`;
 
   function loadDateException(barberId: string, date: string) {
     const existing = selectedException(draftExceptions, barberId, date);
@@ -190,15 +191,15 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
       <header class="barber-availability-heading">
         <div>
           <h2 id="availability-exceptions-title">Excepciones por fecha</h2>
-          <p>Una excepción reemplaza el horario semanal del barbero para esa fecha.</p>
+          <p>{barbers.length === 1 ? 'Marca un día libre o define un horario especial para una fecha.' : 'Una excepción reemplaza el horario semanal del barbero para esa fecha.'}</p>
         </div>
       </header>
 
       {barbers.length > 0 ? (
         <>
           <form class="availability-exception-form" onSubmit={handleSave}>
-            <div class="availability-exception-controls">
-              <label class="availability-control">
+            <div class={`availability-exception-controls${barbers.length === 1 ? ' is-single-barber' : ''}`}>
+              {barbers.length > 1 && <label class="availability-control">
                 <span>Barbero</span>
                 <Dropdown
                   label="Barbero de excepción"
@@ -209,7 +210,7 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                     loadDateException(value, selectedDate);
                   }}
                 />
-              </label>
+              </label>}
               <div class="availability-control appointment-date-picker-control">
                 <span>Fecha</span>
                 <button
@@ -247,8 +248,13 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
             </label>
 
             {!unavailable && (
-              <div class="availability-special-hours">
-                <h3>Horario especial</h3>
+              <details class="availability-special-hours">
+                <summary class="availability-special-hours-summary" aria-label={`Horario especial: ${specialHoursSummary}`}>
+                  <strong>Horario especial</strong>
+                  <span>{specialHoursSummary}</span>
+                </summary>
+                <div class="availability-special-hours-content">
+                <h3>Jornada</h3>
                 <div class="availability-interval-list">
                   {working.map((interval, index) => (
                     <div class="availability-interval" key={`special-work-${index}`}>
@@ -311,7 +317,8 @@ export function AvailabilityExceptionEditor({ barbers, exceptions, onSave }: Ava
                   ))}
                 </div>
                 <button class="availability-add-button" type="button" onClick={() => addInterval(setBreaks, { start: '13:00', end: '14:00' })}>Agregar descanso especial</button>
-              </div>
+                </div>
+              </details>
             )}
 
             {error && <p class="availability-error" id="exception-schedule-error" role="alert">{error}</p>}

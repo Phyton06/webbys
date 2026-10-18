@@ -21,6 +21,17 @@ describe('LoginForm', () => {
     expect(localStorage.getItem('webbys:demo-session')).toBe('active');
   });
 
+  it('starts the barber session and opens the barber workspace', async () => {
+    const onAuthenticated = vi.fn();
+    render(<LoginForm onAuthenticated={onAuthenticated} />);
+    fireEvent.input(screen.getByLabelText('Correo electrónico'), { target: { value: 'barbero@barber.com' } });
+    fireEvent.input(screen.getByLabelText('Contraseña'), { target: { value: 'barber' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
+
+    await waitFor(() => expect(onAuthenticated).toHaveBeenCalledOnce());
+    expect(localStorage.getItem('webbys:demo-session')).toBe('barber');
+  });
+
   it('toggles password visibility with an accessible control', () => {
     render(<LoginForm onAuthenticated={vi.fn()} />);
     const password = screen.getByLabelText('Contraseña') as HTMLInputElement;

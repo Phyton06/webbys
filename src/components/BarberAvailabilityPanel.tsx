@@ -152,23 +152,30 @@ export function BarberAvailabilityPanel({ barbers, schedules, onSave }: BarberAv
       <header class="barber-availability-heading">
         <div>
           <h2 id="barber-availability-title">Horarios de trabajo</h2>
-          <p>Define las jornadas y descansos de cada barbero.</p>
+          <p>{barbers.length === 1 ? 'Expande un día para ajustar su jornada y descansos.' : 'Selecciona un barbero y expande un día para ajustar su jornada y descansos.'}</p>
         </div>
       </header>
 
       {barbers.length > 0 ? (
         <>
-          <div class="availability-barber-control">
+          {barbers.length > 1 && <div class="availability-barber-control">
             <span>Barbero</span>
             <Dropdown label="Barbero de horarios" value={selectedBarberId} options={barberOptions} onChange={setSelectedBarberId} />
-          </div>
+          </div>}
           <form class="availability-schedule-form" onSubmit={handleSave}>
             <div class="availability-workdays">
               {WORKDAYS.map(({ weekday, label }) => {
                 const day = selectedSchedule?.days.find((entry) => entry.weekday === weekday);
-                return (
-                  <fieldset class="availability-day" key={weekday}>
-                    <legend>{label}</legend>
+                const workingSummary = day?.working.map(({ start, end }) => `${start}–${end}`).join(', ');
+                const breakSummary = day?.breaks.length
+                  ? `Descansos ${day.breaks.map(({ start, end }) => `${start}–${end}`).join(', ')}`
+                  : 'Sin descansos';
+                return <details class="availability-day" key={weekday}>
+                  <summary class="availability-day-summary" aria-label={`${label}, ${workingSummary ? `${workingSummary} · ${breakSummary}` : 'No trabajas'}`}>
+                    <strong>{label}</strong>
+                    <span>{workingSummary ? `${workingSummary} · ${breakSummary}` : 'No trabajas'}</span>
+                  </summary>
+                  <div class="availability-day-content">
                     <label class="availability-day-toggle">
                       <input
                         type="checkbox"
@@ -176,10 +183,11 @@ export function BarberAvailabilityPanel({ barbers, schedules, onSave }: BarberAv
                         aria-label={`Día laborable · ${label}`}
                         onChange={(event) => setDayEnabled(weekday, (event.currentTarget as HTMLInputElement).checked)}
                       />
-                      <span>Día laborable</span>
+                      <span>{day ? 'Día laborable' : 'Activar jornada'}</span>
                     </label>
                     {day && (
                       <div class="availability-day-settings">
+                        <h3>Horario de trabajo</h3>
                         <div class="availability-interval-list">
                           {day.working.map((interval, index) => (
                             <div class="availability-interval" key={`work-${weekday}-${index}`}>
@@ -247,8 +255,8 @@ export function BarberAvailabilityPanel({ barbers, schedules, onSave }: BarberAv
                         </button>
                       </div>
                     )}
-                  </fieldset>
-                );
+                  </div>
+                </details>;
               })}
             </div>
             {error && <p class="availability-error" id="weekly-schedule-error" role="alert">{error}</p>}

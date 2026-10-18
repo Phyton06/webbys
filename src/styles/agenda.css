@@ -860,6 +860,23 @@
   border-top: 1px solid var(--color-line);
 }
 
+.availability-day > summary {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.availability-day > summary::-webkit-details-marker { display: none; }
+.availability-day > summary::after { content: '+'; color: var(--color-accent); font-size: var(--text-lg); font-weight: 600; }
+.availability-day[open] > summary::after { content: '−'; }
+.availability-day-summary strong { color: var(--color-ink); font-weight: 650; text-transform: capitalize; }
+.availability-day-summary span { color: var(--color-ink-muted); font-size: var(--text-sm); }
+.availability-day-content { padding: var(--space-2) var(--space-2) 0; }
+
 .availability-day legend {
   padding: 0 var(--space-2) 0 0;
   color: var(--color-ink);
@@ -985,12 +1002,31 @@
   gap: var(--space-3);
 }
 
+.availability-exception-controls.is-single-barber { grid-template-columns: minmax(0, 1fr); }
+
 .availability-special-hours {
   display: grid;
   gap: var(--space-3);
   padding: var(--space-4) 0;
   border-top: 1px solid var(--color-line);
 }
+
+.availability-special-hours > summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-height: 2.75rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.availability-special-hours > summary::-webkit-details-marker { display: none; }
+.availability-special-hours > summary::after { content: '+'; grid-column: 2; grid-row: 1 / span 2; color: var(--color-accent); font-size: var(--text-lg); }
+.availability-special-hours[open] > summary::after { content: '−'; }
+.availability-special-hours-summary strong { color: var(--color-ink); font-weight: 650; }
+.availability-special-hours-summary span { color: var(--color-ink-muted); font-size: var(--text-sm); }
+.availability-special-hours-content { display: grid; gap: var(--space-3); padding: var(--space-2) var(--space-2) 0; }
 
 .availability-existing-exceptions {
   display: grid;
