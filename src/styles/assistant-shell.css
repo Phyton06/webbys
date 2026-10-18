@@ -7,7 +7,7 @@
 .assistant-account { margin-left: auto; color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
 .assistant-topbar button, .assistant-sidebar-signout { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.65rem; color: var(--ink-muted, #b6b4b0); border: 1px solid var(--divider, #34363a); border-radius: 0.5rem; background: transparent; cursor: pointer; }
 .assistant-topbar button span { display: none; }
-.assistant-content { padding-bottom: 1.5rem; }
+.assistant-content { width: min(100%, 90rem); margin-inline: auto; padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 4vw, 2rem) var(--space-8, 2rem); }
 .assistant-skip-link { position: fixed; left: 0.5rem; top: -4rem; z-index: 10; padding: 0.75rem; background: var(--surface-raised, #222428); color: var(--ink, #f4f2ef); }
 .assistant-skip-link:focus { top: 0.5rem; }
 .assistant-mobile-navigation { position: fixed; z-index: 5; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(5, 1fr); min-height: 4.5rem; padding: 0.25rem 0 max(0.25rem, env(safe-area-inset-bottom)); border-top: 1px solid var(--divider, #34363a); background: var(--shell, #151619); }
@@ -31,6 +31,7 @@
   .assistant-sidebar nav a.assistant-charge-link { color: white; background: var(--accent-action, #c52520); }
   .assistant-sidebar-signout { margin-top: auto; justify-content: flex-start; }
   .assistant-workspace { margin-left: 15rem; padding-bottom: 0; }
+  .assistant-content { padding-bottom: var(--space-8, 2rem); }
   .assistant-topbar { position: sticky; top: 0; z-index: 3; }
   .assistant-mobile-brand, .assistant-mobile-navigation, .assistant-more-menu { display: none; }
   .assistant-topbar button span { display: inline; }
