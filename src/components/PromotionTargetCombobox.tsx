@@ -10,6 +10,7 @@ interface PromotionTargetComboboxProps {
   selectedKeys: string[];
   currency: CurrencyCode;
   onSelect: (target: PromotionTarget) => void;
+  highlightFirstResult?: boolean;
 }
 
 function targetKindLabel(target: PromotionTarget): string {
@@ -17,7 +18,7 @@ function targetKindLabel(target: PromotionTarget): string {
   return `${kind}: ${target.name}`;
 }
 
-export function PromotionTargetCombobox({ label, targets, selectedKeys, currency, onSelect }: PromotionTargetComboboxProps) {
+export function PromotionTargetCombobox({ label, targets, selectedKeys, currency, onSelect, highlightFirstResult = false }: PromotionTargetComboboxProps) {
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -68,8 +69,17 @@ export function PromotionTargetCombobox({ label, targets, selectedKeys, currency
         autoComplete="off"
         placeholder="Buscar por nombre"
         value={query}
-        onFocus={() => { setIsOpen(true); setActiveIndex(-1); }}
-        onInput={(event) => { setQuery(event.currentTarget.value); setIsOpen(true); setActiveIndex(-1); }}
+        onFocus={() => { setIsOpen(true); setActiveIndex(highlightFirstResult && results.length ? 0 : -1); }}
+        onInput={(event) => {
+          const nextQuery = event.currentTarget.value;
+          const nextResults = targets.filter((target) => (
+            !selected.has(`${target.kind}:${target.id}`)
+            && target.name.toLocaleLowerCase('es').includes(nextQuery.trim().toLocaleLowerCase('es'))
+          ));
+          setQuery(nextQuery);
+          setIsOpen(true);
+          setActiveIndex(highlightFirstResult && nextResults.length ? 0 : -1);
+        }}
         onKeyDown={handleKeyDown}
         onBlur={() => { setIsOpen(false); setQuery(''); setActiveIndex(-1); }}
       />

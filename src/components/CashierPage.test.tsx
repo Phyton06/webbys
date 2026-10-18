@@ -24,11 +24,44 @@ function seedAssistantState() {
 }
 
 function addProduct(productName: string) {
-  fireEvent.click(screen.getByRole('button', { name: /Producto para agregar/ }));
-  fireEvent.click(screen.getByRole('option', { name: new RegExp(productName) }));
+  const search = screen.getByRole('combobox', { name: 'Buscar productos y servicios' });
+  fireEvent.input(search, { target: { value: productName } });
+  fireEvent.click(screen.getByRole('option', { name: new RegExp(`Producto: ${productName}`) }));
 }
 
 describe('CashierPage', () => {
+  it('keeps the appointment checkout header to client, time, and barber', () => {
+    const { appointment } = seedAssistantState();
+    render(<CashierPage now={now} />);
+    fireEvent.click(screen.getByRole('button', { name: `Cobrar ${appointment.clientName}` }));
+
+    const heading = screen.getByRole('heading', { name: appointment.clientName });
+    expect(heading.parentElement?.textContent).toContain(appointment.barberName);
+    expect(screen.queryByText(`Cita ${appointment.id} · estado de pago: pendiente`)).toBeNull();
+    expect(screen.queryByText(/Atención (completada|confirmada|pendiente)/)).toBeNull();
+  });
+
+  it('adds products and services directly from one searchable catalog into the checkout summary', () => {
+    const { state, appointment, product } = seedAssistantState();
+    const additionalService = state.services.find(({ id }) => !appointment.serviceIds.includes(id));
+    if (!additionalService) throw new Error('Expected an add-on service');
+    render(<CashierPage now={now} />);
+    fireEvent.click(screen.getByRole('button', { name: `Cobrar ${appointment.clientName}` }));
+    const picker = () => screen.getByRole('combobox', { name: 'Buscar productos y servicios' });
+
+    fireEvent.input(picker(), { target: { value: additionalService.name } });
+    const serviceOption = screen.getByRole('option', { name: new RegExp(`Servicio: ${additionalService.name}`) });
+    expect(serviceOption.classList.contains('is-active')).toBe(true);
+    fireEvent.click(serviceOption);
+    expect(screen.getByRole('region', { name: 'Resumen del cobro' }).textContent).toContain(additionalService.name);
+    expect(screen.queryByRole('checkbox', { name: 'El servicio ya fue realizado' })).toBeNull();
+    expect(screen.queryByRole('combobox', { name: 'Servicio adicional' })).toBeNull();
+
+    fireEvent.input(picker(), { target: { value: product.name } });
+    fireEvent.click(screen.getByRole('option', { name: new RegExp(`Producto: ${product.name}`) }));
+    expect(screen.getByRole('region', { name: 'Resumen del cobro' }).textContent).toContain(product.name);
+  });
+
   it('paginates the appointment queue in groups of five with previous and next controls', () => {
     const { state } = seedAssistantState();
     const template = state.appointments[0]!;
@@ -58,8 +91,9 @@ describe('CashierPage', () => {
     seedAssistantState();
     render(<CashierPage now={now} />);
     fireEvent.click(screen.getByRole('button', { name: 'Venta rápida' }));
-    expect(screen.getByRole('button', { name: /Producto para agregar/ })).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Buscar productos y servicios' })).toBeTruthy();
     expect(document.querySelector('.cashier-product-list')).toBeNull();
+    expect(document.querySelector('.cashier-add-service')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Venta rápida' })).toBeNull();
     expect(screen.getByText('Agrega productos para una venta sin cita.')).toBeTruthy();
   });
@@ -139,7 +173,7 @@ describe('CashierPage', () => {
     render(<CashierPage now={now} />);
 
     expect(screen.getByText('Venta de productos sin cita')).toBeTruthy();
-    expect(screen.getByRole('button', { name: /Producto para agregar/ })).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Buscar productos y servicios' })).toBeTruthy();
   });
 
   it('does not bypass today-only checkout through a future appointment link', () => {
@@ -166,7 +200,8 @@ describe('CashierPage', () => {
     window.history.replaceState({}, '', `/cobrar/?appointmentId=${appointment.id}`);
     render(<CashierPage now={now} />);
 
-    expect(screen.getByText(`Cita ${appointment.id} · estado de pago: pendiente`)).toBeTruthy();
+    expect(screen.getByRole('heading', { name: appointment.clientName })).toBeTruthy();
+    expect(screen.getByText(new RegExp(`${appointment.barberName}`))).toBeTruthy();
     expect(screen.getByText(appointment.serviceName)).toBeTruthy();
     expect(screen.queryByRole('button', { name: `Cobrar ${appointment.clientName}` })).toBeNull();
   });

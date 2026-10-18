@@ -34,6 +34,46 @@
 .cashier-cart, .cashier-catalog { margin-top: 1rem; padding: 1rem; border: 1px solid var(--divider, #34363a); border-radius: 0.75rem; background: var(--surface, #191a1d); }
 .cashier-cart h3, .cashier-section-heading h3 { margin: 0; font-size: var(--text-lg, 1.25rem); }
 .cashier-cart > p { color: var(--ink-muted, #b6b4b0); }
+.cashier-add-item-picker { display: grid; gap: 0.45rem; margin: 0.8rem 0; }
+.cashier-add-item-picker > span { color: var(--ink-muted, #b6b4b0); font-size: 0.875rem; }
+.cashier-add-item-picker .client-combobox input[role="combobox"] {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--control-border, #74767a);
+  border-radius: 0.5rem;
+  background: var(--surface-raised, #222428);
+  color: var(--ink, #f4f2ef);
+  font: inherit;
+  font-size: var(--text-md, 1rem);
+}
+.cashier-add-item-picker .client-combobox input[role="combobox"]::placeholder { color: var(--ink-muted, #b6b4b0); opacity: 1; }
+.cashier-add-item-picker .client-combobox input[role="combobox"]:hover,
+.cashier-add-item-picker .client-combobox input[role="combobox"][aria-expanded="true"] { border-color: var(--accent, #e43d37); }
+.cashier-add-item-picker .client-combobox input[role="combobox"]:focus-visible { outline: 2px solid var(--accent, #e43d37); outline-offset: 2px; }
+.cashier-add-item-picker .client-combobox-options {
+  z-index: 30;
+  display: grid;
+  gap: 0.2rem;
+  max-height: min(18rem, 60vh);
+  padding: 0.3rem;
+  border-color: var(--divider, #34363a);
+  box-shadow: 0 14px 32px rgb(0 0 0 / 22%);
+}
+.cashier-add-item-picker .promotion-target-option {
+  display: flex;
+  min-height: 2.75rem;
+  justify-content: space-between;
+  padding: 0.65rem;
+  border-top: 0;
+  border-radius: 0.5rem;
+  color: var(--ink-muted, #b6b4b0);
+  font-size: var(--text-sm, 0.875rem);
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.cashier-add-item-picker .promotion-target-option:hover,
+.cashier-add-item-picker .promotion-target-option.is-active { background: var(--accent-action, #c52520); color: var(--accent-ink, #fff); }
+.cashier-cart li { padding: 0.55rem 0; }
 .cashier-cart ul, .cashier-product-list, .cashier-ticket-items { list-style: none; padding: 0; margin: 0; }
 .cashier-cart li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 0.75rem; padding: 0.8rem 0; border-top: 1px solid var(--divider, #34363a); }
 .cashier-cart li div:first-child, .cashier-product-list li div { display: grid; gap: 0.2rem; }
