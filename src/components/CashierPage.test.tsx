@@ -142,6 +142,25 @@ describe('CashierPage', () => {
     expect(screen.getByRole('button', { name: /Producto para agregar/ })).toBeTruthy();
   });
 
+  it('does not bypass today-only checkout through a future appointment link', () => {
+    const { state, appointment } = seedAssistantState();
+    const future = {
+      ...appointment,
+      id: 'future-appointment-link',
+      clientName: 'Future client',
+      startsAt: new Date(now.getTime() + 86_400_000).toISOString(),
+      paymentStatus: 'pending' as const,
+    };
+    state.appointments = [future];
+    saveAgendaState(localStorage, state);
+    window.history.replaceState({}, '', `/cobrar/?appointmentId=${future.id}`);
+    render(<CashierPage now={now} />);
+
+    expect(screen.getByRole('region', { name: 'Buscar citas de hoy para cobrar' })).toBeTruthy();
+    expect(screen.queryByRole('heading', { name: 'Future client' })).toBeNull();
+    expect(screen.queryByText('Venta de productos sin cita')).toBeNull();
+  });
+
   it('opens the same checkout when launched from an appointment detail link', () => {
     const { appointment } = seedAssistantState();
     window.history.replaceState({}, '', `/cobrar/?appointmentId=${appointment.id}`);
