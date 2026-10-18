@@ -11,6 +11,7 @@ Acceptance: both demo roles reach their intended panels; assistant access to res
 Additional requirement from L6: “la pagina de inicio los botones ahi se ven todos desorganizados, hay que darle mejor disenio [Image 1]”. Acceptance: arrange the existing quick actions into a clear, consistent group without changing their destinations or behavior.
 Checks: focused auth/permission tests; `npm run build`.
 Additional requirement from L8: “en la agenda quiero que el calendario este oculto y sea desplegable como en los demas modulos, tambien aplicalo en el de administrador, igual en todas las pantallas y modales sustituye el boton de cerrar [Image 1] por solo una flecha < antes del titulo de donde estan, asi como en notificaciones [Image 2], igual aplica esto para todo incluido en administrador, ademas aqui [Image 3] hay que poner iconos en los botones de accion y ademas al cobrar siempre debe ser las citas del dia y ya, solo el filtro para buscar por barbero o cliente, pero los botones y lo demas no por que para ver las pagadas y esas pues ya esta en la seccion de historial de ventas, esto debe ser solo para cobrar y ya debe mantenerse simple”. Acceptance: use a collapsed date-picker disclosure in both agenda roles; replace modal close buttons with the existing back-chevron pattern before each modal title, including administrator screens; put meaningful icons on dashboard action buttons; keep cashier focused on unpaid appointments today with only client/barber search.
+Additional requirement from L10: “antes de continuar, en el resumen de cobro siento que esta muy revoltoso, debemos hacerlo mas sencillo para cobrar, debe aparecer solo el cliente, horario y barbero, ademas del resumen de cobro y al agregar los productos o servicio debe ser junto y ademas ser solo un buscador con selector, y cuando seleccione algo solo irlo sumando al resumen de cobro, no expandir tanto hacia abajo”. Acceptance: reduce appointment checkout to client, time, barber, concise cart summary, one combined product/service search selector that adds directly into the cart, and a compact vertical layout.
 Additional requirement from L9: “solo un cambio leve [Image 1] aqui en el panel admin arriba aparece el nombre del usuario el icono y el boton para cerrar sesion a la izquierda, en asistente [Image 2] esta mal acomodalo igual y despues ya haz commit y push a main mediante la cuenta que tengo en cli, verifica que esto si quede desplegado en github pages”. Acceptance: match the assistant topbar’s brand, account/avatar and sign-out alignment to the administrator header without changing navigation or sign-out behavior.
 
 ### S2 — Appointment-centered point of sale
@@ -32,7 +33,7 @@ Checks: focused tests for changed behavior and `npm run build`.
 
 ## Tasks
 - T1 — S1 — inline — complete for L9 — code commit `53e7301`; deployment verified at `58bee91`
-- T2 — S2 — inline — complete for L8 — follow-up commits `265f985`, `b0052ce`
+- T2 — S2 — inline — complete for L10 — code commit `6065a45`
 - T3 — S3 — inline — complete for L8 — follow-up commit `265f985`
 
 ## Log
@@ -65,6 +66,27 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 ### L9 — Assistant topbar alignment and deployment request (2026-10-18)
 "solo un cambio leve [Image 1] aqui en el panel admin arriba aparece el nombre del usuario el icono y el boton para cerrar sesion a la izquierda, en asistente [Image 2] esta mal acomodalo igual y despues ya haz commit y push a main mediante la cuenta que tengo en cli, verifica que esto si quede desplegado en github pages"
 
+### L10 — Checkout summary and catalog picker simplification (2026-10-18)
+"antes de continuar, en el resumen de cobro siento que esta muy revoltoso, debemos hacerlo mas sencillo para cobrar, debe aparecer solo el cliente, horario y barbero, ademas del resumen de cobro y al agregar los productos o servicio debe ser junto y ademas ser solo un buscador con selector, y cuando seleccione algo solo irlo sumando al resumen de cobro, no expandir tanto hacia abajo"
+
+### L11 — Cashier catalog picker styling (2026-10-18)
+"[Image 1] en la venta rapida aqui el agregar producto o servicio no tiene estilo el buscador, agregalo"
+
+### L12 — Match catalog selector styling (2026-10-18)
+"ok ya lo veo pero es diferente [Image 1] aqui esta bien aplicado, aqui no [Image 2] pon el mismo estilo que tienes tanto en cliente como en promocion aplicable"
+
+### L13 — Remove result separators (2026-10-18)
+"casi [Image 1] mira aqui no hay lineas como bordes, y aqui si agregaste [Image 2] quita los bordes"
+
+### L14 — Align catalog prices (2026-10-18)
+"bien el estilo ya esta bien, ahora solo el precio debe estar orrillado a la derecha [Image 1]"
+
+### L15 — Push and GitHub Pages delivery (2026-10-18)
+"perfecto ahora si todo haz push a main y desplega en pages, todo por cli"
+
+### L16 — GitHub CLI session authorization (2026-10-18)
+"Sí, usa la cuenta de CLI"
+
 ### Progress
 - `task 2.md` is the user-owned phase specification and remains untracked; preserve it.
 - Baseline: the administrator PWA already had shared agenda, client, catalog, promotion, and sales modules; assistant credentials and role-specific navigation were absent.
@@ -94,3 +116,4 @@ Use proportionate essential checks; do not add broad or repetitive validation.
 - L8 follow-up work-unit commits: `265f985` (`feat(assistant): simplify agenda and cashier flows`) and `b0052ce` (`test(cashier): cover today-only appointment links`). No push or PR was authorized.
 - L9 implementation: `AssistantShell` aligns the brand, assistant avatar, and sign-out action with the administrator topbar; desktop retains the assistant label and mobile keeps the brand at left with avatar/sign-out grouped right. Code commit: `53e7301` (`fix(assistant): align topbar with admin header`).
 - L9 verification and delivery: `npm test -- src/components/AssistantShell.test.tsx` passed (3 tests); `npm run build` passed with zero errors, warnings, and hints and produced 16 routes; a mobile browser screenshot showed the expected alignment. Pushed `origin/main` from `feat/assistant-profile-pos` by fast-forward to `58bee91`; Pages workflow run `39136631282` succeeded for SHA `58bee910592922b2d3045b90bc7d83dfccbc3e28`. The public page `https://phyton06.github.io/webbys/asistente/` was opened and showed the brand, avatar and sign-out control in the expected order.
+- L10 implementation: checkout header now contains only the client, appointment time, and barber; product/service selection is one searchable selector that adds directly to the cart; cart rows use tighter spacing. Follow-up styling matches the existing Dropdown menu, highlights the active result in red, removes inherited cart-row borders, and aligns prices to the right. `npm test -- src/components/CashierPage.test.tsx src/components/PromotionsPage.test.tsx` passed (23 tests); `npm run build` passed with zero diagnostics and 16 routes; the Impeccable detector returned no findings; `git diff --check` passed. Code commit: `6065a45` (`feat(cashier): simplify checkout catalog and align picker`). Risk: none.
